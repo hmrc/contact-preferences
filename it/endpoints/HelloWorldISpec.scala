@@ -1,10 +1,10 @@
-package uk.gov.hmrc.contactpreferences
+package endpoints
 
 import org.scalatest.{Matchers, WordSpec}
 import play.api.libs.ws.WSClient
 import uk.gov.hmrc.integration.ServiceSpec
 
-class ExampleIntegrationTest extends WordSpec with Matchers with ServiceSpec  {
+class HelloWorldISpec extends WordSpec with Matchers with ServiceSpec  {
 
   def externalServices: Seq[String] = Seq("datastream", "auth")
 

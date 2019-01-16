@@ -1,4 +1,4 @@
-package uk.gov.hmrc.contactpreferences.controllers
+package controllers
 
 import javax.inject.Singleton
 
@@ -9,9 +9,9 @@ import play.api.mvc._
 import scala.concurrent.Future
 
 @Singleton()
-class MicroserviceHelloWorld extends BaseController {
+class HelloWorld extends BaseController {
 
-	def hello() = Action.async { implicit request =>
+	def hello(): Action[AnyContent] = Action.async { implicit request =>
 		Future.successful(Ok("Hello world"))
 	}
 
