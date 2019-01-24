@@ -20,7 +20,7 @@ import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent}
-import reactivemongo.bson.BSONObjectID
+import reactivemongo.bson.{BSONDocument, BSONObjectID}
 import repositories.JourneyRepository
 import models.JourneyModel
 import uk.gov.hmrc.play.bootstrap.controller.BaseController
@@ -40,14 +40,14 @@ class JourneyController @Inject()(journeyRepository: JourneyRepository, appConfi
   }
 
   val findJourney: String => Action[AnyContent] = id => Action.async {
-    implicit request => journeyRepository.findById(BSONObjectID(id)).map {
+    implicit request => journeyRepository.findById(id).map {
       case Some(journeyModel) => Ok(Json.toJson(journeyModel))
       case _ => NotFound("not found")
     }
   }
 
   val removeJourney: String => Action[AnyContent] = id => Action.async{
-    implicit request => journeyRepository.removeById(BSONObjectID(id)).map {
+    implicit request => journeyRepository.removeById(id).map {
       success => Ok("success")
     }.recover{
       case error => InternalServerError("internal server error")
