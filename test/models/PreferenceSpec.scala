@@ -16,6 +16,7 @@
 
 package models
 
+import play.api.libs.json.{JsResultException, Json}
 import utils.TestUtils
 
 class PreferenceSpec extends TestUtils {
@@ -25,11 +26,11 @@ class PreferenceSpec extends TestUtils {
     "when given a valid Preference" should {
 
       "for DIGITAL return Digital case object" in {
-        Preference("DIGITAL") shouldBe Digital
+        Preference(Digital.value) shouldBe Digital
       }
 
       "for PAPER return Paper case object" in {
-        Preference("PAPER") shouldBe Paper
+        Preference(Paper.value) shouldBe Paper
       }
     }
 
@@ -46,18 +47,53 @@ class PreferenceSpec extends TestUtils {
     "when given a valid Preference" should {
 
       "for Digital case object return DIGITAL " in {
-        Preference.unapply(Digital) shouldBe "DIGITAL"
+        Preference.unapply(Digital) shouldBe Digital.value
       }
 
       "for Paper case object return PAPER" in {
-        Preference.unapply(Paper) shouldBe "PAPER"
+        Preference.unapply(Paper) shouldBe Paper.value
       }
     }
 
     "when given an invalid Preference" should {
 
       "for InvalidPreference should return INVALID" in {
-        Preference.unapply(InvalidPreference) shouldBe "INVALID"
+        Preference.unapply(InvalidPreference) shouldBe InvalidPreference.value
+      }
+    }
+  }
+
+  "Preference.read" should {
+
+    "when given a valid JSON document" should {
+
+      "when given an valid Preference" should {
+
+        "for DIGITAL return Digital case object" in {
+          val json = Json.obj("preference" -> Digital.value)
+          json.as[Preference] shouldBe Digital
+        }
+
+        "for PAPER return Paper case object" in {
+          val json = Json.obj("preference" -> Paper.value)
+          json.as[Preference] shouldBe Paper
+        }
+      }
+
+      "when given an invalid Preference" should {
+
+        "for banana return InvalidPreference case object" in {
+          val json = Json.obj("preference" -> "banana")
+          json.as[Preference] shouldBe InvalidPreference
+        }
+      }
+    }
+
+    "when given a invalid JSON document" should {
+
+      "for banana return InvalidPreference case object" in {
+        val json = Json.obj("foo" -> "bar")
+        json.validate[Preference].isError shouldBe true
       }
     }
   }
