@@ -25,17 +25,21 @@ import reactivemongo.api.indexes.IndexType.Ascending
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.{BSONDocument, BSONObjectID}
 import reactivemongo.play.json._
-import models.JourneyModel
+import models.{ContactPreferenceModel, JourneyModel}
+import play.modules.reactivemongo.ReactiveMongoComponent
 import uk.gov.hmrc.mongo.ReactiveRepository
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class JourneyRepository @Inject()(implicit mongo: () => DB,
-                                  formats: Format[JourneyModel],
-                                  manifest: Manifest[JourneyModel],
-                                  appConfig: AppConfig,
-                                  ec: ExecutionContext) extends ReactiveRepository[JourneyModel, BSONObjectID]("journey", mongo, formats) {
+class JourneyRepository @Inject()(mongo: ReactiveMongoComponent,
+                                  appConfig: AppConfig)(implicit ec: ExecutionContext) extends
+  ReactiveRepository[JourneyModel, BSONObjectID](
+    collectionName = "journey",
+    mongo.mongoConnector.db,
+    implicitly[Format[JourneyModel]],
+    implicitly[Format[BSONObjectID]]
+  ) {
 
   val _id = "_id"
   val creationTimestampKey = "creationTimestamp"

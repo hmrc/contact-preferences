@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package controllers
+package models
 
-class JourneyControllerSpec {
+class ContactPreferencesModelSpec {
 
 }

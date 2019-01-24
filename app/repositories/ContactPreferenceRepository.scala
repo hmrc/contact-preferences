@@ -26,16 +26,20 @@ import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.{BSONDocument, BSONObjectID}
 import reactivemongo.play.json._
 import models.ContactPreferenceModel
+import play.modules.reactivemongo.ReactiveMongoComponent
 import uk.gov.hmrc.mongo.ReactiveRepository
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ContactPreferenceRepository @Inject()(implicit mongo: () => DB,
-                                            formats: Format[ContactPreferenceModel],
-                                            manifest: Manifest[ContactPreferenceModel],
-                                            appConfig: AppConfig,
-                                            ec: ExecutionContext) extends ReactiveRepository[ContactPreferenceModel, BSONObjectID]("preference", mongo, formats) {
+class ContactPreferenceRepository @Inject()(mongo: ReactiveMongoComponent,
+                                            appConfig: AppConfig)(implicit ec: ExecutionContext) extends
+  ReactiveRepository[ContactPreferenceModel, BSONObjectID](
+    collectionName = "preference",
+    mongo.mongoConnector.db,
+    implicitly[Format[ContactPreferenceModel]],
+    implicitly[Format[BSONObjectID]]
+  ) {
 
   val _id = "_id"
   val creationTimestampKey = "creationTimestamp"

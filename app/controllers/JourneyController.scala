@@ -18,7 +18,7 @@ package controllers
 
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent}
 import reactivemongo.bson.BSONObjectID
 import repositories.JourneyRepository
@@ -41,7 +41,7 @@ class JourneyController @Inject()(journeyRepository: JourneyRepository, appConfi
 
   val findJourney: String => Action[AnyContent] = id => Action.async {
     implicit request => journeyRepository.findById(BSONObjectID(id)).map {
-      case Some(journeyModel) => Ok(journeyModel)
+      case Some(journeyModel) => Ok(Json.toJson(journeyModel))
       case _ => NotFound("not found")
     }
   }

@@ -14,8 +14,20 @@
  * limitations under the License.
  */
 
-package controllers
+package utils
 
-class JourneyControllerSpec {
+import config.AppConfig
+import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.inject.Injector
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.FakeRequest
+import uk.gov.hmrc.play.test.UnitSpec
+
+trait TestUtils extends UnitSpec with GuiceOneAppPerSuite with BeforeAndAfterEach {
+
+  implicit lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/")
+  lazy val injector: Injector = app.injector
+  implicit lazy val appConfig: AppConfig = injector.instanceOf[AppConfig]
 
 }

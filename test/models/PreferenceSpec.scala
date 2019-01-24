@@ -14,8 +14,26 @@
  * limitations under the License.
  */
 
-package controllers
+package models
 
-class JourneyControllerSpec {
+import utils.TestUtils
 
+class PreferenceSpec extends TestUtils {
+
+  "Preference" should {
+
+    "For the apply method" should {
+
+      "when given a valid Preference" should {
+
+        "for DIGITAL return Digital case object" in {
+          Preference("DIGITAL") shouldBe Digital
+        }
+
+        "for PAPER return Paper case object" in {
+          Preference("PAPER") shouldBe Paper
+        }
+      }
+    }
+  }
 }
