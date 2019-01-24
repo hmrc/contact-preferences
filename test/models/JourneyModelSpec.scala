@@ -16,6 +16,84 @@
 
 package models
 
-class JourneyModelSpec {
+import play.api.libs.json.{JsObject, Json}
+import utils.TestUtils
+
+class JourneyModelSpec extends TestUtils {
+
+  val journeyJsonMax: JsObject = Json.obj(
+    "_id" -> "id",
+    "regime" -> "regime",
+    "idType" -> "idType",
+    "idValue" -> "idValue",
+    "continueUrl" -> "continueUrl",
+    "email" -> "email"
+  )
+
+  val journeyJsonMin: JsObject = Json.obj(
+    "_id" -> "id",
+    "regime" -> "regime",
+    "idType" -> "idType",
+    "idValue" -> "idValue",
+    "continueUrl" -> "continueUrl"
+  )
+
+  val journeyModelMax = JourneyModel(
+    _id = "id",
+    regime = "regime",
+    idType = "idType",
+    idValue = "idValue",
+    continueUrl = "continueUrl",
+    email = Some("email")
+  )
+
+  val journeyModelMin = JourneyModel(
+    _id = "id",
+    regime = "regime",
+    idType = "idType",
+    idValue = "idValue",
+    continueUrl = "continueUrl"
+  )
+
+  "JourneyModel.reads" when {
+
+    "given maximum json values" should {
+
+      "return the correct model" in {
+        journeyJsonMax.as[JourneyModel] shouldBe journeyModelMax
+      }
+    }
+
+    "given minimum json values" should {
+
+      "return the correct model" in {
+        journeyJsonMin.as[JourneyModel] shouldBe journeyModelMin
+      }
+    }
+
+    "given incorrect json values" should {
+
+      "throw an exception" in {
+        Json.obj().validate[JourneyModel].isError shouldBe true
+      }
+    }
+  }
+
+  "JourneyModel.writes" when {
+
+    "given maximum values in a model" should {
+
+      "return the correct json" in {
+         Json.toJson(journeyModelMax) shouldBe journeyJsonMax
+      }
+    }
+
+    "given minimum values in a model" should {
+
+      "return the correct json" in {
+        Json.toJson(journeyModelMin) shouldBe journeyJsonMin
+      }
+    }
+  }
 
 }

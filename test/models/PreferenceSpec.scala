@@ -16,14 +16,14 @@
 
 package models
 
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsString, Json}
 import utils.TestUtils
 
 class PreferenceSpec extends TestUtils {
 
-  val digitalJson: JsObject = Json.obj("preference" -> Digital.value)
-  val paperJson: JsObject = Json.obj("preference" -> Paper.value)
-  val invalidJson: JsObject = Json.obj("preference" -> InvalidPreference.value)
+  val digitalJson: JsString = JsString(Digital.value)
+  val paperJson: JsString = JsString(Paper.value)
+  val invalidJson: JsString = JsString(InvalidPreference.value)
 
   "Preference.apply" should {
 

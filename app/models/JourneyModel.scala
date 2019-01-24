@@ -23,7 +23,7 @@ case class JourneyModel(_id: String,
                         idType: String,
                         idValue: String,
                         continueUrl: String,
-                        email: Option[String])
+                        email: Option[String] = None)
 
 object JourneyModel {
 

@@ -16,6 +16,43 @@
 
 package models
 
-class ContactPreferencesModelSpec {
+import play.api.libs.json.{JsObject, Json}
+import utils.TestUtils
 
+class ContactPreferencesModelSpec extends TestUtils {
+
+
+  val contactPreferencesJson: JsObject = Json.obj(
+    "_id" -> "id",
+    "preference" -> Digital.value
+  )
+
+  val contactPreferencesModel = ContactPreferenceModel(
+    "id",
+    Digital
+  )
+
+  "JourneyModel.reads" when {
+
+    "given correct json values" should {
+
+      "return the correct model" in {
+        contactPreferencesJson.as[ContactPreferenceModel] shouldBe contactPreferencesModel
+      }
+    }
+
+    "given incorrect json values" should {
+
+      "throw an exception" in {
+        Json.obj().validate[ContactPreferenceModel].isError shouldBe true
+      }
+    }
+  }
+
+  "JourneyModel.writes" when {
+
+    "return the correct json" in {
+      Json.toJson(contactPreferencesModel) shouldBe contactPreferencesJson
+    }
+  }
 }

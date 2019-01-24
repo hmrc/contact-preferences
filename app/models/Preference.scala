@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.{Json, Reads, Writes, __}
+import play.api.libs.json._
 
 sealed trait Preference {
   val value: String
@@ -37,10 +37,10 @@ case object InvalidPreference extends Preference {
 object Preference {
 
   implicit val reads: Reads[Preference] =
-    (__ \ ContactPreferenceModel.preference).read[String] map apply
+    __.read[String] map apply
 
   implicit val writes: Writes[Preference] = Writes {
-    preference => Json.obj(ContactPreferenceModel.preference -> preference.value)
+    preference => JsString(preference.value)
   }
 
   def apply(value: String): Preference = value match {
