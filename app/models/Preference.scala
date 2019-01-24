@@ -35,6 +35,7 @@ case object InvalidPreference extends Preference {
 }
 
 object Preference {
+
   implicit val reads: Reads[Preference] =
     (__ \ ContactPreferenceModel.preference).read[String] map apply
 

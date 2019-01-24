@@ -16,10 +16,14 @@
 
 package models
 
-import play.api.libs.json.{JsResultException, Json}
+import play.api.libs.json.{JsObject, Json}
 import utils.TestUtils
 
 class PreferenceSpec extends TestUtils {
+
+  val digitalJson: JsObject = Json.obj("preference" -> Digital.value)
+  val paperJson: JsObject = Json.obj("preference" -> Paper.value)
+  val invalidJson: JsObject = Json.obj("preference" -> InvalidPreference.value)
 
   "Preference.apply" should {
 
@@ -70,30 +74,48 @@ class PreferenceSpec extends TestUtils {
       "when given an valid Preference" should {
 
         "for DIGITAL return Digital case object" in {
-          val json = Json.obj("preference" -> Digital.value)
-          json.as[Preference] shouldBe Digital
+          digitalJson.as[Preference] shouldBe Digital
         }
 
         "for PAPER return Paper case object" in {
-          val json = Json.obj("preference" -> Paper.value)
-          json.as[Preference] shouldBe Paper
+          paperJson.as[Preference] shouldBe Paper
         }
       }
 
       "when given an invalid Preference" should {
 
-        "for banana return InvalidPreference case object" in {
-          val json = Json.obj("preference" -> "banana")
-          json.as[Preference] shouldBe InvalidPreference
+        "for invalidJson return InvalidPreference case object" in {
+          invalidJson.as[Preference] shouldBe InvalidPreference
         }
       }
     }
 
     "when given a invalid JSON document" should {
 
-      "for banana return InvalidPreference case object" in {
+      "throw a JsResultException" in {
         val json = Json.obj("foo" -> "bar")
         json.validate[Preference].isError shouldBe true
+      }
+    }
+  }
+
+  "Preference.write" should {
+
+    "when given an valid Preference" should {
+
+      "for DIGITAL return Digital case object" in {
+        Json.toJson(Digital) shouldBe digitalJson
+      }
+
+      "for PAPER return Paper case object" in {
+        Json.toJson(Paper) shouldBe paperJson
+      }
+    }
+
+    "when given an invalid Preference" should {
+
+      "for invalidJson return InvalidPreference case object" in {
+        Json.toJson(InvalidPreference) shouldBe invalidJson
       }
     }
   }
