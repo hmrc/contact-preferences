@@ -30,6 +30,10 @@ case object Paper extends Preference {
   override val value = "PAPER"
 }
 
+case object InvalidPreference extends Preference {
+  override val value = "INVALID"
+}
+
 object Preference {
   implicit val reads: Reads[Preference] =
     (__ \ ContactPreferenceModel.preference).read[String] map apply
@@ -41,6 +45,7 @@ object Preference {
   def apply(value: String): Preference = value match {
     case Digital.value => Digital
     case Paper.value => Paper
+    case _ => InvalidPreference
   }
 
   def unapply: Preference => String = _.value

@@ -20,19 +20,44 @@ import utils.TestUtils
 
 class PreferenceSpec extends TestUtils {
 
-  "Preference" should {
+  "Preference.apply" should {
 
-    "For the apply method" should {
+    "when given a valid Preference" should {
 
-      "when given a valid Preference" should {
+      "for DIGITAL return Digital case object" in {
+        Preference("DIGITAL") shouldBe Digital
+      }
 
-        "for DIGITAL return Digital case object" in {
-          Preference("DIGITAL") shouldBe Digital
-        }
+      "for PAPER return Paper case object" in {
+        Preference("PAPER") shouldBe Paper
+      }
+    }
 
-        "for PAPER return Paper case object" in {
-          Preference("PAPER") shouldBe Paper
-        }
+    "when given an invalid Preference" should {
+
+      "for banana an InvalidPreference" in {
+        Preference("banana") shouldBe InvalidPreference
+      }
+    }
+  }
+
+  "Preference.unapply" should {
+
+    "when given a valid Preference" should {
+
+      "for Digital case object return DIGITAL " in {
+        Preference.unapply(Digital) shouldBe "DIGITAL"
+      }
+
+      "for Paper case object return PAPER" in {
+        Preference.unapply(Paper) shouldBe "PAPER"
+      }
+    }
+
+    "when given an invalid Preference" should {
+
+      "for InvalidPreference should return INVALID" in {
+        Preference.unapply(InvalidPreference) shouldBe "INVALID"
       }
     }
   }
