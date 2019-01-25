@@ -27,11 +27,10 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class JourneyRepository @Inject()(mongo: ReactiveMongoComponent,
-                                  appConfig: AppConfig)
-                                 (implicit fD: OFormat[JourneyModel], ec: ExecutionContext)
+                                  appConfig: AppConfig)(implicit ec: ExecutionContext)
   extends MongoRepository[JourneyModel](
     mongo, collectionName = "journey", appConfig
-  )(fD, ec, implicitly[Manifest[JourneyModel]]) {
+  )(implicitly[OFormat[JourneyModel]], ec, implicitly[Manifest[JourneyModel]]) {
 
   def upsert(data: JourneyModel): Future[UpdateWriteResult] = {
     super.upsert(data, data._id)

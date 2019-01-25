@@ -27,13 +27,12 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ContactPreferenceRepository @Inject()(mongo: ReactiveMongoComponent,
-                                            appConfig: AppConfig)
-                                           (implicit fD: OFormat[ContactPreferenceModel], ec: ExecutionContext)
+                                            appConfig: AppConfig)(implicit ec: ExecutionContext)
   extends MongoRepository[ContactPreferenceModel](
     mongo,
     collectionName = "preference",
     appConfig
-  )(fD, ec, implicitly[Manifest[ContactPreferenceModel]]) {
+  )(implicitly[OFormat[ContactPreferenceModel]], ec, implicitly[Manifest[ContactPreferenceModel]]) {
 
   def upsert(data: ContactPreferenceModel): Future[UpdateWriteResult] = {
     super.upsert(data, data._id)
