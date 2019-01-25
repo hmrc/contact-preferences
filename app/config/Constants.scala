@@ -16,7 +16,7 @@
 
 package config
 
-object git Constants {
+object Constants {
   val MtdContactPreferencesEnrolmentKey: String = "HMRC-MTD-VAT"
   val MtdContactPreferencesReferenceKey: String = "VRN"
   val MtdContactPreferencesDelegatedAuth: String = "mtd-vat-auth"
