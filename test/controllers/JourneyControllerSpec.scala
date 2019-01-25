@@ -16,6 +16,65 @@
 
 package controllers
 
-class JourneyControllerSpec {
+import utils.TestUtils
 
+class JourneyControllerSpec extends TestUtils {
+
+  "JourneyController.storeJourney" when {
+
+    "successfully given a JourneyModel and updated journey repository" should {
+
+      "return an Ok" in {
+
+      }
+    }
+
+    "not given a valid JourneyModel" should {
+
+      "return a BadRequest" in {
+
+      }
+    }
+
+    "successfully given a JourneyModel but failed at updating journey repository" should {
+
+      "return an InternalServerError" in {
+
+      }
+    }
+  }
+
+  "JourneyController.findJourney" when {
+
+    "given an id contained in the journey repository" should {
+
+      "return Ok and the correct Json for the JourneyModel" in {
+
+      }
+    }
+
+    "given an id not contained in the journey repository" should {
+
+      "return NotFound" in {
+
+      }
+    }
+  }
+
+  "JourneyController.removeJourney" when {
+
+    "successfully removing an id  from the journey repository" should {
+
+      "return Ok" in {
+
+      }
+    }
+
+    "failing to removing an id  from the journey repository" should {
+
+      "return InternalServerError" in {
+
+      }
+    }
+  }
 }
