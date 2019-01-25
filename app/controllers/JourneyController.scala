@@ -18,11 +18,10 @@ package controllers
 
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
+import models.JourneyModel
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent}
-import reactivemongo.bson.{BSONDocument, BSONObjectID}
 import repositories.JourneyRepository
-import models.JourneyModel
 import uk.gov.hmrc.play.bootstrap.controller.BaseController
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -32,7 +31,8 @@ class JourneyController @Inject()(journeyRepository: JourneyRepository, appConfi
 
   val storeJourney: Action[JsValue] = Action.async(parse.json) {
     implicit request => withJsonBody[JourneyModel](
-      json => { journeyRepository.upsert(json).map( result =>
+      journeyModel => {
+        journeyRepository.upsert(journeyModel).map( result =>
         if(result.ok){Ok("success")}
         else{InternalServerError("failed")}
       )}
@@ -47,8 +47,9 @@ class JourneyController @Inject()(journeyRepository: JourneyRepository, appConfi
   }
 
   val removeJourney: String => Action[AnyContent] = id => Action.async{
-    implicit request => journeyRepository.removeById(id).map {
-      success => Ok("success")
+    implicit request => journeyRepository.removeById(id).map { result =>
+      if(result.ok){Ok("success")}
+      else{NotFound("not found")}
     }.recover{
       case error => InternalServerError("internal server error")
     }

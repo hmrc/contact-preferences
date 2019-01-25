@@ -16,64 +16,126 @@
 
 package controllers
 
-import utils.TestUtils
+import models.JourneyModel
+import play.api.http.Status
+import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.Result
+import play.api.test.FakeRequest
+import repositories.mocks.MockJourneyRepository
 
-class JourneyControllerSpec extends TestUtils {
+import scala.concurrent.Future
+
+class JourneyControllerSpec extends MockJourneyRepository {
+
+  object TestJourneyController extends JourneyController(
+    journeyRepository = mockJourneyRepository,
+    appConfig = appConfig
+  )
+
+  val journeyJsonMax: JsObject = Json.obj(
+    "_id" -> "id",
+    "regime" -> "regime",
+    "idType" -> "idType",
+    "idValue" -> "idValue",
+    "continueUrl" -> "continueUrl",
+    "email" -> "email"
+  )
+
+  val journeyModelMax = JourneyModel(
+    _id = "id",
+    regime = "regime",
+    idType = "idType",
+    idValue = "idValue",
+    continueUrl = "continueUrl",
+    email = Some("email")
+  )
 
   "JourneyController.storeJourney" when {
 
-    "successfully given a JourneyModel and updated journey repository" should {
+    "successfully given a JourneyModel" when {
 
-      "return an Ok" in {
+      lazy val fakePost = FakeRequest("POST", "/")
+        .withBody(journeyJsonMax)
+        .withHeaders("Content-Type" -> "application/json")
+      def result: Future[Result] = TestJourneyController.storeJourney(fakePost)
 
+      "successfully updated journey repository" should {
+
+        "return an Ok" in {
+          setupMockUpsert(true)
+          status(result) shouldBe Status.OK
+        }
+      }
+
+      "failed at updating journey repository" should {
+
+        "return an InternalServerError" in {
+          setupMockUpsert(false)
+          status(result) shouldBe Status.INTERNAL_SERVER_ERROR
+        }
       }
     }
 
     "not given a valid JourneyModel" should {
 
+      lazy val fakePost = FakeRequest("POST", "/")
+        .withBody(Json.obj())
+        .withHeaders("Content-Type" -> "application/json")
+      lazy val result = TestJourneyController.storeJourney(fakePost)
+
       "return a BadRequest" in {
-
-      }
-    }
-
-    "successfully given a JourneyModel but failed at updating journey repository" should {
-
-      "return an InternalServerError" in {
-
+        status(result) shouldBe Status.BAD_REQUEST
       }
     }
   }
 
   "JourneyController.findJourney" when {
 
+    def result: Future[Result] = TestJourneyController.findJourney("id")(fakeRequest)
+
     "given an id contained in the journey repository" should {
 
       "return Ok and the correct Json for the JourneyModel" in {
-
+        setupMockFindById(Some(journeyModelMax))
+        status(result) shouldBe Status.OK
       }
     }
 
     "given an id not contained in the journey repository" should {
 
       "return NotFound" in {
-
+        setupMockFindById(None)
+        status(result) shouldBe Status.NOT_FOUND
       }
     }
   }
 
   "JourneyController.removeJourney" when {
 
+    lazy val fakeDelete = FakeRequest("DELETE", "/")
+    def result: Future[Result] = TestJourneyController.removeJourney("id")(fakeDelete)
+
     "successfully removing an id  from the journey repository" should {
 
       "return Ok" in {
+        setupMockRemoveById(true)
+        status(result) shouldBe Status.OK
+      }
+    }
 
+    "not finding the given id in the journey repository" should {
+
+      "return Ok" in {
+        setupMockRemoveById(false)
+        status(result) shouldBe Status.NOT_FOUND
       }
     }
 
     "failing to removing an id  from the journey repository" should {
 
       "return InternalServerError" in {
-
+        setupMockRemoveByIdFailed
+        status(result) shouldBe Status.INTERNAL_SERVER_ERROR
       }
     }
   }
