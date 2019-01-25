@@ -24,10 +24,13 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import uk.gov.hmrc.play.test.UnitSpec
 
+import scala.concurrent.ExecutionContext
+
 trait TestUtils extends UnitSpec with GuiceOneAppPerSuite with BeforeAndAfterEach {
 
   implicit lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/")
   lazy val injector: Injector = app.injector
   implicit lazy val appConfig: AppConfig = injector.instanceOf[AppConfig]
+  implicit lazy val executionContext = injector.instanceOf[ExecutionContext]
 
 }

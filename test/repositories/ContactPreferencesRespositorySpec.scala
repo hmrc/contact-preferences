@@ -16,6 +16,10 @@
 
 package repositories
 
-class ContactPreferencesRespositorySpec {
+import utils.TestUtils
+
+class ContactPreferencesRespositorySpec extends TestUtils {
+
+
 
 }
