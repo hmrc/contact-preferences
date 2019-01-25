@@ -16,12 +16,14 @@
 
 package controllers
 
-import models.JourneyModel
+import models._
 import play.api.http.Status
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Result
 import play.api.test.FakeRequest
+import repositories.documents.JourneyDocument
 import repositories.mocks.MockJourneyRepository
+import services.mocks.MockUUIDService
 
 import scala.concurrent.Future
 
@@ -29,26 +31,29 @@ class JourneyControllerSpec extends MockJourneyRepository {
 
   object TestJourneyController extends JourneyController(
     journeyRepository = mockJourneyRepository,
-    appConfig = appConfig
+    appConfig = appConfig,
+    uuidService = MockUUIDService
   )
 
   val journeyJsonMax: JsObject = Json.obj(
-    "_id" -> "id",
-    "regime" -> "regime",
-    "idType" -> "idType",
-    "idValue" -> "idValue",
+    "regime" -> Json.obj(
+      "type" -> "VAT",
+      "identifier" -> Json.obj(
+        "key" -> "VRN",
+        "value" -> "999999999"
+      )
+    ),
     "continueUrl" -> "continueUrl",
     "email" -> "email"
   )
 
   val journeyModelMax = JourneyModel(
-    _id = "id",
-    regime = "regime",
-    idType = "idType",
-    idValue = "idValue",
+    regime = RegimeModel(MTDVAT, IdModel(VRN, "999999999")),
     continueUrl = "continueUrl",
     email = Some("email")
   )
+
+  val journeyDocumentMax = JourneyDocument(MockUUIDService.generateUUID, journeyModelMax)
 
   "JourneyController.storeJourney" when {
 
@@ -62,7 +67,7 @@ class JourneyControllerSpec extends MockJourneyRepository {
       "successfully updated journey repository" should {
 
         "return an Ok" in {
-          setupMockUpsert(true)
+          setupMockInsert(journeyDocumentMax)(true)
           status(result) shouldBe Status.OK
         }
       }
@@ -70,7 +75,7 @@ class JourneyControllerSpec extends MockJourneyRepository {
       "failed at updating journey repository" should {
 
         "return an InternalServerError" in {
-          setupMockUpsert(false)
+          setupMockInsert(journeyDocumentMax)(false)
           status(result) shouldBe Status.INTERNAL_SERVER_ERROR
         }
       }
@@ -96,7 +101,7 @@ class JourneyControllerSpec extends MockJourneyRepository {
     "given an id contained in the journey repository" should {
 
       "return Ok and the correct Json for the JourneyModel" in {
-        setupMockFindById(Some(journeyModelMax))
+        setupMockFindById(Some(journeyDocumentMax))
         status(result) shouldBe Status.OK
       }
     }

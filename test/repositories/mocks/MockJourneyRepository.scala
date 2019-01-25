@@ -16,15 +16,14 @@
 
 package repositories.mocks
 
-import models.JourneyModel
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.mockito.stubbing.OngoingStubbing
-import org.scalatest.mockito.MockitoSugar
 import org.scalatest.BeforeAndAfterEach
-import play.api.libs.json.JsValue
+import org.scalatest.mockito.MockitoSugar
 import reactivemongo.api.commands.{UpdateWriteResult, Upserted, WriteError, WriteResult}
 import repositories.JourneyRepository
+import repositories.documents.JourneyDocument
 import utils.TestUtils
 
 import scala.concurrent.Future
@@ -49,13 +48,13 @@ trait MockJourneyRepository extends TestUtils with MockitoSugar with BeforeAndAf
       .thenReturn(Future.failed[WriteResult](new Exception("exception")))
   }
 
-  def setupMockFindById(response: Option[JourneyModel]): OngoingStubbing[Future[Option[JourneyModel]]] = {
+  def setupMockFindById(response: Option[JourneyDocument]): OngoingStubbing[Future[Option[JourneyDocument]]] = {
     when(mockJourneyRepository.findById(ArgumentMatchers.anyString(),ArgumentMatchers.any())(ArgumentMatchers.any()))
       .thenReturn(response)
   }
 
-  def setupMockUpsert(responseIsOk: Boolean): OngoingStubbing[Future[UpdateWriteResult]] = {
-    when(mockJourneyRepository.upsert(ArgumentMatchers.any()))
+  def setupMockInsert(data: JourneyDocument)(responseIsOk: Boolean): OngoingStubbing[Future[WriteResult]] = {
+    when(mockJourneyRepository.insert(ArgumentMatchers.eq(data))(ArgumentMatchers.any()))
       .thenReturn(updateWriteResult(responseIsOk))
   }
 
