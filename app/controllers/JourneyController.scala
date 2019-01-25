@@ -50,8 +50,9 @@ class JourneyController @Inject()(journeyRepository: JourneyRepository, appConfi
   }
 
   val removeJourney: String => Action[AnyContent] = id => Action.async{
-    implicit request => journeyRepository.removeById(id).map {
-      success => Ok("success")
+    implicit request => journeyRepository.removeById(id).map { result =>
+      if(result.ok){Ok("success")}
+      else{NotFound("not found")}
     }.recover{
       case error => InternalServerError("internal server error")
     }
