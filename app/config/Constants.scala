@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package controllers
+package config
 
-import javax.inject.Singleton
+object git Constants {
+  val MtdContactPreferencesEnrolmentKey: String = "HMRC-MTD-VAT"
+  val MtdContactPreferencesReferenceKey: String = "VRN"
+  val MtdContactPreferencesDelegatedAuth: String = "mtd-vat-auth"
 
-import uk.gov.hmrc.play.bootstrap.controller.BaseController
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import play.api.mvc._
-
-import scala.concurrent.Future
-
-@Singleton()
-class HelloWorld extends BaseController {
-
-  def hello(): Action[AnyContent] = Action.async { implicit request =>
-    Future.successful(Ok("Hello world"))
-  }
-
+  val AgentServicesEnrolment: String = "HMRC-AS-AGENT"
+  val AgentServicesReference: String = "AgentReferenceNumber"
 }
