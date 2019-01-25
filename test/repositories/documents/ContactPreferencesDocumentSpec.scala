@@ -14,43 +14,46 @@
  * limitations under the License.
  */
 
-package models
+package repositories.documents
 
+import models.Digital
 import play.api.libs.json.{JsObject, Json}
 import utils.TestUtils
 
-class ContactPreferencesModelSpec extends TestUtils {
+class ContactPreferencesDocumentSpec extends TestUtils {
 
 
-  val contactPreferencesJson: JsObject = Json.obj(
+  val contactPreferencesDocumentJson: JsObject = Json.obj(
+    "_id" -> "test",
     "preference" -> Digital.value
   )
 
-  val contactPreferencesModel = ContactPreferenceModel(
-    Digital
+  val contactPreferencesModel = ContactPreferenceDocument(
+    _id = "test",
+    preference = Digital
   )
 
-  "JourneyModel.reads" when {
+  "ContactPreferencesDocument.reads" when {
 
     "given correct json values" should {
 
       "return the correct model" in {
-        contactPreferencesJson.as[ContactPreferenceModel] shouldBe contactPreferencesModel
+        contactPreferencesDocumentJson.as[ContactPreferenceDocument] shouldBe contactPreferencesModel
       }
     }
 
     "given incorrect json values" should {
 
       "throw an exception" in {
-        Json.obj().validate[ContactPreferenceModel].isError shouldBe true
+        Json.obj().validate[ContactPreferenceDocument].isError shouldBe true
       }
     }
   }
 
-  "JourneyModel.writes" when {
+  "ContactPreferencesDocument.writes" when {
 
     "return the correct json" in {
-      Json.toJson(contactPreferencesModel) shouldBe contactPreferencesJson
+      Json.toJson(contactPreferencesModel) shouldBe contactPreferencesDocumentJson
     }
   }
 }

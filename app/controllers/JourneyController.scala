@@ -18,22 +18,25 @@ package controllers
 
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
+import models.JourneyModel
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent}
-import reactivemongo.bson.{BSONDocument, BSONObjectID}
 import repositories.JourneyRepository
-import models.JourneyModel
+import repositories.documents.JourneyDocument
+import services.UUIDService
 import uk.gov.hmrc.play.bootstrap.controller.BaseController
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @Singleton
-class JourneyController @Inject()(journeyRepository: JourneyRepository, appConfig: AppConfig) extends BaseController {
+class JourneyController @Inject()(journeyRepository: JourneyRepository, appConfig: AppConfig, implicit val uuidService: UUIDService) extends BaseController {
 
   val storeJourney: Action[JsValue] = Action.async(parse.json) {
     implicit request => withJsonBody[JourneyModel](
-      json => { journeyRepository.upsert(json).map( result =>
-        if(result.ok){Ok("success")}
+      journey => {
+        val journeyId = uuidService.generateUUID
+        journeyRepository.insert(JourneyDocument(journeyId, journey)).map( result =>
+        if(result.ok){Ok(Json.obj("journeyId" -> journeyId))}
         else{InternalServerError("failed")}
       )}
     ).recover{case _ => BadRequest("failed")}

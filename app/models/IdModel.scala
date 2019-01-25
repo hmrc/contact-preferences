@@ -16,13 +16,11 @@
 
 package models
 
-import play.api.libs.json._
+import play.api.libs.json.{Format, Json}
 
-case class JourneyModel(regime: RegimeModel,
-                        continueUrl: String,
-                        email: Option[String] = None)
+case class IdModel(key: Identifier,
+                   value: String)
 
-object JourneyModel {
-
-  implicit val formats: Format[JourneyModel] = Json.format[JourneyModel]
+case object IdModel {
+  implicit val fmt: Format[IdModel] = Json.format[IdModel]
 }

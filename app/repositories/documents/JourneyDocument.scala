@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package models
+package repositories.documents
 
-import play.api.libs.json._
+import models.JourneyModel
+import play.api.libs.json.{Json, OFormat}
 
-case class JourneyModel(regime: RegimeModel,
-                        continueUrl: String,
-                        email: Option[String] = None)
+case class JourneyDocument(_id: String,
+                           journey: JourneyModel)
 
-object JourneyModel {
-
-  implicit val formats: Format[JourneyModel] = Json.format[JourneyModel]
+object JourneyDocument {
+  implicit val fmt: OFormat[JourneyDocument] = Json.format[JourneyDocument]
 }

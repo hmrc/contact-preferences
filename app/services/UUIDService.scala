@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package models
+package services
 
-import play.api.libs.json._
+import java.util.UUID
 
-case class JourneyModel(regime: RegimeModel,
-                        continueUrl: String,
-                        email: Option[String] = None)
+class UUIDService {
 
-object JourneyModel {
+  def generateUUID: String = UUID.randomUUID().toString
 
-  implicit val formats: Format[JourneyModel] = Json.format[JourneyModel]
 }

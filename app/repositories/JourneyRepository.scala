@@ -18,22 +18,15 @@ package repositories
 
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
-import models.JourneyModel
-import play.api.libs.json.OFormat
+import play.api.libs.json.{Format, OFormat}
 import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.commands.UpdateWriteResult
+import repositories.documents.JourneyDocument
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class JourneyRepository @Inject()(mongo: ReactiveMongoComponent,
                                   appConfig: AppConfig)(implicit ec: ExecutionContext)
-  extends MongoRepository[JourneyModel](
+  extends MongoRepository[JourneyDocument](
     mongo, collectionName = "journey", appConfig
-  )(implicitly[OFormat[JourneyModel]], ec, implicitly[Manifest[JourneyModel]]) {
-
-  def upsert(data: JourneyModel): Future[UpdateWriteResult] = {
-    super.upsert(data, data._id)
-  }
-
-}
+  )(implicitly[OFormat[JourneyDocument]], ec, implicitly[Manifest[JourneyDocument]])

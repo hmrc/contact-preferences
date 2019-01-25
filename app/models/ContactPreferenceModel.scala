@@ -16,12 +16,11 @@
 
 package models
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Format, Json}
 
-case class ContactPreferenceModel(_id: String, preference: Preference)
+case class ContactPreferenceModel(preference: Preference)
 
 object ContactPreferenceModel {
-  val preference = "preference"
-  implicit val format: OFormat[ContactPreferenceModel] = Json.format[ContactPreferenceModel]
+  implicit val format: Format[ContactPreferenceModel] = Json.format[ContactPreferenceModel]
 }
 

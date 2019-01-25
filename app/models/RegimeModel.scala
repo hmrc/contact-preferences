@@ -18,11 +18,10 @@ package models
 
 import play.api.libs.json._
 
-case class JourneyModel(regime: RegimeModel,
-                        continueUrl: String,
-                        email: Option[String] = None)
 
-object JourneyModel {
+case class RegimeModel(`type`: Regime,
+                       identifier: IdModel)
 
-  implicit val formats: Format[JourneyModel] = Json.format[JourneyModel]
+object RegimeModel {
+  implicit val fmt: Format[RegimeModel] = Json.format[RegimeModel]
 }

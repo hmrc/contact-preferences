@@ -18,23 +18,23 @@ package repositories
 
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
-import models.ContactPreferenceModel
 import play.api.libs.json.OFormat
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.commands.UpdateWriteResult
+import repositories.documents.ContactPreferenceDocument
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ContactPreferenceRepository @Inject()(mongo: ReactiveMongoComponent,
                                             appConfig: AppConfig)(implicit ec: ExecutionContext)
-  extends MongoRepository[ContactPreferenceModel](
+  extends MongoRepository[ContactPreferenceDocument](
     mongo,
     collectionName = "preference",
     appConfig
-  )(implicitly[OFormat[ContactPreferenceModel]], ec, implicitly[Manifest[ContactPreferenceModel]]) {
+  )(implicitly[OFormat[ContactPreferenceDocument]], ec, implicitly[Manifest[ContactPreferenceDocument]]) {
 
-  def upsert(data: ContactPreferenceModel): Future[UpdateWriteResult] = {
+  def upsert(data: ContactPreferenceDocument): Future[UpdateWriteResult] = {
     super.upsert(data, data._id)
   }
 

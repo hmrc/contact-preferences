@@ -43,7 +43,7 @@ object Preference {
     preference => JsString(preference.value)
   }
 
-  def apply(value: String): Preference = value match {
+  def apply(value: String): Preference = value.toUpperCase match {
     case Digital.value => Digital
     case Paper.value => Paper
     case _ => InvalidPreference

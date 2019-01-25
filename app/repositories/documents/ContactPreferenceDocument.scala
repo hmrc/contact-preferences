@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package models
+package repositories.documents
 
-import play.api.libs.json._
+import models.Preference
+import play.api.libs.json.{Json, OFormat}
 
-case class JourneyModel(regime: RegimeModel,
-                        continueUrl: String,
-                        email: Option[String] = None)
+case class ContactPreferenceDocument(_id: String, preference: Preference)
 
-object JourneyModel {
-
-  implicit val formats: Format[JourneyModel] = Json.format[JourneyModel]
+object ContactPreferenceDocument {
+  implicit val fmt: OFormat[ContactPreferenceDocument] = Json.format[ContactPreferenceDocument]
 }
+
+
+

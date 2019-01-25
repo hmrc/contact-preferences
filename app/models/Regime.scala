@@ -18,11 +18,32 @@ package models
 
 import play.api.libs.json._
 
-case class JourneyModel(regime: RegimeModel,
-                        continueUrl: String,
-                        email: Option[String] = None)
+sealed trait Regime {
+  val id: String
+  val internalID: String
+}
 
-object JourneyModel {
+object Regime {
+  implicit val reads: Reads[Regime] = __.read[String] map apply
+  implicit val writes: Writes[Regime] = Writes { x => JsString(unapply(x)) }
 
-  implicit val formats: Format[JourneyModel] = Json.format[JourneyModel]
+  def apply(arg: String): Regime = arg.toUpperCase match {
+    case MTDVAT.id => MTDVAT
+    case _ => InvalidRegime
+  }
+
+  def unapply(arg: Regime): String = arg match {
+    case MTDVAT => MTDVAT.id
+    case InvalidRegime => InvalidRegime.id
+  }
+}
+
+object MTDVAT extends Regime {
+  val id = "VAT"
+  val internalID = "HMRC-MTD-VAT"
+}
+
+object InvalidRegime extends Regime {
+  val id = "INVALID"
+  val internalID = "INVALID"
 }

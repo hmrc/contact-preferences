@@ -22,36 +22,36 @@ import utils.TestUtils
 class JourneyModelSpec extends TestUtils {
 
   val journeyJsonMax: JsObject = Json.obj(
-    "_id" -> "id",
-    "regime" -> "regime",
-    "idType" -> "idType",
-    "idValue" -> "idValue",
+    "regime" -> Json.obj(
+      "type" -> "VAT",
+      "identifier" -> Json.obj(
+        "key" -> "VRN",
+        "value" -> "999999999"
+      )
+    ),
     "continueUrl" -> "continueUrl",
     "email" -> "email"
   )
 
   val journeyJsonMin: JsObject = Json.obj(
-    "_id" -> "id",
-    "regime" -> "regime",
-    "idType" -> "idType",
-    "idValue" -> "idValue",
+    "regime" -> Json.obj(
+      "type" -> "VAT",
+      "identifier" -> Json.obj(
+        "key" -> "VRN",
+        "value" -> "999999999"
+      )
+    ),
     "continueUrl" -> "continueUrl"
   )
 
   val journeyModelMax = JourneyModel(
-    _id = "id",
-    regime = "regime",
-    idType = "idType",
-    idValue = "idValue",
+    regime = RegimeModel(MTDVAT, IdModel(VRN, "999999999")),
     continueUrl = "continueUrl",
     email = Some("email")
   )
 
-  val journeyModelMin = JourneyModel(
-    _id = "id",
-    regime = "regime",
-    idType = "idType",
-    idValue = "idValue",
+  val journeyModelMin =  JourneyModel(
+    regime = RegimeModel(MTDVAT, IdModel(VRN, "999999999")),
     continueUrl = "continueUrl"
   )
 
@@ -60,14 +60,14 @@ class JourneyModelSpec extends TestUtils {
     "given maximum json values" should {
 
       "return the correct model" in {
-        journeyJsonMax.as[JourneyModel] shouldBe journeyModelMax
+        journeyJsonMax.as[JourneyModel] shouldEqual journeyModelMax
       }
     }
 
     "given minimum json values" should {
 
       "return the correct model" in {
-        journeyJsonMin.as[JourneyModel] shouldBe journeyModelMin
+        journeyJsonMin.as[JourneyModel] shouldEqual journeyModelMin
       }
     }
 
