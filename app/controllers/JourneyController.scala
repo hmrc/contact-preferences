@@ -19,6 +19,7 @@ package controllers
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import models.JourneyModel
+import play.api.Logger
 import play.api.http.HeaderNames
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent}
@@ -39,22 +40,37 @@ class JourneyController @Inject()(journeyRepository: JourneyRepository,
     implicit request => withJsonBody[JourneyModel](
       journey => {
         val journeyId = uuidService.generateUUID
-        journeyRepository.insert(JourneyDocument(journeyId, journey, DateDocument(dateService.timestamp))).map {
-          case result if result.ok => Created.withHeaders(HeaderNames.LOCATION -> s"${appConfig.contactPreferencesUrl}/$journeyId")
-          case _ => InternalServerError("failed")
+        val journeyDocument = JourneyDocument(journeyId, journey, DateDocument(dateService.timestamp))
+        Logger.debug(s"[JourneyController][storeJourney] JourneyModel: $journey")
+        Logger.debug(s"[JourneyController][storeJourney] JourneyDocument: $journeyDocument")
+        journeyRepository.insert(journeyDocument).map {
+          case result if result.ok =>
+            Logger.debug(s"[JourneyController][storeJourney] Header Location Redirect: $appConfig.contactPreferencesUrl}/$journeyId")
+            Created.withHeaders(HeaderNames.LOCATION -> s"${appConfig.contactPreferencesUrl}/$journeyId")
+          case err =>
+            Logger.debug(s"[JourneyController][storeJourney] Mongo Errors: ${err.writeErrors.map(_.errmsg)}")
+            InternalServerError("failed")
+        }.recover {
+          case e =>
+            Logger.debug(s"[JourneyController][storeJourney] Errors: ${e.getMessage}")
+            InternalServerError("failed")
         }
-      }.recover {
-        case _ => BadRequest("failed")
       }
     )
   }
 
   val findJourney: String => Action[AnyContent] = id => Action.async {
-    implicit request => journeyRepository.findById(id).map {
-      case Some(journeyDocument) => Ok(Json.toJson(journeyDocument))
-      case _ => NotFound("not found")
-    }.recover {
-      case _ => InternalServerError("failed")
-    }
+    implicit request =>
+      Logger.debug(s"[JourneyController][findJourney] JourneyID: $id")
+      journeyRepository.findById(id).map {
+        case Some(journeyDocument) =>
+          Logger.debug(s"[JourneyController][findJourney] Found Journey: \n\n${Json.toJson(journeyDocument)}")
+          Ok(Json.toJson(journeyDocument))
+        case _ => NotFound("not found")
+      }.recover {
+        case e =>
+          Logger.debug(s"[JourneyController][findJourney] Errors: ${e.getMessage}")
+          InternalServerError("failed")
+      }
   }
 }

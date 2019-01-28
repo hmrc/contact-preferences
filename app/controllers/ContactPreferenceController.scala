@@ -39,22 +39,35 @@ class ContactPreferenceController @Inject()(contactPreferenceRepository: Contact
     implicit request => withJsonBody[ContactPreferenceModel](
       contactPreference => {
         val contactPreferenceDocument = ContactPreferenceDocument(journeyId, contactPreference.preference, DateDocument(dateService.timestamp))
-        Logger.debug(s"[ContactPreferenceController][storeContactPreference] ContactPreferenceModel = $contactPreference")
-        Logger.debug(s"[ContactPreferenceController][storeContactPreference] ContactPreferenceDocument = $contactPreferenceDocument")
+        Logger.debug(s"[ContactPreferenceController][storeContactPreference] ContactPreferenceModel: $contactPreference")
+        Logger.debug(s"[ContactPreferenceController][storeContactPreference] ContactPreferenceDocument: $contactPreferenceDocument")
         contactPreferenceRepository.upsert(contactPreferenceDocument).map {
           case result if result.ok => NoContent
-          case _ => InternalServerError("failed")
+          case err =>
+            Logger.debug(s"[ContactPreferenceController][storeContactPreference] Mongo Errors: ${err.writeErrors.map(_.errmsg)}")
+            InternalServerError("failed")
         }.recover {
-          case _ => BadRequest("failed")
+          case e =>
+            Logger.debug(s"[ContactPreferenceController][storeContactPreference] Errors: ${e.getMessage}")
+            InternalServerError("failed")
         }
       }
     )
   }
 
   val findContactPreference: String => Action[AnyContent] = id => Action.async {
-    implicit request => contactPreferenceRepository.findById(id).map {
-      case Some(contactPreferenceModel) => Ok(Json.toJson(contactPreferenceModel))
-      case _ => NotFound("not found")
+    implicit request => {
+      Logger.debug(s"[ContactPreferenceController][findContactPreference] JourneyID: $id")
+      contactPreferenceRepository.findById(id).map {
+        case Some(contactPreferenceModel) =>
+          Logger.debug(s"[ContactPreferenceController][findContactPreference] Found Preference: \n\n${Json.toJson(contactPreferenceModel)}")
+          Ok(Json.toJson(contactPreferenceModel))
+        case _ =>
+          Logger.debug(s"[ContactPreferenceController][findContactPreference] Could not find journey for JourneyID: $id")
+          NotFound("not found")
+      }.recover {
+        case _ => InternalServerError("failed")
+      }
     }
   }
 }
