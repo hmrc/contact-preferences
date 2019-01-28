@@ -16,18 +16,9 @@
 
 package config
 
-import javax.inject.{Inject, Singleton}
-import play.api.Mode.Mode
-import play.api.{Configuration, Environment}
-import uk.gov.hmrc.play.config.ServicesConfig
+object AppConfigKeys {
 
-@Singleton
-class AppConfig @Inject()(implicit val runModeConfiguration: Configuration, environment: Environment) extends ServicesConfig {
-  override protected def mode: Mode = environment.mode
-
-  lazy val timeToLiveSeconds: Int = getInt("mongodb.timeToLiveSeconds")
-
-  lazy val contactPreferencesUrl: String =
-    s"${getString(AppConfigKeys.contactPreferencesFrontendHost)}${getString(AppConfigKeys.contactPreferencesFrontendUrl)}"
+  val contactPreferencesFrontendHost: String = "contact-preferences-frontend.host"
+  val contactPreferencesFrontendUrl: String = "contact-preferences-frontend.url"
 
 }

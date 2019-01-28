@@ -40,7 +40,7 @@ class JourneyController @Inject()(journeyRepository: JourneyRepository,
       journey => {
         val journeyId = uuidService.generateUUID
         journeyRepository.insert(JourneyDocument(journeyId, journey, DateDocument(dateService.timestamp))).map {
-          case result if result.ok => Created.withHeaders(HeaderNames.LOCATION -> journeyId)
+          case result if result.ok => Created.withHeaders(HeaderNames.LOCATION -> s"${appConfig.contactPreferencesUrl}/$journeyId")
           case _ => InternalServerError("failed")
         }
       }.recover {
