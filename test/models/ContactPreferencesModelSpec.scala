@@ -16,26 +16,18 @@
 
 package models
 
-import play.api.libs.json.{JsObject, Json}
+import assets.ContactPreferencesTestConstants._
+import play.api.libs.json.Json
 import utils.TestUtils
 
 class ContactPreferencesModelSpec extends TestUtils {
 
-
-  val contactPreferencesJson: JsObject = Json.obj(
-    "preference" -> Digital.value
-  )
-
-  val contactPreferencesModel = ContactPreferenceModel(
-    Digital
-  )
-
-  "JourneyModel.reads" when {
+  "ContactPreferenceModel.reads" when {
 
     "given correct json values" should {
 
       "return the correct model" in {
-        contactPreferencesJson.as[ContactPreferenceModel] shouldBe contactPreferencesModel
+        digitalPreferenceJson.as[ContactPreferenceModel] shouldBe digitalPreferenceModel
       }
     }
 
@@ -47,10 +39,10 @@ class ContactPreferencesModelSpec extends TestUtils {
     }
   }
 
-  "JourneyModel.writes" when {
+  "ContactPreferenceModel.writes" when {
 
     "return the correct json" in {
-      Json.toJson(contactPreferencesModel) shouldBe contactPreferencesJson
+      Json.toJson(digitalPreferenceModel) shouldBe digitalPreferenceJson
     }
   }
 }

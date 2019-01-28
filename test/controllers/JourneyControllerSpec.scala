@@ -16,14 +16,13 @@
 
 package controllers
 
-import models._
 import play.api.http.Status
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import repositories.documents.JourneyDocument
 import repositories.mocks.MockJourneyRepository
 import services.mocks.MockUUIDService
+import assets.JourneyTestConstants._
 
 import scala.concurrent.Future
 
@@ -34,26 +33,6 @@ class JourneyControllerSpec extends MockJourneyRepository {
     appConfig = appConfig,
     uuidService = MockUUIDService
   )
-
-  val journeyJsonMax: JsObject = Json.obj(
-    "regime" -> Json.obj(
-      "type" -> "VAT",
-      "identifier" -> Json.obj(
-        "key" -> "VRN",
-        "value" -> "999999999"
-      )
-    ),
-    "continueUrl" -> "continueUrl",
-    "email" -> "email"
-  )
-
-  val journeyModelMax = JourneyModel(
-    regime = RegimeModel(MTDVAT, IdModel(VRN, "999999999")),
-    continueUrl = "continueUrl",
-    email = Some("email")
-  )
-
-  val journeyDocumentMax = JourneyDocument(MockUUIDService.generateUUID, journeyModelMax)
 
   "JourneyController.storeJourney" when {
 
@@ -68,7 +47,7 @@ class JourneyControllerSpec extends MockJourneyRepository {
 
         "return an Ok" in {
           setupMockInsert(journeyDocumentMax)(true)
-          status(result) shouldBe Status.OK
+          status(result) shouldBe Status.CREATED
         }
       }
 

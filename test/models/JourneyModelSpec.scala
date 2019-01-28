@@ -18,42 +18,9 @@ package models
 
 import play.api.libs.json.{JsObject, Json}
 import utils.TestUtils
+import assets.JourneyTestConstants._
 
 class JourneyModelSpec extends TestUtils {
-
-  val journeyJsonMax: JsObject = Json.obj(
-    "regime" -> Json.obj(
-      "type" -> "VAT",
-      "identifier" -> Json.obj(
-        "key" -> "VRN",
-        "value" -> "999999999"
-      )
-    ),
-    "continueUrl" -> "continueUrl",
-    "email" -> "email"
-  )
-
-  val journeyJsonMin: JsObject = Json.obj(
-    "regime" -> Json.obj(
-      "type" -> "VAT",
-      "identifier" -> Json.obj(
-        "key" -> "VRN",
-        "value" -> "999999999"
-      )
-    ),
-    "continueUrl" -> "continueUrl"
-  )
-
-  val journeyModelMax = JourneyModel(
-    regime = RegimeModel(MTDVAT, IdModel(VRN, "999999999")),
-    continueUrl = "continueUrl",
-    email = Some("email")
-  )
-
-  val journeyModelMin =  JourneyModel(
-    regime = RegimeModel(MTDVAT, IdModel(VRN, "999999999")),
-    continueUrl = "continueUrl"
-  )
 
   "JourneyModel.reads" when {
 

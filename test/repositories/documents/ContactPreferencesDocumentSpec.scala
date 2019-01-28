@@ -16,29 +16,18 @@
 
 package repositories.documents
 
-import models.Digital
-import play.api.libs.json.{JsObject, Json}
+import assets.ContactPreferencesTestConstants._
+import play.api.libs.json.Json
 import utils.TestUtils
 
 class ContactPreferencesDocumentSpec extends TestUtils {
-
-
-  val contactPreferencesDocumentJson: JsObject = Json.obj(
-    "_id" -> "test",
-    "preference" -> Digital.value
-  )
-
-  val contactPreferencesModel = ContactPreferenceDocument(
-    _id = "test",
-    preference = Digital
-  )
 
   "ContactPreferencesDocument.reads" when {
 
     "given correct json values" should {
 
       "return the correct model" in {
-        contactPreferencesDocumentJson.as[ContactPreferenceDocument] shouldBe contactPreferencesModel
+        digitalPreferenceDocumentJson.as[ContactPreferenceDocument] shouldBe digitalPreferenceDocumentModel
       }
     }
 
@@ -53,7 +42,7 @@ class ContactPreferencesDocumentSpec extends TestUtils {
   "ContactPreferencesDocument.writes" when {
 
     "return the correct json" in {
-      Json.toJson(contactPreferencesModel) shouldBe contactPreferencesDocumentJson
+      Json.toJson(digitalPreferenceDocumentModel) shouldBe digitalPreferenceDocumentJson
     }
   }
 }

@@ -19,6 +19,7 @@ package controllers
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import models.JourneyModel
+import play.api.http.HeaderNames
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent}
 import repositories.JourneyRepository
@@ -29,15 +30,19 @@ import uk.gov.hmrc.play.bootstrap.controller.BaseController
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @Singleton
-class JourneyController @Inject()(journeyRepository: JourneyRepository, appConfig: AppConfig, implicit val uuidService: UUIDService) extends BaseController {
+class JourneyController @Inject()(journeyRepository: JourneyRepository, appConfig: AppConfig,
+                                  implicit val uuidService: UUIDService) extends BaseController {
 
   val storeJourney: Action[JsValue] = Action.async(parse.json) {
     implicit request => withJsonBody[JourneyModel](
       journey => {
         val journeyId = uuidService.generateUUID
         journeyRepository.insert(JourneyDocument(journeyId, journey)).map( result =>
-        if(result.ok){Ok(Json.obj("journeyId" -> journeyId))}
-        else{InternalServerError("failed")}
+        if(result.ok){
+          Created.withHeaders(HeaderNames.LOCATION -> journeyId)
+        }else{
+          InternalServerError("failed")
+        }
       )}
     ).recover{case _ => BadRequest("failed")}
   }
@@ -51,8 +56,11 @@ class JourneyController @Inject()(journeyRepository: JourneyRepository, appConfi
 
   val removeJourney: String => Action[AnyContent] = id => Action.async{
     implicit request => journeyRepository.removeById(id).map { result =>
-      if(result.ok){Ok("success")}
-      else{NotFound("not found")}
+      if(result.ok){
+        Ok("success")
+      }else{
+        NotFound("not found")
+      }
     }.recover{
       case error => InternalServerError("internal server error")
     }

@@ -19,54 +19,9 @@ package repositories.documents
 import models._
 import play.api.libs.json.{JsObject, Json}
 import utils.TestUtils
+import assets.JourneyTestConstants._
 
 class JourneyDocumentSpec extends TestUtils {
-
-  val journeyDocumentJsonMax: JsObject = Json.obj(
-    "_id" -> "test",
-    "journey" -> Json.obj(
-      "regime" -> Json.obj(
-        "type" -> "VAT",
-        "identifier" -> Json.obj(
-          "key" -> "VRN",
-          "value" -> "999999999"
-        )
-      ),
-      "continueUrl" -> "continueUrl",
-      "email" -> "email"
-    )
-  )
-
-  val journeyDocumentJsonMin: JsObject = Json.obj(
-    "_id" -> "test",
-    "journey" -> Json.obj(
-      "regime" -> Json.obj(
-        "type" -> "VAT",
-        "identifier" -> Json.obj(
-          "key" -> "VRN",
-          "value" -> "999999999"
-        )
-      ),
-      "continueUrl" -> "continueUrl"
-    )
-  )
-
-  val journeyDocumentMax = JourneyDocument(
-    _id = "test",
-    journey = JourneyModel(
-      RegimeModel(MTDVAT, IdModel(VRN, "999999999")),
-      continueUrl = "continueUrl",
-      email = Some("email")
-    )
-  )
-
-  val journeyDocumentMin =  JourneyDocument(
-    _id = "test",
-    journey = JourneyModel(
-      RegimeModel(MTDVAT, IdModel(VRN, "999999999")),
-      continueUrl = "continueUrl"
-    )
-  )
 
   "JourneyDocument.reads" when {
 

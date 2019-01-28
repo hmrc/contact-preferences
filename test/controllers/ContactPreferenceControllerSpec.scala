@@ -16,15 +16,13 @@
 
 package controllers
 
-import models._
 import play.api.http.Status
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import repositories.documents.ContactPreferenceDocument
 import repositories.mocks.MockContactPreferenceRepository
 import services.mocks.MockUUIDService
-
+import assets.ContactPreferencesTestConstants._
 import scala.concurrent.Future
 
 class ContactPreferenceControllerSpec extends MockContactPreferenceRepository {
@@ -35,23 +33,19 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository {
     uuidService = MockUUIDService
   )
 
-  val contactPreferenceJson: JsObject = Json.obj("preference" ->  Digital.value)
-  val contactPreferenceModel = ContactPreferenceModel(Digital)
-  val contactPreferenceDocument = ContactPreferenceDocument(MockUUIDService.generateUUID, Digital)
-
   "ContactPreferenceController.storeContactPreference" when {
 
     "successfully given a ContactPreferenceModel" when {
 
       lazy val fakePut = FakeRequest("PUT", "/")
-        .withBody(contactPreferenceJson)
+        .withBody(digitalPreferenceJson)
         .withHeaders("Content-Type" -> "application/json")
       def result: Future[Result] = TestContactPreferenceController.storeContactPreference(fakePut)
 
       "successfully updated contactPreference repository" should {
 
         "return an Ok" in {
-          setupMockInsert(contactPreferenceDocument)(true)
+          setupMockInsert(digitalPreferenceDocumentModel)(true)
           status(result) shouldBe Status.OK
         }
       }
@@ -59,7 +53,7 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository {
       "failed at updating contactPreference repository" should {
 
         "return an InternalServerError" in {
-          setupMockInsert(contactPreferenceDocument)(false)
+          setupMockInsert(digitalPreferenceDocumentModel)(false)
           status(result) shouldBe Status.INTERNAL_SERVER_ERROR
         }
       }
@@ -85,7 +79,7 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository {
     "given an id contained in the contactPreference repository" should {
 
       "return Ok and the correct Json for the ContactPreferenceModel" in {
-        setupMockFindById(Some(contactPreferenceDocument))
+        setupMockFindById(Some(digitalPreferenceDocumentModel))
         status(result) shouldBe Status.OK
       }
     }

@@ -30,8 +30,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 @Singleton
 class ContactPreferenceController @Inject()(contactPreferenceRepository: ContactPreferenceRepository, appConfig: AppConfig,
-                                            implicit val uuidService: UUIDService)
-  extends BaseController {
+                                            implicit val uuidService: UUIDService) extends BaseController {
 
   val storeContactPreference: Action[JsValue] = Action.async(parse.json) {
     implicit request => withJsonBody[ContactPreferenceModel](
