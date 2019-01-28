@@ -18,7 +18,7 @@ package assets
 
 import models.{ContactPreferenceModel, Digital, InvalidPreference, Paper}
 import play.api.libs.json.{JsObject, Json}
-import repositories.documents.ContactPreferenceDocument
+import repositories.documents.{ContactPreferenceDocument, DateDocument}
 import services.mocks.MockUUIDService
 
 object ContactPreferencesTestConstants {
@@ -27,27 +27,36 @@ object ContactPreferencesTestConstants {
   val digitalPreferenceModel = ContactPreferenceModel(Digital)
 
   val digitalPreferenceDocumentJson: JsObject = Json.obj(
-    "_id" -> MockUUIDService.generateUUID,
-    "preference" ->  Digital.value
+    "_id" -> "id",
+    "preference" ->  Digital.value,
+    "creationTimestamp" -> Json.obj(
+      "$date" -> 123
+    )
   )
-  val digitalPreferenceDocumentModel = ContactPreferenceDocument(MockUUIDService.generateUUID, Digital)
+  val digitalPreferenceDocumentModel = ContactPreferenceDocument("id", Digital, DateDocument(123))
 
   val paperPreferenceJson: JsObject = Json.obj("preference" ->  Paper.value)
   val paperPreferenceModel = ContactPreferenceModel(Paper)
 
   val paperPreferenceDocumentJson: JsObject = Json.obj(
-    "_id" -> MockUUIDService.generateUUID,
-    "preference" ->  Paper.value
+    "_id" -> "id",
+    "preference" ->  Paper.value,
+    "creationTimestamp" -> Json.obj(
+      "$date" -> 123
+    )
   )
-  val paperPreferenceDocumentModel = ContactPreferenceDocument(MockUUIDService.generateUUID, Paper)
+  val paperPreferenceDocumentModel = ContactPreferenceDocument("id", Paper, DateDocument(123))
 
   val invalidPreferenceJson: JsObject = Json.obj("preference" ->  InvalidPreference.value)
   val invalidPreferenceModel = ContactPreferenceModel(InvalidPreference)
 
   val invalidPreferenceDocumentJson: JsObject = Json.obj(
-    "_id" -> MockUUIDService.generateUUID,
-    "preference" ->  InvalidPreference.value
+    "_id" -> "id",
+    "preference" ->  InvalidPreference.value,
+    "creationTimestamp" -> Json.obj(
+      "$date" -> 123
+    )
   )
-  val invalidPreferenceDocumentModel = ContactPreferenceDocument(MockUUIDService.generateUUID, InvalidPreference)
+  val invalidPreferenceDocumentModel = ContactPreferenceDocument("id", InvalidPreference, DateDocument(123))
 
 }

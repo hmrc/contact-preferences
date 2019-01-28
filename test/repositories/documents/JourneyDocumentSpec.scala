@@ -20,6 +20,7 @@ import models._
 import play.api.libs.json.{JsObject, Json}
 import utils.TestUtils
 import assets.JourneyTestConstants._
+import services.mocks.MockDateService
 
 class JourneyDocumentSpec extends TestUtils {
 

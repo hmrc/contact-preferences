@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package repositories.documents
+package services
 
-import models.Preference
-import play.api.libs.json.{Json, OFormat}
+import java.time.Instant
 
-case class ContactPreferenceDocument(_id: String, preference: Preference, creationTimestamp: DateDocument)
+class DateService {
 
-object ContactPreferenceDocument {
-  implicit val fmt: OFormat[ContactPreferenceDocument] = Json.format[ContactPreferenceDocument]
+  def timestamp: Long = Instant.now().toEpochMilli
+
 }
-
-
-

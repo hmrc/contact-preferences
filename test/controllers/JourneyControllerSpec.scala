@@ -21,17 +21,18 @@ import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import repositories.mocks.MockJourneyRepository
-import services.mocks.MockUUIDService
+import services.mocks.{MockDateService, MockUUIDService}
 import assets.JourneyTestConstants._
 
 import scala.concurrent.Future
 
-class JourneyControllerSpec extends MockJourneyRepository {
+class JourneyControllerSpec extends MockJourneyRepository with MockDateService {
 
   object TestJourneyController extends JourneyController(
     journeyRepository = mockJourneyRepository,
     appConfig = appConfig,
-    uuidService = MockUUIDService
+    uuidService = MockUUIDService,
+    dateService = mockDateService
   )
 
   "JourneyController.storeJourney" when {
@@ -46,6 +47,7 @@ class JourneyControllerSpec extends MockJourneyRepository {
       "successfully updated journey repository" should {
 
         "return an Ok" in {
+          mockDate
           setupMockInsert(journeyDocumentMax)(true)
           status(result) shouldBe Status.CREATED
         }
@@ -54,6 +56,7 @@ class JourneyControllerSpec extends MockJourneyRepository {
       "failed at updating journey repository" should {
 
         "return an InternalServerError" in {
+          mockDate
           setupMockInsert(journeyDocumentMax)(false)
           status(result) shouldBe Status.INTERNAL_SERVER_ERROR
         }
@@ -90,36 +93,6 @@ class JourneyControllerSpec extends MockJourneyRepository {
       "return NotFound" in {
         setupMockFindById(None)
         status(result) shouldBe Status.NOT_FOUND
-      }
-    }
-  }
-
-  "JourneyController.removeJourney" when {
-
-    lazy val fakeDelete = FakeRequest("DELETE", "/")
-    def result: Future[Result] = TestJourneyController.removeJourney("id")(fakeDelete)
-
-    "successfully removing an id  from the journey repository" should {
-
-      "return Ok" in {
-        setupMockRemoveById(true)
-        status(result) shouldBe Status.OK
-      }
-    }
-
-    "not finding the given id in the journey repository" should {
-
-      "return Ok" in {
-        setupMockRemoveById(false)
-        status(result) shouldBe Status.NOT_FOUND
-      }
-    }
-
-    "failing to removing an id  from the journey repository" should {
-
-      "return InternalServerError" in {
-        setupMockRemoveByIdFailed
-        status(result) shouldBe Status.INTERNAL_SERVER_ERROR
       }
     }
   }

@@ -16,14 +16,15 @@
 
 package repositories.documents
 
-import models.Preference
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.{Format, Json}
 
-case class ContactPreferenceDocument(_id: String, preference: Preference, creationTimestamp: DateDocument)
+case class DateDocument($date: Long)
 
-object ContactPreferenceDocument {
-  implicit val fmt: OFormat[ContactPreferenceDocument] = Json.format[ContactPreferenceDocument]
+object DateDocument {
+  implicit val fmt: Format[DateDocument] = Json.format[DateDocument]
 }
+
+
 
 
 

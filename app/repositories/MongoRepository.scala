@@ -17,7 +17,7 @@
 package repositories
 
 import config.AppConfig
-import play.api.libs.json.{Format, JsObject, Json, OFormat}
+import play.api.libs.json.{Format, OFormat}
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.commands.UpdateWriteResult
 import reactivemongo.api.indexes.IndexType.Ascending

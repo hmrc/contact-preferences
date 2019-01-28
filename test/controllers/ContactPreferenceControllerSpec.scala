@@ -21,16 +21,18 @@ import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import repositories.mocks.MockContactPreferenceRepository
-import services.mocks.MockUUIDService
+import services.mocks.{MockDateService, MockUUIDService}
 import assets.ContactPreferencesTestConstants._
+
 import scala.concurrent.Future
 
-class ContactPreferenceControllerSpec extends MockContactPreferenceRepository {
+class ContactPreferenceControllerSpec extends MockContactPreferenceRepository with MockDateService {
 
   object TestContactPreferenceController extends ContactPreferenceController(
     contactPreferenceRepository = mockContactPreferenceRepository,
     appConfig = appConfig,
-    uuidService = MockUUIDService
+    uuidService = MockUUIDService,
+    dateService = mockDateService
   )
 
   "ContactPreferenceController.storeContactPreference" when {
@@ -40,20 +42,22 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository {
       lazy val fakePut = FakeRequest("PUT", "/")
         .withBody(digitalPreferenceJson)
         .withHeaders("Content-Type" -> "application/json")
-      def result: Future[Result] = TestContactPreferenceController.storeContactPreference(fakePut)
+      def result: Future[Result] = TestContactPreferenceController.storeContactPreference("id")(fakePut)
 
       "successfully updated contactPreference repository" should {
 
         "return an Ok" in {
-          setupMockInsert(digitalPreferenceDocumentModel)(true)
-          status(result) shouldBe Status.OK
+          mockDate
+          setupMockUpdate(digitalPreferenceDocumentModel)(true)
+          status(result) shouldBe Status.NO_CONTENT
         }
       }
 
       "failed at updating contactPreference repository" should {
 
         "return an InternalServerError" in {
-          setupMockInsert(digitalPreferenceDocumentModel)(false)
+          mockDate
+          setupMockUpdate(digitalPreferenceDocumentModel)(false)
           status(result) shouldBe Status.INTERNAL_SERVER_ERROR
         }
       }
@@ -64,7 +68,7 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository {
       lazy val fakePut = FakeRequest("PUT", "/")
         .withBody(Json.obj())
         .withHeaders("Content-Type" -> "application/json")
-      lazy val result = TestContactPreferenceController.storeContactPreference(fakePut)
+      lazy val result = TestContactPreferenceController.storeContactPreference("id")(fakePut)
 
       "return a BadRequest" in {
         status(result) shouldBe Status.BAD_REQUEST
@@ -93,33 +97,4 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository {
     }
   }
 
-  "ContactPreferenceController.removeContactPreference" when {
-
-    lazy val fakeDelete = FakeRequest("DELETE", "/")
-    def result: Future[Result] = TestContactPreferenceController.removeContactPreference("id")(fakeDelete)
-
-    "successfully removing an id  from the contactPreference repository" should {
-
-      "return Ok" in {
-        setupMockRemoveById(true)
-        status(result) shouldBe Status.OK
-      }
-    }
-
-    "not finding the given id in the contactPreference repository" should {
-
-      "return Ok" in {
-        setupMockRemoveById(false)
-        status(result) shouldBe Status.NOT_FOUND
-      }
-    }
-
-    "failing to removing an id  from the contactPreference repository" should {
-
-      "return InternalServerError" in {
-        setupMockRemoveByIdFailed
-        status(result) shouldBe Status.INTERNAL_SERVER_ERROR
-      }
-    }
-  }
 }

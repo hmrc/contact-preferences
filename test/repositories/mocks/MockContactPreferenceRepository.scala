@@ -38,23 +38,13 @@ trait MockContactPreferenceRepository extends TestUtils with MockitoSugar with B
 
   lazy val mockContactPreferenceRepository: ContactPreferenceRepository = mock[ContactPreferenceRepository]
 
-  def setupMockRemoveById(responseIsOk: Boolean): OngoingStubbing[Future[WriteResult]] = {
-    when(mockContactPreferenceRepository.removeById(ArgumentMatchers.anyString(),ArgumentMatchers.any())(ArgumentMatchers.any()))
-      .thenReturn(updateWriteResult(responseIsOk))
-  }
-
-  def setupMockRemoveByIdFailed: OngoingStubbing[Future[WriteResult]] = {
-    when(mockContactPreferenceRepository.removeById(ArgumentMatchers.anyString(),ArgumentMatchers.any())(ArgumentMatchers.any()))
-      .thenReturn(Future.failed[WriteResult](new Exception("exception")))
-  }
-
   def setupMockFindById(response: Option[ContactPreferenceDocument]): OngoingStubbing[Future[Option[ContactPreferenceDocument]]] = {
     when(mockContactPreferenceRepository.findById(ArgumentMatchers.anyString(),ArgumentMatchers.any())(ArgumentMatchers.any()))
       .thenReturn(response)
   }
 
-  def setupMockInsert(data: ContactPreferenceDocument)(responseIsOk: Boolean): OngoingStubbing[Future[WriteResult]] = {
-    when(mockContactPreferenceRepository.insert(ArgumentMatchers.eq(data))(ArgumentMatchers.any()))
+  def setupMockUpdate(data: ContactPreferenceDocument)(responseIsOk: Boolean): OngoingStubbing[Future[UpdateWriteResult]] = {
+    when(mockContactPreferenceRepository.upsert(ArgumentMatchers.eq(data)))
       .thenReturn(updateWriteResult(responseIsOk))
   }
 

@@ -17,10 +17,9 @@
 package repositories.documents
 
 import models.JourneyModel
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json._
 
-case class JourneyDocument(_id: String,
-                           journey: JourneyModel)
+case class JourneyDocument(_id: String, journey: JourneyModel, creationTimestamp: DateDocument)
 
 object JourneyDocument {
   implicit val fmt: OFormat[JourneyDocument] = Json.format[JourneyDocument]

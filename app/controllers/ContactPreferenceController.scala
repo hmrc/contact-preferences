@@ -19,31 +19,36 @@ package controllers
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import models.ContactPreferenceModel
+import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent}
 import repositories.ContactPreferenceRepository
-import repositories.documents.ContactPreferenceDocument
-import services.UUIDService
+import repositories.documents.{ContactPreferenceDocument, DateDocument}
+import services.{DateService, UUIDService}
 import uk.gov.hmrc.play.bootstrap.controller.BaseController
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 
 @Singleton
-class ContactPreferenceController @Inject()(contactPreferenceRepository: ContactPreferenceRepository, appConfig: AppConfig,
-                                            implicit val uuidService: UUIDService) extends BaseController {
+class ContactPreferenceController @Inject()(contactPreferenceRepository: ContactPreferenceRepository,
+                                            appConfig: AppConfig,
+                                            uuidService: UUIDService,
+                                            dateService: DateService)(implicit ec: ExecutionContext) extends BaseController {
 
-  val storeContactPreference: Action[JsValue] = Action.async(parse.json) {
+  def storeContactPreference(journeyId: String): Action[JsValue] = Action.async(parse.json) {
     implicit request => withJsonBody[ContactPreferenceModel](
       contactPreference => {
-        val contactPreferenceId = uuidService.generateUUID
-        contactPreferenceRepository.insert(
-          ContactPreferenceDocument(contactPreferenceId, contactPreference.preference)
-        ).map( result =>
-          if(result.ok){Ok(Json.obj("contactPreferenceId" -> contactPreferenceId))}
-          else{InternalServerError("failed")}
-        )
+        val contactPreferenceDocument = ContactPreferenceDocument(journeyId, contactPreference.preference, DateDocument(dateService.timestamp))
+        Logger.debug(s"[ContactPreferenceController][storeContactPreference] ContactPreferenceModel = $contactPreference")
+        Logger.debug(s"[ContactPreferenceController][storeContactPreference] ContactPreferenceDocument = $contactPreferenceDocument")
+        contactPreferenceRepository.upsert(contactPreferenceDocument).map {
+          case result if result.ok => NoContent
+          case _ => InternalServerError("failed")
+        }.recover {
+          case _ => BadRequest("failed")
+        }
       }
-    ).recover{case _ => BadRequest("failed")}
+    )
   }
 
   val findContactPreference: String => Action[AnyContent] = id => Action.async {
@@ -52,14 +57,4 @@ class ContactPreferenceController @Inject()(contactPreferenceRepository: Contact
       case _ => NotFound("not found")
     }
   }
-
-  val removeContactPreference: String => Action[AnyContent] = id => Action.async{
-    implicit request => contactPreferenceRepository.removeById(id).map { result =>
-      if(result.ok){Ok("success")}
-      else{NotFound("not found")}
-    }.recover{
-      case error => InternalServerError("internal server error")
-    }
-  }
-
 }

@@ -14,8 +14,15 @@
  * limitations under the License.
  */
 
-package services
+package services.mocks
 
-class UUIDServiceSpec {
+import org.scalamock.scalatest.MockFactory
+import services.DateService
+
+trait MockDateService extends MockFactory {
+
+  lazy val mockDateService: DateService = mock[DateService]
+
+  def mockDate = (mockDateService.timestamp _).expects().returning(123)
 
 }

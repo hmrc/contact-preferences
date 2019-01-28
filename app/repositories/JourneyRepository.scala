@@ -18,7 +18,7 @@ package repositories
 
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
-import play.api.libs.json.{Format, OFormat}
+import play.api.libs.json.OFormat
 import play.modules.reactivemongo.ReactiveMongoComponent
 import repositories.documents.JourneyDocument
 

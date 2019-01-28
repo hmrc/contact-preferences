@@ -23,47 +23,38 @@ import play.api.http.HeaderNames
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent}
 import repositories.JourneyRepository
-import repositories.documents.JourneyDocument
-import services.UUIDService
+import repositories.documents.{DateDocument, JourneyDocument}
+import services.{DateService, UUIDService}
 import uk.gov.hmrc.play.bootstrap.controller.BaseController
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 
 @Singleton
-class JourneyController @Inject()(journeyRepository: JourneyRepository, appConfig: AppConfig,
-                                  implicit val uuidService: UUIDService) extends BaseController {
+class JourneyController @Inject()(journeyRepository: JourneyRepository,
+                                  appConfig: AppConfig,
+                                  uuidService: UUIDService,
+                                  dateService: DateService)(implicit ec: ExecutionContext) extends BaseController {
 
   val storeJourney: Action[JsValue] = Action.async(parse.json) {
     implicit request => withJsonBody[JourneyModel](
       journey => {
         val journeyId = uuidService.generateUUID
-        journeyRepository.insert(JourneyDocument(journeyId, journey)).map( result =>
-        if(result.ok){
-          Created.withHeaders(HeaderNames.LOCATION -> journeyId)
-        }else{
-          InternalServerError("failed")
+        journeyRepository.insert(JourneyDocument(journeyId, journey, DateDocument(dateService.timestamp))).map {
+          case result if result.ok => Created.withHeaders(HeaderNames.LOCATION -> journeyId)
+          case _ => InternalServerError("failed")
         }
-      )}
-    ).recover{case _ => BadRequest("failed")}
+      }.recover {
+        case _ => BadRequest("failed")
+      }
+    )
   }
 
   val findJourney: String => Action[AnyContent] = id => Action.async {
     implicit request => journeyRepository.findById(id).map {
-      case Some(journeyModel) => Ok(Json.toJson(journeyModel))
+      case Some(journeyDocument) => Ok(Json.toJson(journeyDocument))
       case _ => NotFound("not found")
+    }.recover {
+      case _ => InternalServerError("failed")
     }
   }
-
-  val removeJourney: String => Action[AnyContent] = id => Action.async{
-    implicit request => journeyRepository.removeById(id).map { result =>
-      if(result.ok){
-        Ok("success")
-      }else{
-        NotFound("not found")
-      }
-    }.recover{
-      case error => InternalServerError("internal server error")
-    }
-  }
-
 }
