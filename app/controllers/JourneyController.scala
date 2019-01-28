@@ -39,7 +39,7 @@ class JourneyController @Inject()(journeyRepository: JourneyRepository, appConfi
         val journeyId = uuidService.generateUUID
         journeyRepository.insert(JourneyDocument(journeyId, journey)).map( result =>
         if(result.ok){
-          Created.withHeaders(HeaderNames.LOCATION -> journeyId)
+          Created.withHeaders(HeaderNames.LOCATION -> s"${appConfig.contactPreferencesUrl}/$journeyId")
         }else{
           InternalServerError("failed")
         }

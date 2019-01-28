@@ -27,4 +27,7 @@ class AppConfig @Inject()(implicit val runModeConfiguration: Configuration, envi
 
   lazy val timeToLiveSeconds: Int = getInt("mongodb.timeToLiveSeconds")
 
+  lazy val contactPreferencesUrl: String =
+    s"${getString(AppConfigKeys.contactPreferencesFrontendHost)}${getString(AppConfigKeys.contactPreferencesFrontendUrl)}"
+
 }

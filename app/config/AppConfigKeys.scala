@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package services
+package config
 
-class UUIDServiceSpec {
+object AppConfigKeys {
+
+  val contactPreferencesFrontendHost: String = "contact-preferences-frontend.host"
+  val contactPreferencesFrontendUrl: String = "contact-preferences-frontend.url"
 
 }
