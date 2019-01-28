@@ -59,9 +59,9 @@ class ContactPreferenceController @Inject()(contactPreferenceRepository: Contact
     implicit request => {
       Logger.debug(s"[ContactPreferenceController][findContactPreference] JourneyID: $id")
       contactPreferenceRepository.findById(id).map {
-        case Some(contactPreferenceModel) =>
-          Logger.debug(s"[ContactPreferenceController][findContactPreference] Found Preference: \n\n${Json.toJson(contactPreferenceModel)}")
-          Ok(Json.toJson(contactPreferenceModel))
+        case Some(contactPreference) =>
+          Logger.debug(s"[ContactPreferenceController][findContactPreference] Found Preference: \n\n${Json.toJson(contactPreference)}")
+          Ok(Json.toJson(ContactPreferenceModel(contactPreference.preference)))
         case _ =>
           Logger.debug(s"[ContactPreferenceController][findContactPreference] Could not find journey for JourneyID: $id")
           NotFound("not found")

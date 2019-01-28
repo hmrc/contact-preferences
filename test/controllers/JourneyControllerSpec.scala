@@ -16,13 +16,13 @@
 
 package controllers
 
+import assets.JourneyTestConstants._
 import play.api.http.Status
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import repositories.mocks.MockJourneyRepository
 import services.mocks.{MockDateService, MockUUIDService}
-import assets.JourneyTestConstants._
 
 import scala.concurrent.Future
 
@@ -78,13 +78,17 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService {
 
   "JourneyController.findJourney" when {
 
-    def result: Future[Result] = TestJourneyController.findJourney("id")(fakeRequest)
-
     "given an id contained in the journey repository" should {
 
-      "return Ok and the correct Json for the JourneyModel" in {
+      lazy val result: Future[Result] = TestJourneyController.findJourney("id")(fakeRequest)
+
+      "return status Ok" in {
         setupMockFindById(Some(journeyDocumentMax))
         status(result) shouldBe Status.OK
+      }
+
+      "return the correct Json for the JourneyModel" in {
+        jsonBodyOf(await(result)) shouldBe Json.toJson(journeyDocumentMax.journey)
       }
     }
 
@@ -92,7 +96,7 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService {
 
       "return NotFound" in {
         setupMockFindById(None)
-        status(result) shouldBe Status.NOT_FOUND
+        status(TestJourneyController.findJourney("id")(fakeRequest)) shouldBe Status.NOT_FOUND
       }
     }
   }

@@ -23,6 +23,7 @@ import play.api.test.FakeRequest
 import repositories.mocks.MockContactPreferenceRepository
 import services.mocks.{MockDateService, MockUUIDService}
 import assets.ContactPreferencesTestConstants._
+import models.ContactPreferenceModel
 
 import scala.concurrent.Future
 
@@ -78,13 +79,17 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository wi
 
   "ContactPreferenceController.findContactPreference" when {
 
-    def result: Future[Result] = TestContactPreferenceController.findContactPreference("id")(fakeRequest)
-
     "given an id contained in the contactPreference repository" should {
 
-      "return Ok and the correct Json for the ContactPreferenceModel" in {
+      lazy val result: Future[Result] = TestContactPreferenceController.findContactPreference("id")(fakeRequest)
+
+      "return status Ok" in {
         setupMockFindById(Some(digitalPreferenceDocumentModel))
         status(result) shouldBe Status.OK
+      }
+
+      "return the correct Json for the ContactPreferenceModel" in {
+        jsonBodyOf(await(result)) shouldBe Json.toJson(ContactPreferenceModel(digitalPreferenceDocumentModel.preference))
       }
     }
 
@@ -92,7 +97,7 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository wi
 
       "return NotFound" in {
         setupMockFindById(None)
-        status(result) shouldBe Status.NOT_FOUND
+        status(TestContactPreferenceController.findContactPreference("id")(fakeRequest)) shouldBe Status.NOT_FOUND
       }
     }
   }

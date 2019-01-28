@@ -16,6 +16,8 @@
 
 package utils
 
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
 import config.AppConfig
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -31,6 +33,7 @@ trait TestUtils extends UnitSpec with GuiceOneAppPerSuite with BeforeAndAfterEac
   implicit lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/")
   lazy val injector: Injector = app.injector
   implicit lazy val appConfig: AppConfig = injector.instanceOf[AppConfig]
-  implicit lazy val executionContext = injector.instanceOf[ExecutionContext]
-
+  implicit lazy val executionContext: ExecutionContext = injector.instanceOf[ExecutionContext]
+  implicit lazy val system: ActorSystem = ActorSystem("Sys")
+  implicit lazy val materializer: ActorMaterializer = ActorMaterializer()
 }

@@ -65,7 +65,7 @@ class JourneyController @Inject()(journeyRepository: JourneyRepository,
       journeyRepository.findById(id).map {
         case Some(journeyDocument) =>
           Logger.debug(s"[JourneyController][findJourney] Found Journey: \n\n${Json.toJson(journeyDocument)}")
-          Ok(Json.toJson(journeyDocument))
+          Ok(Json.toJson(journeyDocument.journey))
         case _ => NotFound("not found")
       }.recover {
         case e =>
