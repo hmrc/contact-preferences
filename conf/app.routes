@@ -2,6 +2,10 @@
 
 GET        /hello-world             controllers.HelloWorld.hello
 
-PUT        /journey                 controllers.JourneyController.storeJourney
+POST       /journey                 controllers.JourneyController.storeJourney
 GET        /journey/:id             controllers.JourneyController.findJourney(id: String)
 DELETE     /journey/:id             controllers.JourneyController.removeJourney(id: String)
+
+PUT        /                        controllers.ContactPreferenceController.storeContactPreference
+GET        /:id                     controllers.ContactPreferenceController.findContactPreference(id: String)
+DELETE     /:id                     controllers.ContactPreferenceController.removeContactPreference(id: String)
