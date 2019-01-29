@@ -62,17 +62,14 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService {
           status(result) shouldBe Status.INTERNAL_SERVER_ERROR
         }
       }
-    }
 
-    "not given a valid JourneyModel" should {
+      "fails to insert into journey repository" should {
 
-      lazy val fakePost = FakeRequest("POST", "/")
-        .withBody(Json.obj())
-        .withHeaders("Content-Type" -> "application/json")
-      lazy val result = TestJourneyController.storeJourney(fakePost)
-
-      "return a BadRequest" in {
-        status(result) shouldBe Status.BAD_REQUEST
+        "return an InternalServerError" in {
+          mockDate
+          setupMockFailedInsert(journeyDocumentMax)
+          status(result) shouldBe Status.SERVICE_UNAVAILABLE
+        }
       }
     }
   }
@@ -91,6 +88,11 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService {
       "return the correct Json for the JourneyModel" in {
         jsonBodyOf(await(result)) shouldBe Json.toJson(journeyDocumentMax.journey)
       }
+    }
+
+    "fails to findById in the journey repository" in {
+      setupMockFailedFindById(Some(journeyDocumentMax))
+      status(TestJourneyController.findJourney("id")(fakeRequest)) shouldBe Status.SERVICE_UNAVAILABLE
     }
 
     "given an id not contained in the journey repository" should {

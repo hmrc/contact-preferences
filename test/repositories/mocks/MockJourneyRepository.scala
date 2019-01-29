@@ -43,9 +43,19 @@ trait MockJourneyRepository extends TestUtils with MockitoSugar with BeforeAndAf
       .thenReturn(response)
   }
 
+  def setupMockFailedFindById(response: Option[JourneyDocument]): OngoingStubbing[Future[Option[JourneyDocument]]] = {
+    when(mockJourneyRepository.findById(ArgumentMatchers.anyString(),ArgumentMatchers.any())(ArgumentMatchers.any()))
+      .thenReturn(Future.failed(new Exception))
+  }
+
   def setupMockInsert(data: JourneyDocument)(responseIsOk: Boolean): OngoingStubbing[Future[WriteResult]] = {
     when(mockJourneyRepository.insert(ArgumentMatchers.eq(data))(ArgumentMatchers.any()))
       .thenReturn(updateWriteResult(responseIsOk))
+  }
+
+  def setupMockFailedInsert(data: JourneyDocument): OngoingStubbing[Future[WriteResult]] = {
+    when(mockJourneyRepository.insert(ArgumentMatchers.eq(data))(ArgumentMatchers.any()))
+      .thenReturn(Future.failed(new Exception))
   }
 
   private def updateWriteResult(isOk: Boolean) = UpdateWriteResult(
@@ -53,10 +63,10 @@ trait MockJourneyRepository extends TestUtils with MockitoSugar with BeforeAndAf
     n = 1,
     nModified = 1,
     upserted = Seq.empty[Upserted],
-    writeErrors = Seq.empty[WriteError],
+    writeErrors = Seq(WriteError(1,1,"error")),
     writeConcernError = None,
     code = None,
-    errmsg = None
+    errmsg = Some("error")
   )
 
 }

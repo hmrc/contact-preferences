@@ -61,17 +61,14 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository wi
           status(result) shouldBe Status.INTERNAL_SERVER_ERROR
         }
       }
-    }
 
-    "not given a valid ContactPreferenceModel" should {
+      "fails to update Contact preference repository" should {
 
-      lazy val fakePut = FakeRequest("PUT", "/")
-        .withBody(Json.obj())
-        .withHeaders("Content-Type" -> "application/json")
-      lazy val result = TestContactPreferenceController.storeContactPreference("id")(fakePut)
-
-      "return a BadRequest" in {
-        status(result) shouldBe Status.BAD_REQUEST
+        "return an InternalServerError" in {
+          mockDate
+          setupMockFailedUpdate(digitalPreferenceDocumentModel)
+          status(result) shouldBe Status.SERVICE_UNAVAILABLE
+        }
       }
     }
   }
@@ -89,6 +86,14 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository wi
 
       "return the correct Json for the ContactPreferenceModel" in {
         jsonBodyOf(await(result)) shouldBe Json.toJson(ContactPreferenceModel(digitalPreferenceDocumentModel.preference))
+      }
+    }
+
+    "fails to findById in the journey repository" should {
+
+      "return NotFound" in {
+        setupMockFailedFindById(None)
+        status(TestContactPreferenceController.findContactPreference("id")(fakeRequest)) shouldBe Status.SERVICE_UNAVAILABLE
       }
     }
 

@@ -43,9 +43,19 @@ trait MockContactPreferenceRepository extends TestUtils with MockitoSugar with B
       .thenReturn(response)
   }
 
+  def setupMockFailedFindById(response: Option[ContactPreferenceDocument]): OngoingStubbing[Future[Option[ContactPreferenceDocument]]] = {
+    when(mockContactPreferenceRepository.findById(ArgumentMatchers.anyString(),ArgumentMatchers.any())(ArgumentMatchers.any()))
+      .thenReturn(Future.failed(new Exception))
+  }
+
   def setupMockUpdate(data: ContactPreferenceDocument)(responseIsOk: Boolean): OngoingStubbing[Future[UpdateWriteResult]] = {
     when(mockContactPreferenceRepository.upsert(ArgumentMatchers.eq(data)))
       .thenReturn(updateWriteResult(responseIsOk))
+  }
+
+  def setupMockFailedUpdate(data: ContactPreferenceDocument): OngoingStubbing[Future[UpdateWriteResult]] = {
+    when(mockContactPreferenceRepository.upsert(ArgumentMatchers.eq(data)))
+      .thenReturn(Future.failed(new Exception))
   }
 
   private def updateWriteResult(isOk: Boolean) = UpdateWriteResult(
@@ -53,10 +63,10 @@ trait MockContactPreferenceRepository extends TestUtils with MockitoSugar with B
     n = 1,
     nModified = 1,
     upserted = Seq.empty[Upserted],
-    writeErrors = Seq.empty[WriteError],
+    writeErrors = Seq(WriteError(1,1,"error")),
     writeConcernError = None,
     code = None,
-    errmsg = None
+    errmsg = Some("error")
   )
 
 }

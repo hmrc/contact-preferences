@@ -18,7 +18,8 @@ lazy val coverageSettings: Seq[Setting[_]] = {
     "prod.*",
     "config.*",
     "testOnlyDoNotUseInAppConf.*",
-    "testOnly.*")
+    "testOnly.*",
+    ".*UUIDService*")
 
   Seq(
     ScoverageKeys.coverageExcludedPackages := excludedPackages.mkString(";"),

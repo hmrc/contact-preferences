@@ -16,42 +16,39 @@
 
 package controllers
 
-import assets.JourneyITConstants._
+import assets.ContactPreferenceITConstants._
 import play.api.http.Status._
 import play.api.libs.ws.WSResponse
 import utils.ITUtils
 import utils.mocks.MockUUIDService
 
 
-class JourneyControllerISpec extends ITUtils {
+class ContactPreferenceControllerISpec extends ITUtils {
 
-  "POST /journey" when {
+  "PUT /:id" when {
 
     "update is successful" should {
 
-      "should return CREATED (201)" in {
+      "should return CREATED (204)" in {
 
-        val res: WSResponse = await(post("/journey")(journeyJson))
+        val res: WSResponse = await(put(s"/${MockUUIDService.uuid}")(digitalPreferenceJson))
 
         res should have(
-          httpStatus(CREATED),
-          continueUrl(s"http://localhost:9591/contact-preferences-frontend/start/${MockUUIDService.uuid}")
+          httpStatus(NO_CONTENT)
         )
       }
     }
   }
 
-  "GET /journey/:id" when {
-
-    def getJourney(id: String): WSResponse = get(s"/journey/$id")
+  "GET /:id" when {
 
     "given exists" should {
 
       "should return OK (200)" in {
 
-        await(post("/journey")(journeyJson))
+        await(put(s"/${MockUUIDService.uuid}")(digitalPreferenceJson))
 
-        val res = await(getJourney(MockUUIDService.uuid))
+        val res = await(get(s"/${MockUUIDService.uuid}"))
 
         res should have(
           httpStatus(OK)
