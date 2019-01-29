@@ -23,7 +23,7 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import repositories.mocks.MockJourneyRepository
 import services.mocks.MockDateService
-import utils.mocks.MockUUIDService
+import services.mocks.MockUUIDService
 
 import scala.concurrent.Future
 

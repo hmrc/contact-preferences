@@ -19,7 +19,7 @@ package assets
 import models._
 import play.api.libs.json.{JsObject, Json}
 import repositories.documents.{DateDocument, JourneyDocument}
-import utils.mocks.MockUUIDService
+import services.mocks.MockUUIDService
 
 object JourneyTestConstants {
 
