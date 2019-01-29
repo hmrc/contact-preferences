@@ -38,16 +38,6 @@ trait MockJourneyRepository extends TestUtils with MockitoSugar with BeforeAndAf
 
   lazy val mockJourneyRepository: JourneyRepository = mock[JourneyRepository]
 
-  def setupMockRemoveById(responseIsOk: Boolean): OngoingStubbing[Future[WriteResult]] = {
-    when(mockJourneyRepository.removeById(ArgumentMatchers.anyString(),ArgumentMatchers.any())(ArgumentMatchers.any()))
-      .thenReturn(updateWriteResult(responseIsOk))
-  }
-
-  def setupMockRemoveByIdFailed: OngoingStubbing[Future[WriteResult]] = {
-    when(mockJourneyRepository.removeById(ArgumentMatchers.anyString(),ArgumentMatchers.any())(ArgumentMatchers.any()))
-      .thenReturn(Future.failed[WriteResult](new Exception("exception")))
-  }
-
   def setupMockFindById(response: Option[JourneyDocument]): OngoingStubbing[Future[Option[JourneyDocument]]] = {
     when(mockJourneyRepository.findById(ArgumentMatchers.anyString(),ArgumentMatchers.any())(ArgumentMatchers.any()))
       .thenReturn(response)

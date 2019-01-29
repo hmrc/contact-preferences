@@ -19,7 +19,7 @@ package assets
 import models.{ContactPreferenceModel, Digital, InvalidPreference, Paper}
 import play.api.libs.json.{JsObject, Json}
 import repositories.documents.{ContactPreferenceDocument, DateDocument}
-import services.mocks.MockUUIDService
+import utils.mocks.MockUUIDService
 
 object ContactPreferencesTestConstants {
 

@@ -21,9 +21,10 @@ import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import repositories.mocks.MockContactPreferenceRepository
-import services.mocks.{MockDateService, MockUUIDService}
+import services.mocks.MockDateService
 import assets.ContactPreferencesTestConstants._
 import models.ContactPreferenceModel
+import utils.mocks.MockUUIDService
 
 import scala.concurrent.Future
 
