@@ -16,13 +16,13 @@
 
 package models
 
-import play.api.libs.json.{JsString, Json}
-import utils.TestUtils
+import play.api.libs.json.{JsResultException, JsString, Json, __}
+import utils.{JsonSugar, TestUtils}
 
-class RegimeSpec extends TestUtils {
+class RegimeSpec extends TestUtils with JsonSugar {
 
   val mtdVatJson: JsString = JsString(MTDVAT.id)
-  val invalidJson: JsString = JsString(InvalidRegime.id)
+  val invalidJson: JsString = JsString("foo")
 
   "Regime.apply" should {
 
@@ -35,8 +35,8 @@ class RegimeSpec extends TestUtils {
 
     "when given an invalid Regime" should {
 
-      "for banana an InvalidRegime" in {
-        Regime("banana") shouldBe InvalidRegime
+      "for foo an InvalidRegime" in {
+        intercept[JsResultException](Regime("foo")) shouldBe jsonError(__, s"Invalid Regime: FOO. Valid Regime set: (${MTDVAT.id})")
       }
     }
   }
@@ -47,13 +47,6 @@ class RegimeSpec extends TestUtils {
 
       "for MTDVAT case object return MTDVAT " in {
         Regime.unapply(MTDVAT) shouldBe MTDVAT.id
-      }
-    }
-
-    "when given an invalid Regime" should {
-
-      "for InvalidRegime should return INVALID" in {
-        Regime.unapply(InvalidRegime) shouldBe InvalidRegime.id
       }
     }
   }
@@ -72,7 +65,7 @@ class RegimeSpec extends TestUtils {
       "when given an invalid Regime" should {
 
         "for invalidJson return InvalidRegime case object" in {
-          invalidJson.as[Regime] shouldBe InvalidRegime
+          intercept[JsResultException](invalidJson.as[Regime]) shouldBe jsonError(__, s"Invalid Regime: FOO. Valid Regime set: (${MTDVAT.id})")
         }
       }
     }
@@ -92,13 +85,6 @@ class RegimeSpec extends TestUtils {
 
       "for DIGITAL return MTDVAT case object" in {
         Json.toJson(MTDVAT) shouldBe mtdVatJson
-      }
-    }
-
-    "when given an invalid Regime" should {
-
-      "for invalidJson return InvalidRegime case object" in {
-        Json.toJson(InvalidRegime) shouldBe invalidJson
       }
     }
   }
