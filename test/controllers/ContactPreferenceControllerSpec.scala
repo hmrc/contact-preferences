@@ -16,14 +16,14 @@
 
 package controllers
 
+import assets.ContactPreferencesTestConstants._
+import models.ContactPreferenceModel
 import play.api.http.Status
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import repositories.mocks.MockContactPreferenceRepository
-import services.mocks.{MockDateService, MockUUIDService}
-import assets.ContactPreferencesTestConstants._
-import models.ContactPreferenceModel
+import services.mocks.MockDateService
 
 import scala.concurrent.Future
 
@@ -32,7 +32,6 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository wi
   object TestContactPreferenceController extends ContactPreferenceController(
     contactPreferenceRepository = mockContactPreferenceRepository,
     appConfig = appConfig,
-    uuidService = MockUUIDService,
     dateService = mockDateService
   )
 

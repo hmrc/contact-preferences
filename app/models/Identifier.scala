@@ -17,30 +17,26 @@
 package models
 
 import play.api.libs.json._
+import utils.JsonSugar
 
 sealed trait Identifier {
   val value: String
 }
 
-object Identifier {
+object Identifier extends JsonSugar {
   implicit val reads: Reads[Identifier] = __.read[String] map apply
   implicit val writes: Writes[Identifier] = Writes { x => JsString(unapply(x)) }
 
   def apply(arg: String): Identifier = arg.toUpperCase match {
     case VRN.value => VRN
-    case _ => InvalidIdentifier
+    case x => throw jsonError(__, s"Invalid Identifier: $x. Valid Identifier set: (${VRN.value})")
   }
 
   def unapply(arg: Identifier): String = arg match {
     case VRN => VRN.value
-    case InvalidIdentifier => InvalidIdentifier.value
   }
 }
 
 object VRN extends Identifier {
   val value = "VRN"
-}
-
-object InvalidIdentifier extends Identifier {
-  val value = "INVALID"
 }

@@ -17,6 +17,7 @@
 package models
 
 import play.api.libs.json._
+import utils.JsonSugar
 
 sealed trait Preference {
   val value: String
@@ -30,11 +31,7 @@ case object Paper extends Preference {
   override val value = "PAPER"
 }
 
-case object InvalidPreference extends Preference {
-  override val value = "INVALID"
-}
-
-object Preference {
+object Preference extends JsonSugar {
 
   implicit val reads: Reads[Preference] =
     __.read[String] map apply
@@ -46,7 +43,7 @@ object Preference {
   def apply(value: String): Preference = value.toUpperCase match {
     case Digital.value => Digital
     case Paper.value => Paper
-    case _ => InvalidPreference
+    case x => throw jsonError(__ \ "preference", s"Invalid Preference: $x. Valid Preference set: (${Digital.value}|${Paper.value})")
   }
 
   def unapply: Preference => String = _.value

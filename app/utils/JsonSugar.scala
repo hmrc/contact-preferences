@@ -14,31 +14,13 @@
  * limitations under the License.
  */
 
-package models
+package utils
 
-import models.Identifier.jsonError
+import play.api.data.validation.ValidationError
 import play.api.libs.json._
 
-sealed trait Regime {
-  val id: String
-  val internalID: String
-}
+trait JsonSugar {
 
-object Regime {
-  implicit val reads: Reads[Regime] = __.read[String] map apply
-  implicit val writes: Writes[Regime] = Writes { x => JsString(unapply(x)) }
+  def jsonError(path: JsPath, errMsg: String) = JsResultException(Seq(path -> Seq(ValidationError(Seq(errMsg),Seq()))))
 
-  def apply(arg: String): Regime = arg.toUpperCase match {
-    case MTDVAT.id => MTDVAT
-    case x => throw jsonError(__, s"Invalid Regime: $x. Valid Regime set: (${MTDVAT.id})")
-  }
-
-  def unapply(arg: Regime): String = arg match {
-    case MTDVAT => MTDVAT.id
-  }
-}
-
-object MTDVAT extends Regime {
-  val id = "VAT"
-  val internalID = "HMRC-MTD-VAT"
 }

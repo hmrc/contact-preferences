@@ -45,32 +45,35 @@ class JourneyController @Inject()(journeyRepository: JourneyRepository,
         Logger.debug(s"[JourneyController][storeJourney] JourneyDocument: $journeyDocument")
         journeyRepository.insert(journeyDocument).map {
           case result if result.ok =>
-            Logger.debug(s"[JourneyController][storeJourney] Header Location Redirect: $appConfig.contactPreferencesUrl}/$journeyId")
-            Created.withHeaders(HeaderNames.LOCATION -> s"${appConfig.contactPreferencesUrl}/$journeyId")
+            val redirect = s"${appConfig.contactPreferencesUrl}/$journeyId"
+            Logger.debug(s"[JourneyController][storeJourney] Header Location Redirect: $redirect")
+            Created.withHeaders(HeaderNames.LOCATION -> redirect)
           case err =>
-            Logger.debug(s"[JourneyController][storeJourney] Mongo Errors: ${err.writeErrors.map(_.errmsg)}")
-            InternalServerError("failed")
+            Logger.error(s"[JourneyController][storeJourney] Mongo Errors: ${err.writeErrors.map(_.errmsg)}")
+            InternalServerError("An error was returned from the MongoDB repository")
         }.recover {
           case e =>
-            Logger.debug(s"[JourneyController][storeJourney] Errors: ${e.getMessage}")
-            InternalServerError("failed")
+            Logger.error(s"[JourneyController][storeJourney] Errors: ${e.getMessage}")
+            ServiceUnavailable("An unexpected error occurred when communicating with the MongoDB repository")
         }
       }
     )
   }
 
-  val findJourney: String => Action[AnyContent] = id => Action.async {
+  val findJourney: String => Action[AnyContent] = journeyId => Action.async {
     implicit request =>
-      Logger.debug(s"[JourneyController][findJourney] JourneyID: $id")
-      journeyRepository.findById(id).map {
+      Logger.debug(s"[JourneyController][findJourney] JourneyID: $journeyId")
+      journeyRepository.findById(journeyId).map {
         case Some(journeyDocument) =>
-          Logger.debug(s"[JourneyController][findJourney] Found Journey: \n\n${Json.toJson(journeyDocument)}")
+          Logger.debug(s"[JourneyController][findJourney] Found Journey: \n\n${Json.toJson(journeyDocument)}\n\n")
           Ok(Json.toJson(journeyDocument.journey))
-        case _ => NotFound("not found")
+        case _ =>
+          Logger.error(s"[JourneyController][findJourney] Could not find JourneyContext matching JourneyID: $journeyId")
+          NotFound(s"Could not find JourneyContext matching JourneyID: $journeyId")
       }.recover {
         case e =>
-          Logger.debug(s"[JourneyController][findJourney] Errors: ${e.getMessage}")
-          InternalServerError("failed")
+          Logger.error(s"[JourneyController][findJourney] Errors: ${e.getMessage}")
+          ServiceUnavailable("An unexpected error occurred when communicating with the MongoDB repository")
       }
   }
 }
