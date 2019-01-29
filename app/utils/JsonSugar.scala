@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package controllers
+package utils
 
-import javax.inject.Singleton
+import play.api.data.validation.ValidationError
+import play.api.libs.json._
 
-import uk.gov.hmrc.play.bootstrap.controller.BaseController
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import play.api.mvc._
+trait JsonSugar {
 
-import scala.concurrent.Future
-
-@Singleton()
-class HelloWorld extends BaseController {
-
-  def hello(): Action[AnyContent] = Action.async { implicit request =>
-    Future.successful(Ok("Hello world"))
-  }
+  def jsonError(path: JsPath, errMsg: String) = JsResultException(Seq(path -> Seq(ValidationError(Seq(errMsg),Seq()))))
 
 }

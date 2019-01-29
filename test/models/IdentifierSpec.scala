@@ -16,13 +16,13 @@
 
 package models
 
-import play.api.libs.json.{JsString, Json}
-import utils.TestUtils
+import play.api.libs.json._
+import utils.{JsonSugar, TestUtils}
 
-class IdentifierSpec extends TestUtils {
+class IdentifierSpec extends TestUtils with JsonSugar {
 
   val vrnJson: JsString = JsString(VRN.value)
-  val invalidJson: JsString = JsString(InvalidIdentifier.value)
+  val invalidJson: JsString = JsString("foo")
 
   "Identifier.apply" should {
 
@@ -35,8 +35,8 @@ class IdentifierSpec extends TestUtils {
 
     "when given an invalid Identifier" should {
 
-      "for banana an InvalidIdentifier" in {
-        Identifier("banana") shouldBe InvalidIdentifier
+      "for foo raise a JsResultException InvalidIdentifier" in {
+        intercept[JsResultException](Identifier("foo")) shouldBe jsonError(__, s"Invalid Identifier: FOO. Valid Identifier set: (${VRN.value})")
       }
     }
   }
@@ -47,13 +47,6 @@ class IdentifierSpec extends TestUtils {
 
       "for VRN case object return VRN " in {
         Identifier.unapply(VRN) shouldBe VRN.value
-      }
-    }
-
-    "when given an invalid Identifier" should {
-
-      "for InvalidIdentifier should return INVALID" in {
-        Identifier.unapply(InvalidIdentifier) shouldBe InvalidIdentifier.value
       }
     }
   }
@@ -72,7 +65,7 @@ class IdentifierSpec extends TestUtils {
       "when given an invalid Identifier" should {
 
         "for invalidJson return InvalidIdentifier case object" in {
-          invalidJson.as[Identifier] shouldBe InvalidIdentifier
+          intercept[JsResultException](invalidJson.as[Identifier]) shouldBe jsonError(__, s"Invalid Identifier: FOO. Valid Identifier set: (${VRN.value})")
         }
       }
     }
@@ -92,13 +85,6 @@ class IdentifierSpec extends TestUtils {
 
       "for DIGITAL return VRN case object" in {
         Json.toJson(VRN) shouldBe vrnJson
-      }
-    }
-
-    "when given an invalid Identifier" should {
-
-      "for invalidJson return InvalidIdentifier case object" in {
-        Json.toJson(InvalidIdentifier) shouldBe invalidJson
       }
     }
   }

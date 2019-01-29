@@ -16,10 +16,9 @@
 
 package assets
 
-import models.{ContactPreferenceModel, Digital, InvalidPreference, Paper}
+import models.{ContactPreferenceModel, Digital, Paper}
 import play.api.libs.json.{JsObject, Json}
 import repositories.documents.{ContactPreferenceDocument, DateDocument}
-import utils.mocks.MockUUIDService
 
 object ContactPreferencesTestConstants {
 
@@ -46,17 +45,5 @@ object ContactPreferencesTestConstants {
     )
   )
   val paperPreferenceDocumentModel = ContactPreferenceDocument("id", Paper, DateDocument(123))
-
-  val invalidPreferenceJson: JsObject = Json.obj("preference" ->  InvalidPreference.value)
-  val invalidPreferenceModel = ContactPreferenceModel(InvalidPreference)
-
-  val invalidPreferenceDocumentJson: JsObject = Json.obj(
-    "_id" -> "id",
-    "preference" ->  InvalidPreference.value,
-    "creationTimestamp" -> Json.obj(
-      "$date" -> 123
-    )
-  )
-  val invalidPreferenceDocumentModel = ContactPreferenceDocument("id", InvalidPreference, DateDocument(123))
 
 }

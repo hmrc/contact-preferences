@@ -16,6 +16,7 @@
 
 package models
 
+import models.Identifier.jsonError
 import play.api.libs.json._
 
 sealed trait Regime {
@@ -29,21 +30,15 @@ object Regime {
 
   def apply(arg: String): Regime = arg.toUpperCase match {
     case MTDVAT.id => MTDVAT
-    case _ => InvalidRegime
+    case x => throw jsonError(__, s"Invalid Regime: $x. Valid Regime set: (${MTDVAT.id})")
   }
 
   def unapply(arg: Regime): String = arg match {
     case MTDVAT => MTDVAT.id
-    case InvalidRegime => InvalidRegime.id
   }
 }
 
 object MTDVAT extends Regime {
   val id = "VAT"
   val internalID = "HMRC-MTD-VAT"
-}
-
-object InvalidRegime extends Regime {
-  val id = "INVALID"
-  val internalID = "INVALID"
 }
