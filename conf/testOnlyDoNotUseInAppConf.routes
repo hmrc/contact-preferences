@@ -10,4 +10,8 @@
 # Failing to follow this rule may result in test routes deployed in production.
 
 # Add all the application routes to the prod.routes file
-->         /                          prod.Routes
+
+
+DELETE         /contact-preferences/test-only/dropDb      testOnly.controllers.ContactPrefsController.dropAll()
+
+->             /                                          prod.Routes
