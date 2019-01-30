@@ -25,14 +25,14 @@ import play.api.mvc.{Action, AnyContent}
 import repositories.ContactPreferenceRepository
 import repositories.documents.{ContactPreferenceDocument, DateDocument}
 import services.DateService
-import uk.gov.hmrc.play.bootstrap.controller.BaseController
+import utils.MongoSugar
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ContactPreferenceController @Inject()(contactPreferenceRepository: ContactPreferenceRepository,
                                             appConfig: AppConfig,
-                                            dateService: DateService)(implicit ec: ExecutionContext) extends BaseController {
+                                            dateService: DateService)(implicit ec: ExecutionContext) extends MongoSugar {
 
   def storeContactPreference(journeyId: String): Action[JsValue] = Action.async(parse.json) {
     implicit request => withJsonBody[ContactPreferenceModel](
@@ -40,17 +40,9 @@ class ContactPreferenceController @Inject()(contactPreferenceRepository: Contact
         val contactPreferenceDocument = ContactPreferenceDocument(journeyId, contactPreference.preference, DateDocument(dateService.timestamp))
         Logger.debug(s"[ContactPreferenceController][storeContactPreference] ContactPreferenceModel: $contactPreference")
         Logger.debug(s"[ContactPreferenceController][storeContactPreference] ContactPreferenceDocument: $contactPreferenceDocument")
-        contactPreferenceRepository.upsert(contactPreferenceDocument).map {
-          case result if result.ok =>
-            NoContent
-          case err =>
-            Logger.error(s"[ContactPreferenceController][storeContactPreference] Mongo Errors: ${err.writeErrors.map(_.errmsg)}")
-            InternalServerError("An error was returned from the MongoDB repository")
-        }.recover {
-          case e =>
-            Logger.error(s"[ContactPreferenceController][storeContactPreference] Errors: ${e.getMessage}")
-            ServiceUnavailable("An unexpected error occurred when communicating with the MongoDB repository")
-        }
+        upsert(contactPreferenceRepository)(contactPreferenceDocument, journeyId)(
+          Future.successful(NoContent)
+        )
       }
     )
   }
@@ -58,17 +50,8 @@ class ContactPreferenceController @Inject()(contactPreferenceRepository: Contact
   val findContactPreference: String => Action[AnyContent] = journeyId => Action.async {
     implicit request => {
       Logger.debug(s"[ContactPreferenceController][findContactPreference] JourneyID: $journeyId")
-      contactPreferenceRepository.findById(journeyId).map {
-        case Some(contactPreference) =>
-          Logger.debug(s"[ContactPreferenceController][findContactPreference] Found Preference: \n\n${Json.toJson(contactPreference)}\n\n")
-          Ok(Json.toJson(ContactPreferenceModel(contactPreference.preference)))
-        case _ =>
-          Logger.error(s"[ContactPreferenceController][findContactPreference] Could not find ContactPreference matching JourneyID: $journeyId")
-          NotFound(s"Could not find ContactPreference matching JourneyID: $journeyId")
-      }.recover {
-        case e =>
-          Logger.error(s"[ContactPreferenceController][findContactPreference] Errors: ${e.getMessage}")
-          ServiceUnavailable("An unexpected error occurred when communicating with the MongoDB repository")
+      findById(contactPreferenceRepository)(journeyId) { contactPreference =>
+        Future.successful(Ok(Json.toJson(ContactPreferenceModel(contactPreference.preference))))
       }
     }
   }

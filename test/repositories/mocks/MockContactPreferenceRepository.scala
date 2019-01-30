@@ -48,13 +48,13 @@ trait MockContactPreferenceRepository extends TestUtils with MockitoSugar with B
       .thenReturn(Future.failed(new Exception))
   }
 
-  def setupMockUpdate(data: ContactPreferenceDocument)(responseIsOk: Boolean): OngoingStubbing[Future[UpdateWriteResult]] = {
-    when(mockContactPreferenceRepository.upsert(ArgumentMatchers.eq(data)))
+  def setupMockUpdate(data: ContactPreferenceDocument, id: String)(responseIsOk: Boolean): OngoingStubbing[Future[UpdateWriteResult]] = {
+    when(mockContactPreferenceRepository.upsert(ArgumentMatchers.eq(data), ArgumentMatchers.eq(id)))
       .thenReturn(updateWriteResult(responseIsOk))
   }
 
-  def setupMockFailedUpdate(data: ContactPreferenceDocument): OngoingStubbing[Future[UpdateWriteResult]] = {
-    when(mockContactPreferenceRepository.upsert(ArgumentMatchers.eq(data)))
+  def setupMockFailedUpdate(data: ContactPreferenceDocument, id: String): OngoingStubbing[Future[UpdateWriteResult]] = {
+    when(mockContactPreferenceRepository.upsert(ArgumentMatchers.eq(data), ArgumentMatchers.eq(id)))
       .thenReturn(Future.failed(new Exception))
   }
 

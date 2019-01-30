@@ -32,10 +32,4 @@ class ContactPreferenceRepository @Inject()(mongo: ReactiveMongoComponent,
     mongo,
     collectionName = "preference",
     appConfig
-  )(implicitly[OFormat[ContactPreferenceDocument]], ec, implicitly[Manifest[ContactPreferenceDocument]]) {
-
-  def upsert(data: ContactPreferenceDocument): Future[UpdateWriteResult] = {
-    super.upsert(data, data._id)
-  }
-
-}
+  )(implicitly[OFormat[ContactPreferenceDocument]], ec, implicitly[Manifest[ContactPreferenceDocument]])
