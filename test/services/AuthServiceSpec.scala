@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package services
 
 import assets.BaseTestConstants.testVatNumber
+import assets.JourneyTestConstants._
 import config.Constants
 import connectors.mocks.MockAuthConnector
 import play.api.http.Status._
@@ -26,16 +27,15 @@ import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.{Enrolment, InsufficientEnrolments, MissingBearerToken}
 
 import scala.concurrent.Future
-import assets.JourneyTestConstants._
 
-class ContactPreferencesAuthorisedSpec extends MockAuthConnector {
+class AuthServiceSpec extends MockAuthConnector {
 
-  object TestContactPreferencesAuthorised extends ContactPreferencesAuthorised(mockAuthConnector)
+  object TestAuthService extends AuthService(mockAuthConnector)
 
-  def result: Future[Result] = TestContactPreferencesAuthorised.async(journeyModelMax.regime) {
+  def result: Future[Result] = TestAuthService.authorised(journeyModelMax.regime) {
     implicit user =>
       Future.successful(Ok)
-  }(ec)(fakeRequest)
+  }
 
   val authPredicate: Predicate =
     Enrolment(Constants.MtdContactPreferencesEnrolmentKey)

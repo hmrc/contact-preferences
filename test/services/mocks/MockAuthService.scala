@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package controllers.actions.mocks
+package services.mocks
 
 import assets.BaseTestConstants.testVatNumber
 import config.Constants
 import connectors.mocks.MockAuthConnector
-import controllers.actions.ContactPreferencesAuthorised
+import services.AuthService
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.{Retrieval, Retrievals}
 import uk.gov.hmrc.auth.core.{Enrolment, Enrolments}
 
-trait MockContactPreferencesAuthorised extends MockAuthConnector {
+trait MockAuthService extends MockAuthConnector {
 
-  val mockContactPreferencesAuthorised = new ContactPreferencesAuthorised(mockAuthConnector)
+  val mockContactPreferencesAuthorised = new AuthService(mockAuthConnector)
 
   val vatAuthPredicate: Predicate = Enrolment(Constants.MtdContactPreferencesEnrolmentKey)
     .withIdentifier(Constants.MtdContactPreferencesReferenceKey, testVatNumber)
