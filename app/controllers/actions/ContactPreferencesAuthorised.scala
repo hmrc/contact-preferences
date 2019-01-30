@@ -18,6 +18,7 @@ package controllers.actions
 
 import config.Constants
 import javax.inject.{Inject, Singleton}
+import models.RegimeModel
 import models.requests.User
 import play.api.Logger
 import play.api.mvc._
@@ -30,20 +31,20 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class ContactPreferencesAuthorised @Inject()(val authConnector: AuthConnector) extends BaseController with AuthorisedFunctions {
 
-  private def delegatedAuthRule(vrn: String): Enrolment =
-    Enrolment(Constants.MtdContactPreferencesEnrolmentKey)
-      .withIdentifier(Constants.MtdContactPreferencesReferenceKey, vrn)
-      .withDelegatedAuthRule(Constants.MtdContactPreferencesDelegatedAuth)
+  private def delegatedAuthRule(regime: RegimeModel): Enrolment =
+    Enrolment(regime.`type`.enrolmentID)
+      .withIdentifier(regime.identifier.key.value, regime.identifier.value)
+      .withDelegatedAuthRule(regime.`type`.delegatedAuthRule)
 
   private val arn: Enrolments => Option[String] = _.getEnrolment(Constants.AgentServicesEnrolment) flatMap {
     _.getIdentifier(Constants.AgentServicesReference).map(_.value)
   }
 
-  def async(vrn: String)(f: User[_] => Future[Result])(implicit ec: ExecutionContext): Action[AnyContent] = Action.async {
+  def async(regime: RegimeModel)(f: User[_] => Future[Result])(implicit ec: ExecutionContext): Action[AnyContent] = Action.async {
     implicit request =>
-      authorised(delegatedAuthRule(vrn)).retrieve(Retrievals.allEnrolments and Retrievals.credentials) {
+      authorised(delegatedAuthRule(regime)).retrieve(Retrievals.allEnrolments and Retrievals.credentials) {
         case enrolments ~ credentials =>
-          f(User(vrn, arn(enrolments), credentials.providerId)(request))
+          f(User(regime.identifier.value, arn(enrolments), credentials.providerId)(request))
       } recover {
         case _: NoActiveSession =>
           Logger.debug(s"[ContactPreferencesAuthorised][async] - User has no active session, unauthorised")

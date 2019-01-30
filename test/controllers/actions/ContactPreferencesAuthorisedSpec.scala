@@ -26,13 +26,13 @@ import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.{Enrolment, InsufficientEnrolments, MissingBearerToken}
 
 import scala.concurrent.Future
-
+import assets.JourneyTestConstants._
 
 class ContactPreferencesAuthorisedSpec extends MockAuthConnector {
 
   object TestContactPreferencesAuthorised extends ContactPreferencesAuthorised(mockAuthConnector)
 
-  def result: Future[Result] = TestContactPreferencesAuthorised.async(testVatNumber) {
+  def result: Future[Result] = TestContactPreferencesAuthorised.async(journeyModelMax.regime) {
     implicit user =>
       Future.successful(Ok)
   }(ec)(fakeRequest)
