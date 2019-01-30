@@ -1,3 +1,7 @@
 # microservice specific routes
 
-GET        /hello-world             controllers.HelloWorld.hello
+POST       /journey                 controllers.JourneyController.storeJourney
+GET        /journey/:id             controllers.JourneyController.findJourney(id: String)
+
+PUT        /:id                     controllers.ContactPreferenceController.storeContactPreference(id: String)
+GET        /:id                     controllers.ContactPreferenceController.findContactPreference(id: String)

@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-package controllers
+package repositories.documents
 
-import javax.inject.Singleton
+import models.Preference
+import play.api.libs.json.{Json, OFormat}
 
-import uk.gov.hmrc.play.bootstrap.controller.BaseController
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import play.api.mvc._
+case class ContactPreferenceDocument(_id: String, preference: Preference, creationTimestamp: DateDocument)
 
-import scala.concurrent.Future
-
-@Singleton()
-class HelloWorld extends BaseController {
-
-  def hello(): Action[AnyContent] = Action.async { implicit request =>
-    Future.successful(Ok("Hello world"))
-  }
-
+object ContactPreferenceDocument {
+  implicit val fmt: OFormat[ContactPreferenceDocument] = Json.format[ContactPreferenceDocument]
 }
+
+
+

@@ -14,24 +14,13 @@
  * limitations under the License.
  */
 
-package controllers
+package utils
 
-import org.scalatest.{Matchers, WordSpec}
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.http.Status
-import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.data.validation.ValidationError
+import play.api.libs.json._
 
-class HelloWorldControllerSpec extends WordSpec with Matchers with GuiceOneAppPerSuite {
+trait JsonSugar {
 
-  val fakeRequest = FakeRequest("GET", "/")
-
-  "GET /" should {
-    "return 200" in {
-      val controller = new HelloWorld()
-      val result = controller.hello()(fakeRequest)
-      status(result) shouldBe Status.OK
-    }
-  }
+  def jsonError(path: JsPath, errMsg: String) = JsResultException(Seq(path -> Seq(ValidationError(Seq(errMsg),Seq()))))
 
 }
