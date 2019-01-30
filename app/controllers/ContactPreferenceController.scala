@@ -24,7 +24,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent}
 import repositories.ContactPreferenceRepository
 import repositories.documents.{ContactPreferenceDocument, DateDocument}
-import services.DateService
+import services.{AuthService, DateService}
 import utils.MongoSugar
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -32,7 +32,8 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class ContactPreferenceController @Inject()(contactPreferenceRepository: ContactPreferenceRepository,
                                             appConfig: AppConfig,
-                                            dateService: DateService)(implicit ec: ExecutionContext) extends MongoSugar {
+                                            dateService: DateService,
+                                            authService: AuthService)(implicit ec: ExecutionContext) extends MongoSugar {
 
   def storeContactPreference(journeyId: String): Action[JsValue] = Action.async(parse.json) {
     implicit request => withJsonBody[ContactPreferenceModel](

@@ -19,15 +19,16 @@ package connectors.mocks
 import assets.BaseTestConstants._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
-import testUtils.TestSupport
+import org.scalatest.mockito.MockitoSugar
 import uk.gov.hmrc.auth.core.authorise.{EmptyPredicate, Predicate}
 import uk.gov.hmrc.auth.core.retrieve._
 import uk.gov.hmrc.auth.core.{AuthConnector, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.TestUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait MockAuthConnector extends TestSupport {
+trait MockAuthConnector extends TestUtils with MockitoSugar {
 
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
 

@@ -22,18 +22,18 @@ import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import repositories.mocks.MockJourneyRepository
-import services.mocks.MockDateService
-import services.mocks.MockUUIDService
+import services.mocks.{MockAuthService, MockDateService, MockUUIDService}
 
 import scala.concurrent.Future
 
-class JourneyControllerSpec extends MockJourneyRepository with MockDateService {
+class JourneyControllerSpec extends MockJourneyRepository with MockDateService with MockAuthService{
 
   object TestJourneyController extends JourneyController(
     journeyRepository = mockJourneyRepository,
     appConfig = appConfig,
     uuidService = MockUUIDService,
-    dateService = mockDateService
+    dateService = mockDateService,
+    authService = mockAuthService
   )
 
   "JourneyController.storeJourney" when {
@@ -50,6 +50,7 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService {
         "return an Ok" in {
           mockDate
           setupMockInsert(journeyDocumentMax)(true)
+          mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
           status(result) shouldBe Status.CREATED
         }
       }
@@ -59,6 +60,7 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService {
         "return an InternalServerError" in {
           mockDate
           setupMockInsert(journeyDocumentMax)(false)
+          mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
           status(result) shouldBe Status.INTERNAL_SERVER_ERROR
         }
       }
@@ -68,6 +70,7 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService {
         "return an InternalServerError" in {
           mockDate
           setupMockFailedInsert(journeyDocumentMax)
+          mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
           status(result) shouldBe Status.SERVICE_UNAVAILABLE
         }
       }

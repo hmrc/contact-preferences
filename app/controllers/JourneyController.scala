@@ -25,7 +25,8 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent}
 import repositories.JourneyRepository
 import repositories.documents.{DateDocument, JourneyDocument}
-import services.{DateService, UUIDService}
+import services.{AuthService, DateService, UUIDService}
+import uk.gov.hmrc.play.bootstrap.controller.BaseController
 import utils.MongoSugar
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -34,18 +35,23 @@ import scala.concurrent.{ExecutionContext, Future}
 class JourneyController @Inject()(journeyRepository: JourneyRepository,
                                   appConfig: AppConfig,
                                   uuidService: UUIDService,
-                                  dateService: DateService)(implicit ec: ExecutionContext) extends MongoSugar {
+                                  dateService: DateService,
+                                  authService: AuthService)(implicit ec: ExecutionContext) extends BaseController with MongoSugar {
 
-  val storeJourney: Action[JsValue] = Action.async(parse.json) { implicit request =>
-    withJsonBody[JourneyModel](journey => {
-      val journeyId = uuidService.generateUUID
-      val journeyDocument = JourneyDocument(journeyId, journey, DateDocument(dateService.timestamp))
-      insert(journeyRepository)(journeyDocument) {
-        val redirect = s"${appConfig.contactPreferencesUrl}/$journeyId"
-        Logger.debug(s"[JourneyController][storeJourney] Header Location Redirect: $redirect")
-        Future.successful(Created.withHeaders(HeaderNames.LOCATION -> redirect))
+  val storeJourney: Action[JsValue] = Action.async(parse.json) {
+    implicit request => withJsonBody[JourneyModel](
+      journey => {
+        authService.authorised(journey.regime) { implicit user =>
+          val journeyId = uuidService.generateUUID
+          val journeyDocument = JourneyDocument(journeyId, journey, DateDocument(dateService.timestamp))
+          insert(journeyRepository)(journeyDocument) {
+            val redirect = s"${appConfig.contactPreferencesUrl}/$journeyId"
+            Logger.debug(s"[JourneyController][storeJourney] Header Location Redirect: $redirect")
+            Future.successful(Created.withHeaders(HeaderNames.LOCATION -> redirect))
+          }
+        }
       }
-    })
+    )
   }
 
   val findJourney: String => Action[AnyContent] = journeyId => Action.async { implicit request =>
