@@ -19,11 +19,10 @@ package controllers
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import models.ContactPreferenceModel
-import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent}
-import repositories.ContactPreferenceRepository
 import repositories.documents.{ContactPreferenceDocument, DateDocument}
+import repositories.{ContactPreferenceRepository, JourneyRepository}
 import services.{AuthService, DateService}
 import utils.MongoSugar
 
@@ -31,6 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ContactPreferenceController @Inject()(contactPreferenceRepository: ContactPreferenceRepository,
+                                            journeyRepository: JourneyRepository,
                                             appConfig: AppConfig,
                                             dateService: DateService,
                                             authService: AuthService)(implicit ec: ExecutionContext) extends MongoSugar {
@@ -38,9 +38,17 @@ class ContactPreferenceController @Inject()(contactPreferenceRepository: Contact
   def storeContactPreference(journeyId: String): Action[JsValue] = Action.async(parse.json) {
     implicit request => withJsonBody[ContactPreferenceModel](
       contactPreference => {
-        val contactPreferenceDocument = ContactPreferenceDocument(journeyId, contactPreference.preference, DateDocument(dateService.timestamp))
-        upsert(contactPreferenceRepository)(contactPreferenceDocument, journeyId) {
-          Future.successful(NoContent)
+        journeyRepository.findById(journeyId).flatMap {
+          case Some(journeyDocument) =>
+            authService.authorised(journeyDocument.journey.regime) { implicit user =>
+              val contactPreferenceDocument = ContactPreferenceDocument(journeyId, contactPreference.preference, DateDocument(dateService.timestamp))
+              upsert(contactPreferenceRepository)(contactPreferenceDocument, journeyId) {
+                Future.successful(
+                  NoContent
+                )
+              }
+            }
+          case None => Future.successful(NotFound)
         }
       }
     )
@@ -48,7 +56,6 @@ class ContactPreferenceController @Inject()(contactPreferenceRepository: Contact
 
   val findContactPreference: String => Action[AnyContent] = journeyId => Action.async {
     implicit request => {
-      Logger.debug(s"[ContactPreferenceController][findContactPreference] JourneyID: $journeyId")
       findById(contactPreferenceRepository)(journeyId) { contactPreference =>
         Future.successful(Ok(Json.toJson(ContactPreferenceModel(contactPreference.preference))))
       }

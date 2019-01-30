@@ -38,22 +38,22 @@ trait MockContactPreferenceRepository extends TestUtils with MockitoSugar with B
 
   lazy val mockContactPreferenceRepository: ContactPreferenceRepository = mock[ContactPreferenceRepository]
 
-  def setupMockFindById(response: Option[ContactPreferenceDocument]): OngoingStubbing[Future[Option[ContactPreferenceDocument]]] = {
+  def setupMockFindPreferenceById(response: Option[ContactPreferenceDocument]): OngoingStubbing[Future[Option[ContactPreferenceDocument]]] = {
     when(mockContactPreferenceRepository.findById(ArgumentMatchers.anyString(),ArgumentMatchers.any())(ArgumentMatchers.any()))
       .thenReturn(response)
   }
 
-  def setupMockFailedFindById(response: Option[ContactPreferenceDocument]): OngoingStubbing[Future[Option[ContactPreferenceDocument]]] = {
+  def setupMockFailedFindPreferenceById(response: Option[ContactPreferenceDocument]): OngoingStubbing[Future[Option[ContactPreferenceDocument]]] = {
     when(mockContactPreferenceRepository.findById(ArgumentMatchers.anyString(),ArgumentMatchers.any())(ArgumentMatchers.any()))
       .thenReturn(Future.failed(new Exception))
   }
 
-  def setupMockUpdate(data: ContactPreferenceDocument, id: String)(responseIsOk: Boolean): OngoingStubbing[Future[UpdateWriteResult]] = {
+  def setupMockUpdatePreference(data: ContactPreferenceDocument, id: String)(responseIsOk: Boolean): OngoingStubbing[Future[UpdateWriteResult]] = {
     when(mockContactPreferenceRepository.upsert(ArgumentMatchers.eq(data), ArgumentMatchers.eq(id)))
       .thenReturn(updateWriteResult(responseIsOk))
   }
 
-  def setupMockFailedUpdate(data: ContactPreferenceDocument, id: String): OngoingStubbing[Future[UpdateWriteResult]] = {
+  def setupMockFailedUpdatePreference(data: ContactPreferenceDocument, id: String): OngoingStubbing[Future[UpdateWriteResult]] = {
     when(mockContactPreferenceRepository.upsert(ArgumentMatchers.eq(data), ArgumentMatchers.eq(id)))
       .thenReturn(Future.failed(new Exception))
   }

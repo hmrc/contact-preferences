@@ -49,7 +49,7 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService w
 
         "return an Ok" in {
           mockDate
-          setupMockInsert(journeyDocumentMax)(true)
+          setupMockInsertJourney(journeyDocumentMax)(true)
           mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
           status(result) shouldBe Status.CREATED
         }
@@ -59,7 +59,7 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService w
 
         "return an InternalServerError" in {
           mockDate
-          setupMockInsert(journeyDocumentMax)(false)
+          setupMockInsertJourney(journeyDocumentMax)(false)
           mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
           status(result) shouldBe Status.INTERNAL_SERVER_ERROR
         }
@@ -69,7 +69,7 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService w
 
         "return an InternalServerError" in {
           mockDate
-          setupMockFailedInsert(journeyDocumentMax)
+          setupMockFailedInsertJourney(journeyDocumentMax)
           mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
           status(result) shouldBe Status.SERVICE_UNAVAILABLE
         }
@@ -84,7 +84,7 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService w
       lazy val result: Future[Result] = TestJourneyController.findJourney("id")(fakeRequest)
 
       "return status Ok" in {
-        setupMockFindById(Some(journeyDocumentMax))
+        setupMockFindJourneyById(Some(journeyDocumentMax))
         status(result) shouldBe Status.OK
       }
 
@@ -94,14 +94,14 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService w
     }
 
     "fails to findById in the journey repository" in {
-      setupMockFailedFindById(Some(journeyDocumentMax))
+      setupMockFailedFindJourneyById(Some(journeyDocumentMax))
       status(TestJourneyController.findJourney("id")(fakeRequest)) shouldBe Status.SERVICE_UNAVAILABLE
     }
 
     "given an id not contained in the journey repository" should {
 
       "return NotFound" in {
-        setupMockFindById(None)
+        setupMockFindJourneyById(None)
         status(TestJourneyController.findJourney("id")(fakeRequest)) shouldBe Status.NOT_FOUND
       }
     }
