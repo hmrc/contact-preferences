@@ -36,29 +36,21 @@ class JourneyController @Inject()(journeyRepository: JourneyRepository,
                                   uuidService: UUIDService,
                                   dateService: DateService)(implicit ec: ExecutionContext) extends MongoSugar {
 
-  val storeJourney: Action[JsValue] = Action.async(parse.json) {
-    implicit request => withJsonBody[JourneyModel](
-      journey => {
-        val journeyId = uuidService.generateUUID
-        val journeyDocument = JourneyDocument(journeyId, journey, DateDocument(dateService.timestamp))
-        Logger.debug(s"[JourneyController][storeJourney] JourneyModel: $journey")
-        Logger.debug(s"[JourneyController][storeJourney] JourneyDocument: $journeyDocument")
-        insert(journeyRepository)(journeyDocument) {
-          val redirect = s"${appConfig.contactPreferencesUrl}/$journeyId"
-          Logger.debug(s"[JourneyController][storeJourney] Header Location Redirect: $redirect")
-          Future.successful(Created.withHeaders(HeaderNames.LOCATION -> redirect))
-        }
+  val storeJourney: Action[JsValue] = Action.async(parse.json) { implicit request =>
+    withJsonBody[JourneyModel](journey => {
+      val journeyId = uuidService.generateUUID
+      val journeyDocument = JourneyDocument(journeyId, journey, DateDocument(dateService.timestamp))
+      insert(journeyRepository)(journeyDocument) {
+        val redirect = s"${appConfig.contactPreferencesUrl}/$journeyId"
+        Logger.debug(s"[JourneyController][storeJourney] Header Location Redirect: $redirect")
+        Future.successful(Created.withHeaders(HeaderNames.LOCATION -> redirect))
       }
-    )
+    })
   }
 
-  val findJourney: String => Action[AnyContent] = journeyId => Action.async {
-    implicit request =>
-      Logger.debug(s"[JourneyController][findJourney] JourneyID: $journeyId")
-      findById(journeyRepository)(journeyId) {
-        journeyDocument =>
-          Logger.debug(s"[JourneyController][findJourney] Found Journey: \n\n${Json.toJson(journeyDocument)}\n\n")
-          Future.successful(Ok(Json.toJson(journeyDocument.journey)))
-      }
+  val findJourney: String => Action[AnyContent] = journeyId => Action.async { implicit request =>
+    findById(journeyRepository)(journeyId) { journeyDocument =>
+      Future.successful(Ok(Json.toJson(journeyDocument.journey)))
+    }
   }
 }

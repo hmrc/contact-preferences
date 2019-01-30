@@ -38,11 +38,9 @@ class ContactPreferenceController @Inject()(contactPreferenceRepository: Contact
     implicit request => withJsonBody[ContactPreferenceModel](
       contactPreference => {
         val contactPreferenceDocument = ContactPreferenceDocument(journeyId, contactPreference.preference, DateDocument(dateService.timestamp))
-        Logger.debug(s"[ContactPreferenceController][storeContactPreference] ContactPreferenceModel: $contactPreference")
-        Logger.debug(s"[ContactPreferenceController][storeContactPreference] ContactPreferenceDocument: $contactPreferenceDocument")
-        upsert(contactPreferenceRepository)(contactPreferenceDocument, journeyId)(
+        upsert(contactPreferenceRepository)(contactPreferenceDocument, journeyId) {
           Future.successful(NoContent)
-        )
+        }
       }
     )
   }
