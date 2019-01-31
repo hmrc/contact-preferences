@@ -19,6 +19,7 @@ package controllers
 import assets.JourneyITConstants._
 import play.api.http.Status._
 import play.api.libs.ws.WSResponse
+import stubs.AuthStub
 import utils.ITUtils
 import utils.mocks.MockUUIDService
 
@@ -31,6 +32,7 @@ class JourneyControllerISpec extends ITUtils {
 
       "should return CREATED (201)" in {
 
+        AuthStub.authorisedIndividual()
         val res: WSResponse = await(post("/journey")(journeyJson))
 
         res should have(
@@ -49,6 +51,7 @@ class JourneyControllerISpec extends ITUtils {
 
       "should return OK (200)" in {
 
+        AuthStub.authorisedIndividual()
         await(post("/journey")(journeyJson))
 
         val res = await(getJourney(MockUUIDService.uuid))

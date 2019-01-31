@@ -44,9 +44,8 @@ class AuthService @Inject()(val authConnector: AuthConnector) extends Authorised
   }
 
   def authorised(regime: RegimeModel)(f: User[_] => Future[Result])(implicit ec: ExecutionContext, hc: HeaderCarrier, request: Request[_]): Future[Result] = {
-    authorised(delegatedAuthRule(regime)).retrieve(Retrievals.allEnrolments and Retrievals.credentials) {
-      case enrolments ~ credentials =>
-        f(User(regime.identifier.value, arn(enrolments), credentials.providerId)(request))
+    authorised(delegatedAuthRule(regime)).retrieve(Retrievals.allEnrolments) { enrolments =>
+        f(User(regime.identifier.value, arn(enrolments))(request))
     } recover {
       case _: NoActiveSession =>
         Logger.debug(s"[ContactPreferencesAuthorised][async] - User has no active session, unauthorised")

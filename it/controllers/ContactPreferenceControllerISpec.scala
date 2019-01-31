@@ -17,8 +17,10 @@
 package controllers
 
 import assets.ContactPreferenceITConstants._
+import assets.JourneyITConstants.journeyJson
 import play.api.http.Status._
 import play.api.libs.ws.WSResponse
+import stubs.AuthStub
 import utils.ITUtils
 import utils.mocks.MockUUIDService
 
@@ -30,6 +32,9 @@ class ContactPreferenceControllerISpec extends ITUtils {
     "update is successful" should {
 
       "should return CREATED (204)" in {
+
+        AuthStub.authorisedIndividual()
+        await(post("/journey")(journeyJson))
 
         val res: WSResponse = await(put(s"/${MockUUIDService.uuid}")(digitalPreferenceJson))
 
@@ -45,6 +50,9 @@ class ContactPreferenceControllerISpec extends ITUtils {
     "given exists" should {
 
       "should return OK (200)" in {
+
+        AuthStub.authorisedIndividual()
+        await(post("/journey")(journeyJson))
 
         await(put(s"/${MockUUIDService.uuid}")(digitalPreferenceJson))
 
