@@ -20,7 +20,12 @@ import play.api.libs.json._
 
 
 case class RegimeModel(`type`: Regime,
-                       identifier: IdModel)
+                       identifier: IdModel) {
+
+  val typeId: String = `type`.id
+  val idKey: String = identifier.key.value
+  val idValue: String = identifier.value
+}
 
 object RegimeModel {
   implicit val fmt: Format[RegimeModel] = Json.format[RegimeModel]

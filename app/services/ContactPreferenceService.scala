@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-package config
+package services
 
-object AppConfigKeys {
+import connectors.ContactPreferenceConnector
+import javax.inject.{Inject, Singleton}
+import models.{ContactPreferenceModel, ErrorModel, RegimeModel}
+import uk.gov.hmrc.http.HeaderCarrier
 
-  val contactPreferencesFrontendHost: String = "contact-preferences-frontend.host"
-  val contactPreferencesFrontendUrl: String = "contact-preferences-frontend.url"
+import scala.concurrent.{ExecutionContext, Future}
 
-  val desUrl: String = "microservice.services.des.url"
-  val desAuthorisationToken: String = "microservice.services.des.authorisation-token"
-  val desEnvironmentHeader: String = "microservice.services.des.environment"
+@Singleton
+class ContactPreferenceService @Inject()(contactPreferenceConnector: ContactPreferenceConnector)(implicit hc: HeaderCarrier, ec: ExecutionContext){
 
+  def getContactPreference(regimeModel: RegimeModel): Future[Either[ErrorModel, ContactPreferenceModel]] = {
+    contactPreferenceConnector.getContactPreference(regimeModel)
+  }
 }

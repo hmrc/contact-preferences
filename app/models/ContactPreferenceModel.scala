@@ -22,10 +22,7 @@ case class ContactPreferenceModel(preference: Preference)
 
 object ContactPreferenceModel {
 
-  val desReads: Reads[ContactPreferenceModel] = (
-    (__ \ "preference" \ "channel").read[Preference]
-  )(ContactPreferenceModel.apply _)
-
   implicit val format: Format[ContactPreferenceModel] = Json.format[ContactPreferenceModel]
+  val desReads: Reads[ContactPreferenceModel] = (__ \ "preference" \ "channel").read[Preference].map(apply)
 }
 

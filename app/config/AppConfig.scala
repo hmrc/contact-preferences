@@ -30,4 +30,8 @@ class AppConfig @Inject()(implicit val runModeConfiguration: Configuration, envi
   lazy val contactPreferencesUrl: String =
     s"${getString(AppConfigKeys.contactPreferencesFrontendHost)}${getString(AppConfigKeys.contactPreferencesFrontendUrl)}"
 
+
+  lazy val desUrl: String = getString(AppConfigKeys.desUrl)
+  lazy val desAuthorisationToken: String = s"Bearer ${getString(AppConfigKeys.desAuthorisationToken)}"
+  lazy val desEnvironmentHeader: (String, String) = "Environment" -> getString(AppConfigKeys.desEnvironmentHeader)
 }

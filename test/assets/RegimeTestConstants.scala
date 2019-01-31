@@ -14,15 +14,28 @@
  * limitations under the License.
  */
 
-package config
+package assets
 
-object AppConfigKeys {
+import models.{IdModel, MTDVAT, RegimeModel, VRN}
+import BaseTestConstants._
+import play.api.libs.json.{JsObject, Json}
 
-  val contactPreferencesFrontendHost: String = "contact-preferences-frontend.host"
-  val contactPreferencesFrontendUrl: String = "contact-preferences-frontend.url"
+object RegimeTestConstants {
 
-  val desUrl: String = "microservice.services.des.url"
-  val desAuthorisationToken: String = "microservice.services.des.authorisation-token"
-  val desEnvironmentHeader: String = "microservice.services.des.environment"
+  val regimeModel: RegimeModel = RegimeModel(
+    MTDVAT,
+    IdModel(
+      VRN,
+      testVatNumber
+    )
+  )
+
+  val regimeJson: JsObject = Json.obj(
+    "type" -> MTDVAT.id,
+    "identifier" -> Json.obj(
+      "key" -> VRN.value,
+      "value" -> testVatNumber
+    )
+  )
 
 }

@@ -17,12 +17,26 @@
 package connectors
 
 import config.AppConfig
+import connectors.httpParsers.ContactPreferenceHttpParser._
 import javax.inject.{Inject, Singleton}
+import models.{ContactPreferenceModel, ErrorModel, RegimeModel}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
+
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ContactPreferenceConnector @Inject()(val http: HttpClient, val appConfig: AppConfig){
 
-  private val url = ""
+  private val contactPreferenceurl = (regimeModel: RegimeModel) =>
+    s"${appConfig.desUrl}/${regimeModel.typeId}/${regimeModel.idKey}/${regimeModel.idValue}/contact-preference"
+
+  def getContactPreference(regimeModel: RegimeModel)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[ErrorModel, ContactPreferenceModel]] = {
+    implicit val headerCarrier: HeaderCarrier = hc
+      .withExtraHeaders(appConfig.desEnvironmentHeader)
+      .copy(authorization = Some(Authorization(appConfig.desAuthorisationToken)))
+    http.GET(contactPreferenceurl(regimeModel))(ContactPreferenceHttpReads, headerCarrier, ec)
+  }
 
 }
