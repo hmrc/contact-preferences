@@ -38,17 +38,15 @@ class JourneyController @Inject()(journeyRepository: JourneyRepository,
                                   dateService: DateService,
                                   authService: AuthService)(implicit ec: ExecutionContext) extends BaseController with MongoSugar {
 
-  val storeJourney: Action[JsValue] = Action.async(parse.json) {
-    implicit request => withJsonBody[JourneyModel](
-      journey => {
-        authService.authorised(journey.regime) { implicit user =>
-          val journeyId = uuidService.generateUUID
-          val journeyDocument = JourneyDocument(journeyId, journey, DateDocument(dateService.timestamp))
-          insert(journeyRepository)(journeyDocument) {
-            val redirect = s"${appConfig.contactPreferencesUrl}/$journeyId"
-            Logger.debug(s"[JourneyController][storeJourney] Header Location Redirect: $redirect")
-            Future.successful(Created.withHeaders(HeaderNames.LOCATION -> redirect))
-          }
+  val storeJourney: Action[JsValue] = Action.async(parse.json) { implicit request =>
+    withJsonBody[JourneyModel]( journey =>
+      authService.authorised(journey.regime) { implicit user =>
+        val journeyId = uuidService.generateUUID
+        val journeyDocument = JourneyDocument(journeyId, journey, DateDocument(dateService.timestamp))
+        insert(journeyRepository)(journeyDocument) {
+          val redirect = s"${appConfig.contactPreferencesUrl}/$journeyId"
+          Logger.debug(s"[JourneyController][storeJourney] Header Location Redirect: $redirect")
+          Future.successful(Created.withHeaders(HeaderNames.LOCATION -> redirect))
         }
       }
     )
@@ -56,7 +54,9 @@ class JourneyController @Inject()(journeyRepository: JourneyRepository,
 
   val findJourney: String => Action[AnyContent] = journeyId => Action.async { implicit request =>
     findById(journeyRepository)(journeyId) { journeyDocument =>
-      Future.successful(Ok(Json.toJson(journeyDocument.journey)))
+      authService.authorised(journeyDocument.journey.regime) { implicit user =>
+        Future.successful(Ok(Json.toJson(journeyDocument.journey)))
+      }
     }
   }
 }

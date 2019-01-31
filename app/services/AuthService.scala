@@ -23,14 +23,16 @@ import models.requests.User
 import play.api.Logger
 import play.api.mvc.Results._
 import play.api.mvc._
+import repositories.JourneyRepository
 import uk.gov.hmrc.auth.core.retrieve.{Retrievals, ~}
 import uk.gov.hmrc.auth.core.{NoActiveSession, _}
 import uk.gov.hmrc.http.HeaderCarrier
+import utils.MongoSugar
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class AuthService @Inject()(val authConnector: AuthConnector) extends AuthorisedFunctions {
+class AuthService @Inject()(val authConnector: AuthConnector) extends AuthorisedFunctions with MongoSugar {
 
   private def delegatedAuthRule(regime: RegimeModel): Enrolment =
     Enrolment(regime.`type`.enrolmentID)

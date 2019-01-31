@@ -24,6 +24,7 @@ import play.api.mvc.{Action, AnyContent}
 import repositories.documents.{ContactPreferenceDocument, DateDocument}
 import repositories.{ContactPreferenceRepository, JourneyRepository}
 import services.{AuthService, DateService}
+import uk.gov.hmrc.play.bootstrap.controller.BaseController
 import utils.MongoSugar
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -33,31 +34,25 @@ class ContactPreferenceController @Inject()(contactPreferenceRepository: Contact
                                             journeyRepository: JourneyRepository,
                                             appConfig: AppConfig,
                                             dateService: DateService,
-                                            authService: AuthService)(implicit ec: ExecutionContext) extends MongoSugar {
+                                            authService: AuthService)(implicit ec: ExecutionContext) extends BaseController with MongoSugar {
 
-  def storeContactPreference(journeyId: String): Action[JsValue] = Action.async(parse.json) {
-    implicit request => withJsonBody[ContactPreferenceModel](
-      contactPreference => {
-        journeyRepository.findById(journeyId).flatMap {
-          case Some(journeyDocument) =>
-            authService.authorised(journeyDocument.journey.regime) { implicit user =>
-              val contactPreferenceDocument = ContactPreferenceDocument(journeyId, contactPreference.preference, DateDocument(dateService.timestamp))
-              upsert(contactPreferenceRepository)(contactPreferenceDocument, journeyId) {
-                Future.successful(
-                  NoContent
-                )
-              }
-            }
-          case None => Future.successful(NotFound)
+  def storeContactPreference(journeyId: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
+    withJsonBody[ContactPreferenceModel] { contactPreference =>
+      authService.authorised(journeyId) { implicit user =>
+        val contactPreferenceDocument = ContactPreferenceDocument(journeyId, contactPreference.preference, DateDocument(dateService.timestamp))
+        upsert(contactPreferenceRepository)(contactPreferenceDocument, journeyId) {
+          Future.successful(NoContent)
         }
       }
-    )
+    }
   }
 
-  val findContactPreference: String => Action[AnyContent] = journeyId => Action.async {
-    implicit request => {
-      findById(contactPreferenceRepository)(journeyId) { contactPreference =>
-        Future.successful(Ok(Json.toJson(ContactPreferenceModel(contactPreference.preference))))
+  val findContactPreference: String => Action[AnyContent] = journeyId => Action.async { implicit request =>
+    findById(journeyRepository)(journeyId) { journeyDocument =>
+      authService.authorised(journeyDocument.journey.regime) { implicit user =>
+        findById(contactPreferenceRepository)(journeyId) { contactPreference =>
+          Future.successful(Ok(Json.toJson(ContactPreferenceModel(contactPreference.preference))))
+        }
       }
     }
   }
