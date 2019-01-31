@@ -23,7 +23,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import repositories.mocks.MockContactPreferenceRepository
-import services.mocks.MockDateService
+import services.mocks.{MockDateService, MockUUIDService}
 
 import scala.concurrent.Future
 
@@ -42,13 +42,13 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository wi
       lazy val fakePut = FakeRequest("PUT", "/")
         .withBody(digitalPreferenceJson)
         .withHeaders("Content-Type" -> "application/json")
-      def result: Future[Result] = TestContactPreferenceController.storeContactPreference("id")(fakePut)
+      def result: Future[Result] = TestContactPreferenceController.storeContactPreference(MockUUIDService.generateUUID)(fakePut)
 
       "successfully updated contactPreference repository" should {
 
         "return an Ok" in {
           mockDate
-          setupMockUpdate(digitalPreferenceDocumentModel)(true)
+          setupMockUpdate(digitalPreferenceDocumentModel, MockUUIDService.generateUUID)(true)
           status(result) shouldBe Status.NO_CONTENT
         }
       }
@@ -57,7 +57,7 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository wi
 
         "return an InternalServerError" in {
           mockDate
-          setupMockUpdate(digitalPreferenceDocumentModel)(false)
+          setupMockUpdate(digitalPreferenceDocumentModel, MockUUIDService.generateUUID)(false)
           status(result) shouldBe Status.INTERNAL_SERVER_ERROR
         }
       }
@@ -66,7 +66,7 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository wi
 
         "return an InternalServerError" in {
           mockDate
-          setupMockFailedUpdate(digitalPreferenceDocumentModel)
+          setupMockFailedUpdate(digitalPreferenceDocumentModel, MockUUIDService.generateUUID)
           status(result) shouldBe Status.SERVICE_UNAVAILABLE
         }
       }
@@ -77,7 +77,7 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository wi
 
     "given an id contained in the contactPreference repository" should {
 
-      lazy val result: Future[Result] = TestContactPreferenceController.findContactPreference("id")(fakeRequest)
+      lazy val result: Future[Result] = TestContactPreferenceController.findContactPreference(MockUUIDService.generateUUID)(fakeRequest)
 
       "return status Ok" in {
         setupMockFindById(Some(digitalPreferenceDocumentModel))
@@ -93,7 +93,7 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository wi
 
       "return NotFound" in {
         setupMockFailedFindById(None)
-        status(TestContactPreferenceController.findContactPreference("id")(fakeRequest)) shouldBe Status.SERVICE_UNAVAILABLE
+        status(TestContactPreferenceController.findContactPreference(MockUUIDService.generateUUID)(fakeRequest)) shouldBe Status.SERVICE_UNAVAILABLE
       }
     }
 
@@ -101,7 +101,7 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository wi
 
       "return NotFound" in {
         setupMockFindById(None)
-        status(TestContactPreferenceController.findContactPreference("id")(fakeRequest)) shouldBe Status.NOT_FOUND
+        status(TestContactPreferenceController.findContactPreference(MockUUIDService.generateUUID)(fakeRequest)) shouldBe Status.NOT_FOUND
       }
     }
   }

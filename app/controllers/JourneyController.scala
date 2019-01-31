@@ -26,54 +26,31 @@ import play.api.mvc.{Action, AnyContent}
 import repositories.JourneyRepository
 import repositories.documents.{DateDocument, JourneyDocument}
 import services.{DateService, UUIDService}
-import uk.gov.hmrc.play.bootstrap.controller.BaseController
+import utils.MongoSugar
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class JourneyController @Inject()(journeyRepository: JourneyRepository,
                                   appConfig: AppConfig,
                                   uuidService: UUIDService,
-                                  dateService: DateService)(implicit ec: ExecutionContext) extends BaseController {
+                                  dateService: DateService)(implicit ec: ExecutionContext) extends MongoSugar {
 
-  val storeJourney: Action[JsValue] = Action.async(parse.json) {
-    implicit request => withJsonBody[JourneyModel](
-      journey => {
-        val journeyId = uuidService.generateUUID
-        val journeyDocument = JourneyDocument(journeyId, journey, DateDocument(dateService.timestamp))
-        Logger.debug(s"[JourneyController][storeJourney] JourneyModel: $journey")
-        Logger.debug(s"[JourneyController][storeJourney] JourneyDocument: $journeyDocument")
-        journeyRepository.insert(journeyDocument).map {
-          case result if result.ok =>
-            val redirect = s"${appConfig.contactPreferencesUrl}/$journeyId"
-            Logger.debug(s"[JourneyController][storeJourney] Header Location Redirect: $redirect")
-            Created.withHeaders(HeaderNames.LOCATION -> redirect)
-          case err =>
-            Logger.error(s"[JourneyController][storeJourney] Mongo Errors: ${err.writeErrors.map(_.errmsg)}")
-            InternalServerError("An error was returned from the MongoDB repository")
-        }.recover {
-          case e =>
-            Logger.error(s"[JourneyController][storeJourney] Errors: ${e.getMessage}")
-            ServiceUnavailable("An unexpected error occurred when communicating with the MongoDB repository")
-        }
+  val storeJourney: Action[JsValue] = Action.async(parse.json) { implicit request =>
+    withJsonBody[JourneyModel](journey => {
+      val journeyId = uuidService.generateUUID
+      val journeyDocument = JourneyDocument(journeyId, journey, DateDocument(dateService.timestamp))
+      insert(journeyRepository)(journeyDocument) {
+        val redirect = s"${appConfig.contactPreferencesUrl}/$journeyId"
+        Logger.debug(s"[JourneyController][storeJourney] Header Location Redirect: $redirect")
+        Future.successful(Created.withHeaders(HeaderNames.LOCATION -> redirect))
       }
-    )
+    })
   }
 
-  val findJourney: String => Action[AnyContent] = journeyId => Action.async {
-    implicit request =>
-      Logger.debug(s"[JourneyController][findJourney] JourneyID: $journeyId")
-      journeyRepository.findById(journeyId).map {
-        case Some(journeyDocument) =>
-          Logger.debug(s"[JourneyController][findJourney] Found Journey: \n\n${Json.toJson(journeyDocument)}\n\n")
-          Ok(Json.toJson(journeyDocument.journey))
-        case _ =>
-          Logger.error(s"[JourneyController][findJourney] Could not find JourneyContext matching JourneyID: $journeyId")
-          NotFound(s"Could not find JourneyContext matching JourneyID: $journeyId")
-      }.recover {
-        case e =>
-          Logger.error(s"[JourneyController][findJourney] Errors: ${e.getMessage}")
-          ServiceUnavailable("An unexpected error occurred when communicating with the MongoDB repository")
-      }
+  val findJourney: String => Action[AnyContent] = journeyId => Action.async { implicit request =>
+    findById(journeyRepository)(journeyId) { journeyDocument =>
+      Future.successful(Ok(Json.toJson(journeyDocument.journey)))
+    }
   }
 }
