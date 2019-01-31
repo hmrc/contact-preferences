@@ -38,10 +38,12 @@ class ContactPreferenceController @Inject()(contactPreferenceRepository: Contact
 
   def storeContactPreference(journeyId: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
     withJsonBody[ContactPreferenceModel] { contactPreference =>
-      authService.authorised(journeyId) { implicit user =>
-        val contactPreferenceDocument = ContactPreferenceDocument(journeyId, contactPreference.preference, DateDocument(dateService.timestamp))
-        upsert(contactPreferenceRepository)(contactPreferenceDocument, journeyId) {
-          Future.successful(NoContent)
+      findById(journeyRepository)(journeyId) { journeyDocument =>
+        authService.authorised(journeyDocument.journey.regime) { implicit user =>
+          val contactPreferenceDocument = ContactPreferenceDocument(journeyId, contactPreference.preference, DateDocument(dateService.timestamp))
+          upsert(contactPreferenceRepository)(contactPreferenceDocument, journeyId) {
+            Future.successful(NoContent)
+          }
         }
       }
     }

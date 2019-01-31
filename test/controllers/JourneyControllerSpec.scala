@@ -84,6 +84,7 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService w
       lazy val result: Future[Result] = TestJourneyController.findJourney("id")(fakeRequest)
 
       "return status Ok" in {
+        mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
         setupMockFindJourneyById(Some(journeyDocumentMax))
         status(result) shouldBe Status.OK
       }
@@ -94,6 +95,7 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService w
     }
 
     "fails to findById in the journey repository" in {
+      mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
       setupMockFailedFindJourneyById(Some(journeyDocumentMax))
       status(TestJourneyController.findJourney("id")(fakeRequest)) shouldBe Status.SERVICE_UNAVAILABLE
     }
@@ -101,6 +103,7 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService w
     "given an id not contained in the journey repository" should {
 
       "return NotFound" in {
+        mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
         setupMockFindJourneyById(None)
         status(TestJourneyController.findJourney("id")(fakeRequest)) shouldBe Status.NOT_FOUND
       }

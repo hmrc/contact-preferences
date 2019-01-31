@@ -89,6 +89,8 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository wi
       lazy val result: Future[Result] = TestContactPreferenceController.findContactPreference(MockUUIDService.generateUUID)(fakeRequest)
 
       "return status Ok" in {
+        mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+        setupMockFindJourneyById(Some(journeyDocumentMax))
         setupMockFindPreferenceById(Some(digitalPreferenceDocumentModel))
         status(result) shouldBe Status.OK
       }
@@ -101,6 +103,8 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository wi
     "fails to findById in the journey repository" should {
 
       "return NotFound" in {
+        mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+        setupMockFindJourneyById(Some(journeyDocumentMax))
         setupMockFailedFindPreferenceById(None)
         status(TestContactPreferenceController.findContactPreference(MockUUIDService.generateUUID)(fakeRequest)) shouldBe Status.SERVICE_UNAVAILABLE
       }
@@ -109,6 +113,8 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository wi
     "given an id not contained in the contactPreference repository" should {
 
       "return NotFound" in {
+        mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+        setupMockFindJourneyById(Some(journeyDocumentMax))
         setupMockFindPreferenceById(None)
         status(TestContactPreferenceController.findContactPreference(MockUUIDService.generateUUID)(fakeRequest)) shouldBe Status.NOT_FOUND
       }
