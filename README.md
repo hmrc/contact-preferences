@@ -3,7 +3,7 @@
 
 This service provides APIs to update a Users Contact Preferences for a Tax Regime. Currently, this service has been built so that it can scale to support future Tax Regimes although currently the only supported regime is MTD VAT.
 
-##APIs
+## APIs
 
 ### POST /contact-preference/journey
 
