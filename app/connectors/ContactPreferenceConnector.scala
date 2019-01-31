@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package models
+package connectors
 
-import play.api.libs.json._
+import config.AppConfig
+import javax.inject.{Inject, Singleton}
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
-case class ContactPreferenceModel(preference: Preference)
+@Singleton
+class ContactPreferenceConnector @Inject()(val http: HttpClient, val appConfig: AppConfig){
 
-object ContactPreferenceModel {
+  private val url = ""
 
-  val desReads: Reads[ContactPreferenceModel] = (
-    (__ \ "preference" \ "channel").read[Preference]
-  )(ContactPreferenceModel.apply _)
-
-  implicit val format: Format[ContactPreferenceModel] = Json.format[ContactPreferenceModel]
 }
-
