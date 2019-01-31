@@ -31,29 +31,29 @@ import scala.concurrent.Future
 
 trait MockJourneyRepository extends TestUtils with MockitoSugar with BeforeAndAfterEach {
 
-  override protected def beforeEach(): Unit = {
+  override def beforeEach(): Unit = {
     super.beforeEach()
     reset(mockJourneyRepository)
   }
 
   lazy val mockJourneyRepository: JourneyRepository = mock[JourneyRepository]
 
-  def setupMockFindById(response: Option[JourneyDocument]): OngoingStubbing[Future[Option[JourneyDocument]]] = {
+  def setupMockFindJourneyById(response: Option[JourneyDocument]): OngoingStubbing[Future[Option[JourneyDocument]]] = {
     when(mockJourneyRepository.findById(ArgumentMatchers.anyString(),ArgumentMatchers.any())(ArgumentMatchers.any()))
       .thenReturn(response)
   }
 
-  def setupMockFailedFindById(response: Option[JourneyDocument]): OngoingStubbing[Future[Option[JourneyDocument]]] = {
+  def setupMockFailedFindJourneyById(response: Option[JourneyDocument]): OngoingStubbing[Future[Option[JourneyDocument]]] = {
     when(mockJourneyRepository.findById(ArgumentMatchers.anyString(),ArgumentMatchers.any())(ArgumentMatchers.any()))
       .thenReturn(Future.failed(new Exception))
   }
 
-  def setupMockInsert(data: JourneyDocument)(responseIsOk: Boolean): OngoingStubbing[Future[WriteResult]] = {
+  def setupMockInsertJourney(data: JourneyDocument)(responseIsOk: Boolean): OngoingStubbing[Future[WriteResult]] = {
     when(mockJourneyRepository.insert(ArgumentMatchers.eq(data))(ArgumentMatchers.any()))
       .thenReturn(updateWriteResult(responseIsOk))
   }
 
-  def setupMockFailedInsert(data: JourneyDocument): OngoingStubbing[Future[WriteResult]] = {
+  def setupMockFailedInsertJourney(data: JourneyDocument): OngoingStubbing[Future[WriteResult]] = {
     when(mockJourneyRepository.insert(ArgumentMatchers.eq(data))(ArgumentMatchers.any()))
       .thenReturn(Future.failed(new Exception))
   }

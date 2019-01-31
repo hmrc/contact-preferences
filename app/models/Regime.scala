@@ -21,7 +21,9 @@ import play.api.libs.json._
 
 sealed trait Regime {
   val id: String
-  val internalID: String
+  val enrolmentID: String
+  val delegatedAuthRule: String
+
 }
 
 object Regime {
@@ -39,6 +41,7 @@ object Regime {
 }
 
 object MTDVAT extends Regime {
-  val id = "VAT"
-  val internalID = "HMRC-MTD-VAT"
+  override val id = "VAT"
+  override val enrolmentID = "HMRC-MTD-VAT"
+  override val delegatedAuthRule: String = "mtd-vat-auth"
 }

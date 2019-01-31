@@ -19,13 +19,13 @@ package utils
 import play.api.Logger
 import play.api.libs.json.{Json, Writes}
 import play.api.mvc.Result
+import play.api.mvc.Results._
 import reactivemongo.api.commands.WriteResult
 import repositories.MongoRepository
-import uk.gov.hmrc.play.bootstrap.controller.BaseController
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait MongoSugar extends BaseController {
+trait MongoSugar {
 
 
   def findById[T](repo: => MongoRepository[T])(id: String)(f: => T => Future[Result])

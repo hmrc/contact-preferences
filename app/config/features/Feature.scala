@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package models.requests
+package config.features
 
-import play.api.mvc.{Request, WrappedRequest}
+import play.api.Configuration
 
-case class User[A](vrn: String, arn: Option[String] = None)(implicit request: Request[A]) extends WrappedRequest[A](request) {
-  val isAgent: Boolean = arn.isDefined
+class Feature(val key: String)(implicit config: Configuration) {
+  def apply(value: Boolean): Unit = sys.props += key -> value.toString
+
+  def apply(): Boolean = sys.props.get(key).fold(config.getBoolean(key).getOrElse(false))(_.toBoolean)
 }

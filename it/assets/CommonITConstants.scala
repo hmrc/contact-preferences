@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package models.requests
+package assets
 
-import play.api.mvc.{Request, WrappedRequest}
+object CommonITConstants {
 
-case class User[A](vrn: String, arn: Option[String] = None)(implicit request: Request[A]) extends WrappedRequest[A](request) {
-  val isAgent: Boolean = arn.isDefined
+  val vrn: String = "999999999"
+
 }

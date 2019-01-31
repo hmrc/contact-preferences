@@ -14,36 +14,40 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package services
 
-import config.Constants
+import config.{AppConfig, Constants}
 import javax.inject.{Inject, Singleton}
+import models.RegimeModel
 import models.requests.User
 import play.api.Logger
+import play.api.mvc.Results._
 import play.api.mvc._
-import uk.gov.hmrc.auth.core.retrieve.{Retrievals, ~}
+import uk.gov.hmrc.auth.core.retrieve.Retrievals
 import uk.gov.hmrc.auth.core.{NoActiveSession, _}
-import uk.gov.hmrc.play.bootstrap.controller.BaseController
+import uk.gov.hmrc.http.HeaderCarrier
+import utils.MongoSugar
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ContactPreferencesAuthorised @Inject()(val authConnector: AuthConnector) extends BaseController with AuthorisedFunctions {
+class AuthService @Inject()(val authConnector: AuthConnector, appConfig: AppConfig) extends AuthorisedFunctions with MongoSugar {
 
-  private def delegatedAuthRule(vrn: String): Enrolment =
-    Enrolment(Constants.MtdContactPreferencesEnrolmentKey)
-      .withIdentifier(Constants.MtdContactPreferencesReferenceKey, vrn)
-      .withDelegatedAuthRule(Constants.MtdContactPreferencesDelegatedAuth)
+  private def delegatedAuthRule(regime: RegimeModel): Enrolment =
+    Enrolment(regime.`type`.enrolmentID)
+      .withIdentifier(regime.identifier.key.value, regime.identifier.value)
+      .withDelegatedAuthRule(regime.`type`.delegatedAuthRule)
 
   private val arn: Enrolments => Option[String] = _.getEnrolment(Constants.AgentServicesEnrolment) flatMap {
     _.getIdentifier(Constants.AgentServicesReference).map(_.value)
   }
 
-  def async(vrn: String)(f: User[_] => Future[Result])(implicit ec: ExecutionContext): Action[AnyContent] = Action.async {
-    implicit request =>
-      authorised(delegatedAuthRule(vrn)).retrieve(Retrievals.allEnrolments and Retrievals.credentials) {
-        case enrolments ~ credentials =>
-          f(User(vrn, arn(enrolments), credentials.providerId)(request))
+  def authorised(regime: RegimeModel)(f: User[_] => Future[Result])(implicit ec: ExecutionContext, hc: HeaderCarrier, request: Request[_]): Future[Result] = {
+    if (appConfig.features.bypassAuth()) {
+      f(User(regime.identifier.value, None)(request))
+    } else {
+      authorised(delegatedAuthRule(regime)).retrieve(Retrievals.allEnrolments) { enrolments =>
+        f(User(regime.identifier.value, arn(enrolments))(request))
       } recover {
         case _: NoActiveSession =>
           Logger.debug(s"[ContactPreferencesAuthorised][async] - User has no active session, unauthorised")
@@ -52,5 +56,6 @@ class ContactPreferencesAuthorised @Inject()(val authConnector: AuthConnector) e
           Logger.debug(s"[ContactPreferencesAuthorised][async] - User has an active session, but does not have sufficient authority")
           Forbidden
       }
+    }
   }
 }

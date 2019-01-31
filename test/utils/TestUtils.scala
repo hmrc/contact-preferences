@@ -24,16 +24,23 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.inject.Injector
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext
 
 trait TestUtils extends UnitSpec with GuiceOneAppPerSuite with BeforeAndAfterEach {
 
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    appConfig.features.bypassAuth(false)
+  }
+
   implicit lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/")
   lazy val injector: Injector = app.injector
   implicit lazy val appConfig: AppConfig = injector.instanceOf[AppConfig]
   implicit lazy val executionContext: ExecutionContext = injector.instanceOf[ExecutionContext]
+  implicit lazy val headerCarrier: HeaderCarrier = HeaderCarrier()
   implicit lazy val system: ActorSystem = ActorSystem("Sys")
   implicit lazy val materializer: ActorMaterializer = ActorMaterializer()
 }
