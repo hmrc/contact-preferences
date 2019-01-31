@@ -26,7 +26,7 @@ import uk.gov.hmrc.auth.core.{Enrolment, Enrolments}
 
 trait MockAuthService extends MockAuthConnector {
 
-  val mockAuthService = new AuthService(mockAuthConnector)
+  val mockAuthService = new AuthService(mockAuthConnector, appConfig)
 
   val vatAuthPredicate: Predicate = Enrolment(Constants.MtdContactPreferencesEnrolmentKey)
     .withIdentifier(Constants.MtdContactPreferencesReferenceKey, testVatNumber)

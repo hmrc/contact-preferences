@@ -16,15 +16,14 @@
 
 package services
 
-import config.Constants
+import config.{AppConfig, Constants}
 import javax.inject.{Inject, Singleton}
 import models.RegimeModel
 import models.requests.User
 import play.api.Logger
 import play.api.mvc.Results._
 import play.api.mvc._
-import repositories.JourneyRepository
-import uk.gov.hmrc.auth.core.retrieve.{Retrievals, ~}
+import uk.gov.hmrc.auth.core.retrieve.Retrievals
 import uk.gov.hmrc.auth.core.{NoActiveSession, _}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.MongoSugar
@@ -32,7 +31,7 @@ import utils.MongoSugar
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class AuthService @Inject()(val authConnector: AuthConnector) extends AuthorisedFunctions with MongoSugar {
+class AuthService @Inject()(val authConnector: AuthConnector, appConfig: AppConfig) extends AuthorisedFunctions with MongoSugar {
 
   private def delegatedAuthRule(regime: RegimeModel): Enrolment =
     Enrolment(regime.`type`.enrolmentID)
@@ -44,15 +43,19 @@ class AuthService @Inject()(val authConnector: AuthConnector) extends Authorised
   }
 
   def authorised(regime: RegimeModel)(f: User[_] => Future[Result])(implicit ec: ExecutionContext, hc: HeaderCarrier, request: Request[_]): Future[Result] = {
-    authorised(delegatedAuthRule(regime)).retrieve(Retrievals.allEnrolments) { enrolments =>
+    if (appConfig.features.bypassAuth()) {
+      f(User(regime.identifier.value, None)(request))
+    } else {
+      authorised(delegatedAuthRule(regime)).retrieve(Retrievals.allEnrolments) { enrolments =>
         f(User(regime.identifier.value, arn(enrolments))(request))
-    } recover {
-      case _: NoActiveSession =>
-        Logger.debug(s"[ContactPreferencesAuthorised][async] - User has no active session, unauthorised")
-        Unauthorized
-      case _: AuthorisationException =>
-        Logger.debug(s"[ContactPreferencesAuthorised][async] - User has an active session, but does not have sufficient authority")
-        Forbidden
+      } recover {
+        case _: NoActiveSession =>
+          Logger.debug(s"[ContactPreferencesAuthorised][async] - User has no active session, unauthorised")
+          Unauthorized
+        case _: AuthorisationException =>
+          Logger.debug(s"[ContactPreferencesAuthorised][async] - User has an active session, but does not have sufficient authority")
+          Forbidden
+      }
     }
   }
 }

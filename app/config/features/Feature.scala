@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package config
+package config.features
 
-object AppConfigKeys {
+import play.api.Configuration
 
-  val contactPreferencesFrontendHost: String = "contact-preferences-frontend.host"
-  val contactPreferencesFrontendUrl: String = "contact-preferences-frontend.url"
+class Feature(val key: String)(implicit config: Configuration) {
+  def apply(value: Boolean): Unit = sys.props += key -> value.toString
 
-  val bypassAuthFeature: String = "features.bypassAuthEnabled"
-
+  def apply(): Boolean = sys.props.get(key).fold(config.getBoolean(key).getOrElse(false))(_.toBoolean)
 }

@@ -31,6 +31,11 @@ import scala.concurrent.ExecutionContext
 
 trait TestUtils extends UnitSpec with GuiceOneAppPerSuite with BeforeAndAfterEach {
 
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    appConfig.features.bypassAuth(false)
+  }
+
   implicit lazy val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/")
   lazy val injector: Injector = app.injector
   implicit lazy val appConfig: AppConfig = injector.instanceOf[AppConfig]

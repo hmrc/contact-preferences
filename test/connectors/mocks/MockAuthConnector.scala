@@ -58,7 +58,7 @@ trait MockAuthConnector extends TestUtils with MockitoSugar {
       Future.successful(Enrolments(Set(testMtdVatEnrolment)))
     )
 
-  override protected def beforeEach(): Unit = {
+  override def beforeEach(): Unit = {
     super.beforeEach()
     reset(mockAuthConnector)
   }

@@ -31,7 +31,7 @@ import scala.concurrent.Future
 
 trait MockJourneyRepository extends TestUtils with MockitoSugar with BeforeAndAfterEach {
 
-  override protected def beforeEach(): Unit = {
+  override def beforeEach(): Unit = {
     super.beforeEach()
     reset(mockJourneyRepository)
   }

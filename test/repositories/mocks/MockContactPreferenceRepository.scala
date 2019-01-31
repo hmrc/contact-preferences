@@ -21,7 +21,7 @@ import org.mockito.Mockito._
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
-import reactivemongo.api.commands.{UpdateWriteResult, Upserted, WriteError, WriteResult}
+import reactivemongo.api.commands.{UpdateWriteResult, Upserted, WriteError}
 import repositories.ContactPreferenceRepository
 import repositories.documents.ContactPreferenceDocument
 import utils.TestUtils
@@ -31,7 +31,7 @@ import scala.concurrent.Future
 
 trait MockContactPreferenceRepository extends TestUtils with MockitoSugar with BeforeAndAfterEach {
 
-  override protected def beforeEach(): Unit = {
+  override def beforeEach(): Unit = {
     super.beforeEach()
     reset(mockContactPreferenceRepository)
   }

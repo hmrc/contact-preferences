@@ -30,7 +30,7 @@ import scala.concurrent.Future
 
 class AuthServiceSpec extends MockAuthConnector {
 
-  object TestAuthService extends AuthService(mockAuthConnector)
+  object TestAuthService extends AuthService(mockAuthConnector, appConfig)
 
   def result: Future[Result] = TestAuthService.authorised(journeyModelMax.regime) {
     implicit user =>
@@ -82,6 +82,14 @@ class AuthServiceSpec extends MockAuthConnector {
           mockAuthorise(authPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
           status(result) shouldBe FORBIDDEN
         }
+      }
+    }
+
+    "If bypassAuth is enabled" should {
+
+      "return OK" in {
+        appConfig.features.bypassAuth(true)
+        status(result) shouldBe OK
       }
     }
   }

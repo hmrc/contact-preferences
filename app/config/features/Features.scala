@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package config
+package config.features
 
-object AppConfigKeys {
+import config.AppConfigKeys
+import javax.inject.{Inject, Singleton}
+import play.api.Configuration
 
-  val contactPreferencesFrontendHost: String = "contact-preferences-frontend.host"
-  val contactPreferencesFrontendUrl: String = "contact-preferences-frontend.url"
-
-  val bypassAuthFeature: String = "features.bypassAuthEnabled"
-
+@Singleton
+class Features @Inject()(implicit config: Configuration) {
+  val bypassAuth = new Feature(AppConfigKeys.bypassAuthFeature)
 }
