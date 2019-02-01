@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package controllers.actions
+package services
 
 import assets.BaseTestConstants.testVatNumber
+import assets.JourneyTestConstants._
 import config.Constants
 import connectors.mocks.MockAuthConnector
 import play.api.http.Status._
@@ -27,15 +28,14 @@ import uk.gov.hmrc.auth.core.{Enrolment, InsufficientEnrolments, MissingBearerTo
 
 import scala.concurrent.Future
 
+class AuthServiceSpec extends MockAuthConnector {
 
-class ContactPreferencesAuthorisedSpec extends MockAuthConnector {
+  object TestAuthService extends AuthService(mockAuthConnector, appConfig)
 
-  object TestContactPreferencesAuthorised extends ContactPreferencesAuthorised(mockAuthConnector)
-
-  def result: Future[Result] = TestContactPreferencesAuthorised.async(testVatNumber) {
+  def result: Future[Result] = TestAuthService.authorised(journeyModelMax.regime) {
     implicit user =>
       Future.successful(Ok)
-  }(ec)(fakeRequest)
+  }
 
   val authPredicate: Predicate =
     Enrolment(Constants.MtdContactPreferencesEnrolmentKey)
@@ -82,6 +82,14 @@ class ContactPreferencesAuthorisedSpec extends MockAuthConnector {
           mockAuthorise(authPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
           status(result) shouldBe FORBIDDEN
         }
+      }
+    }
+
+    "If bypassAuth is enabled" should {
+
+      "return OK" in {
+        appConfig.features.bypassAuth(true)
+        status(result) shouldBe OK
       }
     }
   }

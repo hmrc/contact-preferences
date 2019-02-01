@@ -17,22 +17,25 @@
 package controllers
 
 import assets.ContactPreferencesTestConstants._
+import assets.JourneyTestConstants._
 import models.ContactPreferenceModel
 import play.api.http.Status
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import repositories.mocks.MockContactPreferenceRepository
-import services.mocks.{MockDateService, MockUUIDService}
+import repositories.mocks.{MockContactPreferenceRepository, MockJourneyRepository}
+import services.mocks.{MockAuthService, MockDateService, MockUUIDService}
 
 import scala.concurrent.Future
 
-class ContactPreferenceControllerSpec extends MockContactPreferenceRepository with MockDateService {
+class ContactPreferenceControllerSpec extends MockContactPreferenceRepository with MockDateService with MockAuthService with MockJourneyRepository {
 
   object TestContactPreferenceController extends ContactPreferenceController(
     contactPreferenceRepository = mockContactPreferenceRepository,
+    journeyRepository = mockJourneyRepository,
     appConfig = appConfig,
-    dateService = mockDateService
+    dateService = mockDateService,
+    authService = mockAuthService
   )
 
   "ContactPreferenceController.storeContactPreference" when {
@@ -48,7 +51,9 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository wi
 
         "return an Ok" in {
           mockDate
-          setupMockUpdate(digitalPreferenceDocumentModel, MockUUIDService.generateUUID)(true)
+          mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+          setupMockFindJourneyById(Some(journeyDocumentMax))
+          setupMockUpdatePreference(digitalPreferenceDocumentModel, MockUUIDService.generateUUID)(true)
           status(result) shouldBe Status.NO_CONTENT
         }
       }
@@ -57,7 +62,9 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository wi
 
         "return an InternalServerError" in {
           mockDate
-          setupMockUpdate(digitalPreferenceDocumentModel, MockUUIDService.generateUUID)(false)
+          mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+          setupMockFindJourneyById(Some(journeyDocumentMax))
+          setupMockUpdatePreference(digitalPreferenceDocumentModel, MockUUIDService.generateUUID)(false)
           status(result) shouldBe Status.INTERNAL_SERVER_ERROR
         }
       }
@@ -66,7 +73,9 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository wi
 
         "return an InternalServerError" in {
           mockDate
-          setupMockFailedUpdate(digitalPreferenceDocumentModel, MockUUIDService.generateUUID)
+          mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+          setupMockFindJourneyById(Some(journeyDocumentMax))
+          setupMockFailedUpdatePreference(digitalPreferenceDocumentModel, MockUUIDService.generateUUID)
           status(result) shouldBe Status.SERVICE_UNAVAILABLE
         }
       }
@@ -80,7 +89,9 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository wi
       lazy val result: Future[Result] = TestContactPreferenceController.findContactPreference(MockUUIDService.generateUUID)(fakeRequest)
 
       "return status Ok" in {
-        setupMockFindById(Some(digitalPreferenceDocumentModel))
+        mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+        setupMockFindJourneyById(Some(journeyDocumentMax))
+        setupMockFindPreferenceById(Some(digitalPreferenceDocumentModel))
         status(result) shouldBe Status.OK
       }
 
@@ -92,7 +103,9 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository wi
     "fails to findById in the journey repository" should {
 
       "return NotFound" in {
-        setupMockFailedFindById(None)
+        mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+        setupMockFindJourneyById(Some(journeyDocumentMax))
+        setupMockFailedFindPreferenceById(None)
         status(TestContactPreferenceController.findContactPreference(MockUUIDService.generateUUID)(fakeRequest)) shouldBe Status.SERVICE_UNAVAILABLE
       }
     }
@@ -100,7 +113,9 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository wi
     "given an id not contained in the contactPreference repository" should {
 
       "return NotFound" in {
-        setupMockFindById(None)
+        mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+        setupMockFindJourneyById(Some(journeyDocumentMax))
+        setupMockFindPreferenceById(None)
         status(TestContactPreferenceController.findContactPreference(MockUUIDService.generateUUID)(fakeRequest)) shouldBe Status.NOT_FOUND
       }
     }

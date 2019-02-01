@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package testUtils
+package config.features
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
+import config.AppConfigKeys
+import javax.inject.{Inject, Singleton}
+import play.api.Configuration
 
-trait MaterializerSupport {
-  implicit val system = ActorSystem("Sys")
-  implicit val materializer = ActorMaterializer()
+@Singleton
+class Features @Inject()(implicit config: Configuration) {
+  val bypassAuth = new Feature(AppConfigKeys.bypassAuthFeature)
 }

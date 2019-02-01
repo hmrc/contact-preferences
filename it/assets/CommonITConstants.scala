@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-package config
+package assets
 
-object AppConfigKeys {
+object CommonITConstants {
 
-  val contactPreferencesFrontendHost: String = "contact-preferences-frontend.host"
-  val contactPreferencesFrontendUrl: String = "contact-preferences-frontend.url"
-
-  val desUrl: String = "microservice.services.des.url"
-  val desAuthorisationToken: String = "microservice.services.des.authorisation-token"
-  val desEnvironmentHeader: String = "microservice.services.des.environment"
-
-  val bypassAuthFeature: String = "features.bypassAuthEnabled"
+  val vrn: String = "999999999"
 
 }

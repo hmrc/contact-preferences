@@ -22,18 +22,18 @@ import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import repositories.mocks.MockJourneyRepository
-import services.mocks.MockDateService
-import services.mocks.MockUUIDService
+import services.mocks.{MockAuthService, MockDateService, MockUUIDService}
 
 import scala.concurrent.Future
 
-class JourneyControllerSpec extends MockJourneyRepository with MockDateService {
+class JourneyControllerSpec extends MockJourneyRepository with MockDateService with MockAuthService{
 
   object TestJourneyController extends JourneyController(
     journeyRepository = mockJourneyRepository,
     appConfig = appConfig,
     uuidService = MockUUIDService,
-    dateService = mockDateService
+    dateService = mockDateService,
+    authService = mockAuthService
   )
 
   "JourneyController.storeJourney" when {
@@ -49,7 +49,8 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService {
 
         "return an Ok" in {
           mockDate
-          setupMockInsert(journeyDocumentMax)(true)
+          setupMockInsertJourney(journeyDocumentMax)(true)
+          mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
           status(result) shouldBe Status.CREATED
         }
       }
@@ -58,7 +59,8 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService {
 
         "return an InternalServerError" in {
           mockDate
-          setupMockInsert(journeyDocumentMax)(false)
+          setupMockInsertJourney(journeyDocumentMax)(false)
+          mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
           status(result) shouldBe Status.INTERNAL_SERVER_ERROR
         }
       }
@@ -67,7 +69,8 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService {
 
         "return an InternalServerError" in {
           mockDate
-          setupMockFailedInsert(journeyDocumentMax)
+          setupMockFailedInsertJourney(journeyDocumentMax)
+          mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
           status(result) shouldBe Status.SERVICE_UNAVAILABLE
         }
       }
@@ -81,7 +84,8 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService {
       lazy val result: Future[Result] = TestJourneyController.findJourney("id")(fakeRequest)
 
       "return status Ok" in {
-        setupMockFindById(Some(journeyDocumentMax))
+        mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+        setupMockFindJourneyById(Some(journeyDocumentMax))
         status(result) shouldBe Status.OK
       }
 
@@ -91,14 +95,16 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService {
     }
 
     "fails to findById in the journey repository" in {
-      setupMockFailedFindById(Some(journeyDocumentMax))
+      mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+      setupMockFailedFindJourneyById(Some(journeyDocumentMax))
       status(TestJourneyController.findJourney("id")(fakeRequest)) shouldBe Status.SERVICE_UNAVAILABLE
     }
 
     "given an id not contained in the journey repository" should {
 
       "return NotFound" in {
-        setupMockFindById(None)
+        mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+        setupMockFindJourneyById(None)
         status(TestJourneyController.findJourney("id")(fakeRequest)) shouldBe Status.NOT_FOUND
       }
     }

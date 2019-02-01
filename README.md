@@ -1,11 +1,29 @@
 
 # Contact Preferences
 
-This service provides APIs to update a Users Contact Preferences for a Tax Regime. Currently, this service has been built so that it can scale to support future Tax Regimes although currently the only supported regime is MTD VAT.
+This service provides APIs to update a Users Contact Preferences for a Tax Regime. This service has been built so that it can scale to support future Tax Regimes although currently the only supported regime is MTD VAT.
 
-##APIs
+## Frontend Integration API Sequence Diagram
 
-### POST /contact-preference/journey
+![Alt text](frontendApiSequence.png?raw=true "Frontend Integration API Sequence Diagram")
+
+## APIs
+
+- [Create Contact Preference Journey Context](#Create-Contact-Preference-Journey-Context)
+
+- [Retrieve Journey Context](#Retrieve-Journey-Context)
+
+- [Store Contact Preference for Frontend User Journey](#Store-Contact-Preference-for-Frontend-User-Journey)
+
+- [Retrieve Contact Preference for Frontend User Journey](#Retrieve-Contact-Preference-for-Frontend-User-Journey)
+
+- [Retrieve Stored Contact Preference from System of Record](#Retrieve-Stored-Contact-Preference-from-System-of-Record) **(NOT IMPLEMENTED)**
+
+---
+
+### Create Contact Preference Journey Context
+
+`POST /contact-preferences/journey`
 
 Provides an API for Frontend Microservices to call to generate a one-time journey.
 
@@ -72,13 +90,16 @@ A JourneyID will be generated and returned as a location header on the request w
 
 ---        
         
-### GET /contact-preference/journey/`{journeyId}`
+### Retrieve Journey Context 
+
+`GET /contact-preferences/journey/{journeyId}`
 
 Provides an API for Frontend Microservices to call to get the journey context stored by the POST endpoint above.
 
-#### Request Body
+#### Request Params
     
-n/a
+- `{journeyId}` ***mandatory*** *is the UUID returned in the location header response of [Create Contact Preference Journey Context](#Create-Contact-Preference-Journey-Context)*
+
     
 #### Responses
 
@@ -134,11 +155,17 @@ n/a
         
 ---
 
-### PUT /contact-preference/`{journeyId}`
+### Store Contact Preference for Frontend User Journey
+
+`PUT /contact-preferences/{journeyId}`
 
 Provides an API for the Frontend Microservice to call to store the preference picked by the User.
 
 This endpoint is idempotent, if there is no existing preference record for the journey in MongoDBN it will be created, if there is an existing preference it will be updated.
+
+#### Request Params
+    
+- `{journeyId}` ***mandatory*** *is the UUID returned in the location header response of [Create Contact Preference Journey Context](#Create-Contact-Preference-Journey-Context)*
 
 #### Request Body
 
@@ -173,7 +200,7 @@ This endpoint is idempotent, if there is no existing preference record for the j
 
 #### Example Request/Response
 
-    POST /contact-preferences/42009459-90e8-416a-8947-37a60299680a  
+    PUT /contact-preferences/42009459-90e8-416a-8947-37a60299680a  
     
     {
         "preference" : "DIGITAL"
@@ -184,13 +211,15 @@ This endpoint is idempotent, if there is no existing preference record for the j
 
 ---
 
-### GET /contact-preference/`{journeyId}`
+### Retrieve Contact Preference for Frontend User Journey
+
+`GET /contact-preferences/{journeyId}`
 
 Provides an API for Frontend Microservices to call to get the preference stored by the PUT endpoint above.
 
-#### Request Body
+#### Request Params
     
-n/a
+- `{journeyId}` ***mandatory*** *is the UUID returned in the location header response of [Create Contact Preference Journey Context](#Create-Contact-Preference-Journey-Context)*
     
 #### Responses
 
@@ -227,6 +256,65 @@ n/a
         {
             "preference" : "DIGITAL"
         }
+
+
+---
+
+### Retrieve Stored Contact Preference from System of Record
+
+`GET /contact-preferences/{regimeType}/{regimeId}/{regimeIdValue`
+
+Provides an API to call to get the preference stored in the backend System of Record.
+
+#### Request Params
+    
+- `{regimeType}` ***mandatory*** enum set: (`vat`)
+- `{regimeId}` ***mandatory*** enum set: (`vrn`)
+- `{regimeIdValue}` ***mandatory***
+    
+#### Responses
+
+##### 200 (OK): 
+    Response Body:     
+        {
+            "preference" : "DIGITAL"
+        }
+    
+##### 400 (BAD_REQUEST): 
+    Response Body: "Invalid RegimeType supplied. Must be one of {valid regimeType enum set}"
+    
+##### 400 (BAD_REQUEST): 
+    Response Body: "Invalid RegimeId supplied. Must be one of {valid regimeId enum set}"
+    
+##### 400 (BAD_REQUEST): 
+    Response Body: "Invalid regimeIdValue supplied. Must be one of {valid regimeIdValue enum set}"
+    
+##### 401 (UNAUTHORISED): 
+    Response Body: "The request was not authenticated"
+    
+##### 403 (FORBIDDEN): 
+    Response Body: "The request was authenticated but the user does not have the necessary authority"
+    
+##### 412 (PRECONDITION_FAILED): 
+    Response Body: "The system of record has indicated that the record is in migration, try again later"
+
+##### 500 (INTERNAL_SERVER_ERROR): 
+    Response Body: "An unexpected error occured. {error message}"
+
+##### 503 (SERVICE_UNAVAILABLE): 
+    Response Body: "There was an error communicating with the downstream system of record, try again later"        
+    
+    
+#### Example Request/Response
+
+    GET /contact-preferences/vat/vrn/999999999    
+    Response Status: 200 (OK)
+    Response Body:
+        {
+            "preference" : "DIGITAL"
+        }
+                
+---
 
 ### License
 
