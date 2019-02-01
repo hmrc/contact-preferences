@@ -157,7 +157,7 @@ Provides an API for Frontend Microservices to call to get the journey context st
 
 ### Store Contact Preference for Frontend User Journey
 
-`PUT /contact-preference/{journeyId}`
+`PUT /contact-preferences/{journeyId}`
 
 Provides an API for the Frontend Microservice to call to store the preference picked by the User.
 
@@ -200,7 +200,7 @@ This endpoint is idempotent, if there is no existing preference record for the j
 
 #### Example Request/Response
 
-    POST /contact-preferences/42009459-90e8-416a-8947-37a60299680a  
+    PUT /contact-preferences/42009459-90e8-416a-8947-37a60299680a  
     
     {
         "preference" : "DIGITAL"
@@ -213,7 +213,7 @@ This endpoint is idempotent, if there is no existing preference record for the j
 
 ### Retrieve Contact Preference for Frontend User Journey
 
-`GET /contact-preference/{journeyId}`
+`GET /contact-preferences/{journeyId}`
 
 Provides an API for Frontend Microservices to call to get the preference stored by the PUT endpoint above.
 
