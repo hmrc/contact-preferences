@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package models
+package connectors
 
-import play.api.libs.json._
+import utils.TestUtils
 
-case class ContactPreferenceModel(preference: Preference)
+class ContactPreferenceConnectorSpec extends TestUtils {
 
-object ContactPreferenceModel {
+  "ContactPreferenceConnector.getContactPreference" when {
 
-  implicit val format: Format[ContactPreferenceModel] = Json.format[ContactPreferenceModel]
-  val desReads: Reads[ContactPreferenceModel] = (__ \ "customerContactPreferences" \ "preference" \ "channel").read[Preference].map(apply)
+    "" in {
+
+    }
+  }
 }
-
