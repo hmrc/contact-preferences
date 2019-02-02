@@ -24,14 +24,16 @@ import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import repositories.mocks.{MockContactPreferenceRepository, MockJourneyRepository}
-import services.mocks.{MockAuthService, MockDateService, MockUUIDService}
+import services.mocks.{MockAuthService, MockContactPreferenceService, MockDateService, MockUUIDService}
 
 import scala.concurrent.Future
 
-class ContactPreferenceControllerSpec extends MockContactPreferenceRepository with MockDateService with MockAuthService with MockJourneyRepository {
+class ContactPreferenceControllerSpec extends MockContactPreferenceRepository with MockDateService
+  with MockAuthService with MockJourneyRepository with MockContactPreferenceService {
 
   object TestContactPreferenceController extends ContactPreferenceController(
     contactPreferenceRepository = mockContactPreferenceRepository,
+    contactPreferenceService = mockContactPreferenceService,
     journeyRepository = mockJourneyRepository,
     appConfig = appConfig,
     dateService = mockDateService,

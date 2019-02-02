@@ -17,6 +17,7 @@
 package models
 
 import play.api.libs.json._
+import play.api.mvc.PathBindable
 
 
 case class RegimeModel(`type`: Regime,

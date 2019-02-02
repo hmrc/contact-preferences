@@ -18,6 +18,7 @@ package models
 
 import models.Identifier.jsonError
 import play.api.libs.json._
+import play.api.mvc.PathBindable
 
 sealed trait Regime {
   val id: String
@@ -37,6 +38,19 @@ object Regime {
 
   def unapply(arg: Regime): String = arg match {
     case MTDVAT => MTDVAT.id
+  }
+
+  def pathBindableApply(arg: String): Either[String, Regime] = arg.toUpperCase match {
+    case MTDVAT.id => Right(MTDVAT)
+    case x => Left(s"Invalid Regime: $x. Valid Regime set: (${MTDVAT.id})")
+  }
+
+  implicit def pathBinder(implicit stringBinder: PathBindable[String]): PathBindable[Regime] = new PathBindable[Regime] {
+    override def bind(key: String, value: String): Either[String, Regime] = stringBinder.bind(key, value) match {
+      case Left(err) => Left(err)
+      case Right(regime) => pathBindableApply(regime)
+    }
+    override def unbind(key: String, regime: Regime): String = regime.id
   }
 }
 
