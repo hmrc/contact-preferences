@@ -43,12 +43,12 @@ object Regime {
   implicit def pathBinder(implicit stringBinder: PathBindable[String]): PathBindable[Regime] = new PathBindable[Regime] {
     override def bind(key: String, value: String): Either[String, Regime] = stringBinder.bind(key, value) match {
       case Left(err) => Left(err)
-      case Right(regime) => regime match {
+      case Right(regime) => regime.toUpperCase match {
         case MTDVAT.id => Right(MTDVAT)
         case x => Left(s"Invalid Regime: $x. Valid Regime set: (${MTDVAT.id})")
       }
     }
-    override def unbind(key: String, regime: Regime): String = regime.id
+    override def unbind(key: String, regime: Regime): String = regime.id.toLowerCase
   }
 }
 

@@ -16,9 +16,11 @@
 
 package controllers
 
+import assets.{BaseTestConstants, RegimeTestConstants}
 import assets.ContactPreferencesTestConstants._
 import assets.JourneyTestConstants._
-import models.ContactPreferenceModel
+import connectors.httpParsers.ContactPreferenceHttpParser.InvalidJson
+import models.{ContactPreferenceModel, Digital, MTDVAT, VRN}
 import play.api.http.Status
 import play.api.libs.json.Json
 import play.api.mvc.Result
@@ -120,4 +122,32 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
     }
   }
 
+  "ContactPreferenceController.getDesContactPreference" when {
+
+    "given a successful response is returned from the service" should {
+
+      lazy val result: Future[Result] = TestContactPreferenceController.getDesContactPreference(MTDVAT, VRN, BaseTestConstants.testVatNumber)(fakeRequest)
+
+      "return status Ok" in {
+        mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+        mockDesContactPreference(RegimeTestConstants.regimeModel)(Right(ContactPreferenceModel(Digital)))
+        status(result) shouldBe Status.OK
+      }
+
+      "return the correct Json for the ContactPreferenceModel" in {
+        jsonBodyOf(await(result)) shouldBe Json.toJson(ContactPreferenceModel(digitalPreferenceDocumentModel.preference))
+      }
+    }
+
+    "given an error response is returned from the service" should {
+
+      "return NotFound" in {
+        mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+        mockDesContactPreference(RegimeTestConstants.regimeModel)(Left(InvalidJson))
+        status(
+          TestContactPreferenceController.getDesContactPreference(MTDVAT, VRN, BaseTestConstants.testVatNumber)(fakeRequest)
+        ) shouldBe InvalidJson.status
+      }
+    }
+  }
 }

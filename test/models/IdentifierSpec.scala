@@ -17,6 +17,7 @@
 package models
 
 import play.api.libs.json._
+import play.api.mvc.PathBindable
 import utils.{JsonSugar, TestUtils}
 
 class IdentifierSpec extends TestUtils with JsonSugar {
@@ -88,4 +89,33 @@ class IdentifierSpec extends TestUtils with JsonSugar {
       }
     }
   }
+
+  "Identifier.pathBinder" should {
+
+    "for the .bind method" should {
+
+      "when given a valid Identifier" should {
+
+        "for VRN return VRN case object" in {
+          Identifier.pathBinder(PathBindable.bindableString).bind("id", "vrn") shouldBe Right(VRN)
+        }
+      }
+
+      "when given an invalid Identifier" should {
+
+        "for FOO return Left(err)" in {
+          Identifier.pathBinder(PathBindable.bindableString).bind("id", "foo") shouldBe
+            Left(s"Invalid Identifier: FOO. Valid Identifier set: (${VRN.value})")
+        }
+      }
+    }
+
+    "for the unbind method" should {
+
+      "return the string value of the Regime" in {
+        Identifier.pathBinder(PathBindable.bindableString).unbind("id", VRN) shouldBe VRN.value.toLowerCase
+      }
+    }
+  }
+
 }

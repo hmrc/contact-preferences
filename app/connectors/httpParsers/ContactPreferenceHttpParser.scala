@@ -58,12 +58,6 @@ object ContactPreferenceHttpParser {
     val body: String
   }
 
-  object ErrorResponse {
-    implicit val writes: Writes[ErrorResponse] = Writes {
-      error => Json.obj("status" -> error.status, "body" -> error.body)
-    }
-  }
-
   object InvalidJson extends ErrorResponse {
     override val body = "Invalid JSON returned from DES"
   }
