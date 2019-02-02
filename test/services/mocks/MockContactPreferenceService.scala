@@ -16,9 +16,8 @@
 
 package services.mocks
 
-import connectors.httpParsers.ErrorResponse
-import models.{ContactPreferenceModel, RegimeModel}
-import org.scalamock.handlers.CallHandler3
+import connectors.httpParsers.ContactPreferenceHttpParser.Response
+import models.RegimeModel
 import org.scalamock.scalatest.MockFactory
 import services.ContactPreferenceService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -30,8 +29,7 @@ trait MockContactPreferenceService extends MockFactory {
   lazy val mockContactPreferenceService: ContactPreferenceService = mock[ContactPreferenceService]
 
   def mockDesContactPreference(regime: RegimeModel)
-                              (response: Future[Either[ErrorResponse, ContactPreferenceModel]])
-  : CallHandler3[RegimeModel, ExecutionContext, HeaderCarrier, Future[Either[ErrorResponse, ContactPreferenceModel]]] =
+                              (response: Future[Response]): Unit =
     (mockContactPreferenceService.getContactPreference(_: RegimeModel)(_: ExecutionContext, _: HeaderCarrier))
       .expects(regime, *, *)
       .returns(response)

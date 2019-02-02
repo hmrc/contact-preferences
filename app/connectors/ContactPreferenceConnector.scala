@@ -17,10 +17,9 @@
 package connectors
 
 import config.AppConfig
-import connectors.httpParsers.ContactPreferenceHttpParser._
-import connectors.httpParsers.ErrorResponse
+import connectors.httpParsers.ContactPreferenceHttpParser.{ContactPreferenceHttpReads, _}
 import javax.inject.{Inject, Singleton}
-import models.{ContactPreferenceModel, RegimeModel}
+import models.RegimeModel
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
@@ -33,9 +32,8 @@ class ContactPreferenceConnector @Inject()(val http: HttpClient, val appConfig: 
   private[connectors] val contactPreferenceUrl = (regimeModel: RegimeModel) =>
     s"${appConfig.desUrl}/${regimeModel.typeId}/${regimeModel.idKey}/${regimeModel.idValue}/contact-preference"
 
-  def getContactPreference(regimeModel: RegimeModel)(implicit hc: HeaderCarrier, ec: ExecutionContext)
-  : Future[Either[ErrorResponse, ContactPreferenceModel]] = {
-    implicit val headerCarrier: HeaderCarrier = hc
+  def getContactPreference(regimeModel: RegimeModel)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Response] = {
+    val headerCarrier: HeaderCarrier = hc
       .withExtraHeaders(appConfig.desEnvironmentHeader)
       .copy(authorization = Some(Authorization(appConfig.desAuthorisationToken)))
     http.GET(contactPreferenceUrl(regimeModel))(ContactPreferenceHttpReads, headerCarrier, ec)

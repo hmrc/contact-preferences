@@ -16,13 +16,12 @@
 
 package connectors.httpParsers
 
+import assets.ContactPreferencesTestConstants._
+import connectors.httpParsers.ContactPreferenceHttpParser.{ContactPreferenceHttpReads, _}
+import play.api.http.Status
+import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpResponse
 import utils.TestUtils
-import play.api.http.Status
-import assets.ContactPreferencesTestConstants._
-import ContactPreferenceHttpParser.ContactPreferenceHttpReads
-import models.ErrorModel
-import play.api.libs.json.Json
 
 class ContactPreferenceHttpParserSpec extends TestUtils {
 

@@ -24,9 +24,11 @@ import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 
 object ContactPreferenceHttpParser {
 
-  implicit object ContactPreferenceHttpReads extends HttpReads[Either[ErrorResponse, ContactPreferenceModel]] {
+  type Response = Either[ErrorResponse, ContactPreferenceModel]
 
-    override def read(method: String, url: String, response: HttpResponse): Either[ErrorResponse, ContactPreferenceModel] = {
+  implicit object ContactPreferenceHttpReads extends HttpReads[Response] {
+
+    override def read(method: String, url: String, response: HttpResponse): Response = {
       response.status match {
         case OK => {
           Logger.debug("[ContactPreferenceConnector][read]: Status OK")
@@ -50,30 +52,29 @@ object ContactPreferenceHttpParser {
       }
     }
   }
-}
 
-sealed trait ErrorResponse {
-  val status: Int = INTERNAL_SERVER_ERROR
-  val body: String
-}
-
-object ErrorResponse {
-  implicit val writes: Writes[ErrorResponse] = Writes {
-    error => Json.obj("status" -> error.status, "body" -> error.body)
+  sealed trait ErrorResponse {
+    val status: Int = INTERNAL_SERVER_ERROR
+    val body: String
   }
-}
 
-object InvalidJson extends ErrorResponse {
-  override val body = "Invalid JSON returned from DES"
-}
+  object ErrorResponse {
+    implicit val writes: Writes[ErrorResponse] = Writes {
+      error => Json.obj("status" -> error.status, "body" -> error.body)
+    }
+  }
 
-object Migration extends ErrorResponse {
-  override val body = "Downstream system of record has indicated that the record is in migration, try again later"
-}
+  object InvalidJson extends ErrorResponse {
+    override val body = "Invalid JSON returned from DES"
+  }
 
-object DependentSystemUnavailable extends ErrorResponse {
-  override val body = "Downstream system of record is unavailable, try again later"
-}
+  object Migration extends ErrorResponse {
+    override val body = "Downstream system of record has indicated that the record is in migration, try again later"
+  }
 
-case class UnexpectedFailure(override val status: Int, override val body: String)
-  extends ErrorResponse
+  object DependentSystemUnavailable extends ErrorResponse {
+    override val body = "Downstream system of record is unavailable, try again later"
+  }
+
+  case class UnexpectedFailure(override val status: Int, override val body: String) extends ErrorResponse
+}

@@ -18,7 +18,7 @@ package services
 
 import assets.ContactPreferencesTestConstants.digitalPreferenceModel
 import assets.RegimeTestConstants.regimeModel
-import connectors.httpParsers.InvalidJson
+import connectors.httpParsers.ContactPreferenceHttpParser.InvalidJson
 import connectors.mocks.MockContactPreferenceConnector
 import utils.TestUtils
 

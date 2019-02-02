@@ -37,15 +37,13 @@ object Identifier extends JsonSugar {
     case VRN => VRN.value
   }
 
-  def pathBindableApply(arg: String): Either[String, Identifier] = arg.toUpperCase match {
-    case VRN.value => Right(VRN)
-    case x => Left(s"Invalid Identifier: $x. Valid Identifier set: (${VRN.value})")
-  }
-
   implicit def pathBinder(implicit stringBinder: PathBindable[String]): PathBindable[Identifier] = new PathBindable[Identifier] {
     override def bind(key: String, value: String): Either[String, Identifier] = stringBinder.bind(key, value) match {
       case Left(err) => Left(err)
-      case Right(id) => pathBindableApply(id)
+      case Right(id) => id match {
+        case VRN.value => Right(VRN)
+        case x => Left(s"Invalid Identifier: $x. Valid Identifier set: (${VRN.value})")
+      }
     }
     override def unbind(key: String, id: Identifier): String = id.value
   }
