@@ -42,11 +42,27 @@ class ContactPreferenceHttpParserSpec extends TestUtils {
       }
     }
 
-    "given a status other than OK" should {
+    "given an FORBIDDEN with message 'MIGRATION' response" should {
+
+      "return a Left(Migration)" in {
+        ContactPreferenceHttpReads.read("","",HttpResponse(Status.FORBIDDEN, responseString = Some("MIGRATION"))) shouldBe
+          Left(Migration)
+      }
+    }
+
+    "given an SERVICE_UNAVAILABLE response" should {
 
       "return a Left(ErrorMessage)" in {
         ContactPreferenceHttpReads.read("","",HttpResponse(Status.SERVICE_UNAVAILABLE)) shouldBe
           Left(DependentSystemUnavailable)
+      }
+    }
+
+    "given any other status" should {
+
+      "return a Left(UnexpectedFailure)" in {
+        ContactPreferenceHttpReads.read("","",HttpResponse(Status.BAD_GATEWAY)) shouldBe
+          Left(UnexpectedFailure(Status.BAD_GATEWAY, s"Status ${Status.BAD_GATEWAY} Error returned when retrieving contact preference"))
       }
     }
   }

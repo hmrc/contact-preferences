@@ -48,7 +48,7 @@ object ContactPreferenceHttpParser {
           Left(DependentSystemUnavailable)
         case status =>
           Logger.warn(s"[ContactPreferenceConnector][read]: Unexpected Response, Status $status returned")
-          Left(UnexpectedFailure(status, "Error returned when retrieving contact preference"))
+          Left(UnexpectedFailure(status, s"Status ${status } Error returned when retrieving contact preference"))
       }
     }
   }
