@@ -1,0 +1,54 @@
+/*
+ * Copyright 2019 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package connectors.httpParsers
+
+import uk.gov.hmrc.http.HttpResponse
+import utils.TestUtils
+import play.api.http.Status
+import assets.ContactPreferencesTestConstants._
+import ContactPreferenceHttpParser.ContactPreferenceHttpReads
+import models.ErrorModel
+import play.api.libs.json.Json
+
+class ContactPreferenceHttpParserSpec extends TestUtils {
+
+  "ContactPreferenceHttpParser.ContactPreferenceHttpReads" when {
+
+    "given an OK with a correct Json model" should {
+
+      "return a Right containing the correct contact preference moodel" in {
+        ContactPreferenceHttpReads.read("","",HttpResponse(Status.OK,Some(digitalPreferenceJson))) shouldBe Right(digitalPreferenceModel)
+      }
+    }
+
+    "given an OK with incorrect Json" should {
+
+      "return a Left(ErrorMessage)" in {
+        ContactPreferenceHttpReads.read("","",HttpResponse(Status.OK,Some(Json.obj("bad" -> "data")))) shouldBe
+          Left(InvalidJson)
+      }
+    }
+
+    "given a status other than OK" should {
+
+      "return a Left(ErrorMessage)" in {
+        ContactPreferenceHttpReads.read("","",HttpResponse(Status.SERVICE_UNAVAILABLE)) shouldBe
+          Left(DependentSystemUnavailable)
+      }
+    }
+  }
+}

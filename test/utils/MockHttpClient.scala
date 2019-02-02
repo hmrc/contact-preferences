@@ -14,12 +14,21 @@
  * limitations under the License.
  */
 
-package services.mocks
+package utils
 
-import services.DateService
+import org.scalamock.scalatest.MockFactory
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
-object MockDateService extends DateService {
+import scala.concurrent.{ExecutionContext, Future}
 
-  override def timestamp = 123
+trait MockHttpClient extends MockFactory {
 
+  lazy val mockHttpClient: HttpClient = mock[HttpClient]
+
+  def mockHttpGet[A](response: A): Unit = {
+    (mockHttpClient.GET[A](_: String)(_: HttpReads[A], _: HeaderCarrier, _: ExecutionContext))
+      .expects(*, *, *, *)
+      .returns(Future.successful(response))
+  }
 }

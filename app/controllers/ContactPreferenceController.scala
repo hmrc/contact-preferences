@@ -31,11 +31,12 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ContactPreferenceController @Inject()(contactPreferenceRepository: ContactPreferenceRepository,
+                                            contactPreferenceService: ContactPreferenceService,
                                             journeyRepository: JourneyRepository,
                                             appConfig: AppConfig,
                                             dateService: DateService,
-                                            authService: AuthService,
-                                            contactPreferenceService: ContactPreferenceService)(implicit ec: ExecutionContext) extends BaseController with MongoSugar {
+                                            authService: AuthService)
+                                           (implicit ec: ExecutionContext) extends BaseController with MongoSugar {
 
   def storeContactPreference(journeyId: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
     withJsonBody[ContactPreferenceModel] { contactPreference =>
@@ -63,7 +64,7 @@ class ContactPreferenceController @Inject()(contactPreferenceRepository: Contact
   def getDesContactPreference(regimeType: Regime, id: Identifier, value: String): Action[AnyContent] = Action.async { implicit request =>
     val regime = RegimeModel(regimeType, IdModel(id, value))
     authService.authorised(regime) { implicit user =>
-      contactPreferenceService.getContactPreference(regime).map {
+      contactPreferenceService.getContactPreference(regime)(ec, hc(user)).map {
         case Left(err) => Status(err.status)(err.body)
         case Right(data) => Ok(Json.toJson(data))
       }

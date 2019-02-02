@@ -43,4 +43,5 @@ trait TestUtils extends UnitSpec with GuiceOneAppPerSuite with BeforeAndAfterEac
   implicit lazy val headerCarrier: HeaderCarrier = HeaderCarrier()
   implicit lazy val system: ActorSystem = ActorSystem("Sys")
   implicit lazy val materializer: ActorMaterializer = ActorMaterializer()
+
 }

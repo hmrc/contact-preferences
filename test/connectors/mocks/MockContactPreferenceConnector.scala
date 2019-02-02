@@ -14,26 +14,23 @@
  * limitations under the License.
  */
 
-package services.mocks
+package connectors.mocks
 
+import connectors.ContactPreferenceConnector
 import connectors.httpParsers.ErrorResponse
 import models.{ContactPreferenceModel, RegimeModel}
-import org.scalamock.handlers.CallHandler3
 import org.scalamock.scalatest.MockFactory
-import services.ContactPreferenceService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait MockContactPreferenceService extends MockFactory {
+trait MockContactPreferenceConnector extends MockFactory {
 
-  lazy val mockContactPreferenceService: ContactPreferenceService = mock[ContactPreferenceService]
+  lazy val connector: ContactPreferenceConnector = mock[ContactPreferenceConnector]
 
-  def mockDesContactPreference(regime: RegimeModel)
-                              (response: Future[Either[ErrorResponse, ContactPreferenceModel]])
-  : CallHandler3[RegimeModel, ExecutionContext, HeaderCarrier, Future[Either[ErrorResponse, ContactPreferenceModel]]] =
-    (mockContactPreferenceService.getContactPreference(_: RegimeModel)(_: ExecutionContext, _: HeaderCarrier))
-      .expects(regime, *, *)
+  def mockContactPreferenceConnector(regime: RegimeModel)(response: Future[Either[ErrorResponse, ContactPreferenceModel]]): Unit = {
+    (connector.getContactPreference(_: RegimeModel)(_: HeaderCarrier, _: ExecutionContext))
+      .expects(regime,*,*)
       .returns(response)
-
+  }
 }

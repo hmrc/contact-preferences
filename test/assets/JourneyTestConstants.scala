@@ -19,7 +19,7 @@ package assets
 import models._
 import play.api.libs.json.{JsObject, Json}
 import repositories.documents.{DateDocument, JourneyDocument}
-import services.mocks.MockUUIDService
+import services.mocks.{MockDateService, MockUUIDService}
 
 object JourneyTestConstants {
 
@@ -61,7 +61,7 @@ object JourneyTestConstants {
     "_id" -> MockUUIDService.generateUUID,
     "journey" -> journeyJsonMax,
     "creationTimestamp" -> Json.obj(
-      "$date" -> 123
+      "$date" -> MockDateService.timestamp
     )
   )
 
@@ -69,11 +69,11 @@ object JourneyTestConstants {
     "_id" -> MockUUIDService.generateUUID,
     "journey" -> journeyJsonMin,
     "creationTimestamp" -> Json.obj(
-      "$date" -> 123
+      "$date" -> MockDateService.timestamp
     )
   )
 
-  val journeyDocumentMax = JourneyDocument(MockUUIDService.generateUUID, journeyModelMax, DateDocument(123))
-  val journeyDocumentMin = JourneyDocument(MockUUIDService.generateUUID, journeyModelMin, DateDocument(123))
+  val journeyDocumentMax = JourneyDocument(MockUUIDService.generateUUID, journeyModelMax, DateDocument(MockDateService.timestamp))
+  val journeyDocumentMin = JourneyDocument(MockUUIDService.generateUUID, journeyModelMin, DateDocument(MockDateService.timestamp))
 
 }

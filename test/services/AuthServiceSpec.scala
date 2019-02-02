@@ -25,10 +25,11 @@ import play.api.mvc.Result
 import play.api.mvc.Results._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.{Enrolment, InsufficientEnrolments, MissingBearerToken}
+import utils.TestUtils
 
 import scala.concurrent.Future
 
-class AuthServiceSpec extends MockAuthConnector {
+class AuthServiceSpec extends MockAuthConnector with TestUtils {
 
   object TestAuthService extends AuthService(mockAuthConnector, appConfig)
 

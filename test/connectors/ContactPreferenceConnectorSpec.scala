@@ -16,14 +16,55 @@
 
 package connectors
 
-import utils.TestUtils
+import assets.RegimeTestConstants.regimeModel
+import assets.ContactPreferencesTestConstants.digitalPreferenceModel
+import models.{ContactPreferenceModel, ErrorModel}
+import utils.{MockHttpClient, TestUtils}
+import play.api.http.Status._
 
-class ContactPreferenceConnectorSpec extends TestUtils {
+
+class ContactPreferenceConnectorSpec extends MockHttpClient with TestUtils {
+
+
+  "ContactPreferenceConnector.contactPreferenceUrl" when {
+
+    object TestContactPreferenceConnector extends ContactPreferenceConnector(mockHttpClient, appConfig)
+
+    "given a regime model" should {
+
+      "return the correct url" in {
+        TestContactPreferenceConnector.contactPreferenceUrl(regimeModel) shouldBe "http://localhost:9593/VAT/VRN/999999999/contact-preference"
+      }
+    }
+  }
 
   "ContactPreferenceConnector.getContactPreference" when {
 
-    "" in {
+    def setup(response: Either[ErrorModel, ContactPreferenceModel]): ContactPreferenceConnector = {
+      mockHttpGet[Either[ErrorModel, ContactPreferenceModel]](response)
+      new ContactPreferenceConnector(mockHttpClient, appConfig)
+    }
 
+    "GET is successful" should {
+
+      "return a Right(ContactPreferenceModel)" in {
+
+        val connector = setup(Right(digitalPreferenceModel))
+        val result = connector.getContactPreference(regimeModel)
+
+        await(result) shouldBe Right(digitalPreferenceModel)
+      }
+    }
+
+    "GET is unsuccessful" should {
+
+      "return a Left(ErrorModel)" in {
+
+        val connector = setup(Left(ErrorModel(INTERNAL_SERVER_ERROR, "Error")))
+        val result = connector.getContactPreference(regimeModel)
+
+        await(result) shouldBe Left(ErrorModel(INTERNAL_SERVER_ERROR, "Error"))
+      }
     }
   }
 }

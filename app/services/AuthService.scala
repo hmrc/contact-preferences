@@ -42,7 +42,7 @@ class AuthService @Inject()(val authConnector: AuthConnector, appConfig: AppConf
     _.getIdentifier(Constants.AgentServicesReference).map(_.value)
   }
 
-  def authorised(regime: RegimeModel)(f: User[_] => Future[Result])(implicit ec: ExecutionContext, hc: HeaderCarrier, request: Request[_]): Future[Result] = {
+  def authorised(regime: RegimeModel)(f: User[_] => Future[Result])(implicit hc: HeaderCarrier, ec: ExecutionContext, request: Request[_]): Future[Result] = {
     if (appConfig.features.bypassAuth()) {
       f(User(regime.identifier.value, None)(request))
     } else {

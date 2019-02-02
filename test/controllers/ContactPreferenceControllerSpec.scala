@@ -28,15 +28,15 @@ import services.mocks.{MockAuthService, MockContactPreferenceService, MockDateSe
 
 import scala.concurrent.Future
 
-class ContactPreferenceControllerSpec extends MockContactPreferenceRepository with MockDateService
-  with MockAuthService with MockJourneyRepository with MockContactPreferenceService {
+class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
+  with MockJourneyRepository with MockContactPreferenceService with MockAuthService {
 
   object TestContactPreferenceController extends ContactPreferenceController(
     contactPreferenceRepository = mockContactPreferenceRepository,
     contactPreferenceService = mockContactPreferenceService,
     journeyRepository = mockJourneyRepository,
     appConfig = appConfig,
-    dateService = mockDateService,
+    dateService = MockDateService,
     authService = mockAuthService
   )
 
@@ -52,7 +52,6 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository wi
       "successfully updated contactPreference repository" should {
 
         "return an Ok" in {
-          mockDate
           mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
           setupMockFindJourneyById(Some(journeyDocumentMax))
           setupMockUpdatePreference(digitalPreferenceDocumentModel, MockUUIDService.generateUUID)(true)
@@ -63,7 +62,6 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository wi
       "failed at updating contactPreference repository" should {
 
         "return an InternalServerError" in {
-          mockDate
           mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
           setupMockFindJourneyById(Some(journeyDocumentMax))
           setupMockUpdatePreference(digitalPreferenceDocumentModel, MockUUIDService.generateUUID)(false)
@@ -74,7 +72,6 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository wi
       "fails to update Contact preference repository" should {
 
         "return an InternalServerError" in {
-          mockDate
           mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
           setupMockFindJourneyById(Some(journeyDocumentMax))
           setupMockFailedUpdatePreference(digitalPreferenceDocumentModel, MockUUIDService.generateUUID)

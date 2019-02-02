@@ -24,11 +24,9 @@ import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 
 object ContactPreferenceHttpParser {
 
-  type Response = Either[ErrorResponses, ContactPreferenceModel]
+  implicit object ContactPreferenceHttpReads extends HttpReads[Either[ErrorResponse, ContactPreferenceModel]] {
 
-  implicit object ContactPreferenceHttpReads extends HttpReads[Response] {
-
-    override def read(method: String, url: String, response: HttpResponse): Response = {
+    override def read(method: String, url: String, response: HttpResponse): Either[ErrorResponse, ContactPreferenceModel] = {
       response.status match {
         case OK => {
           Logger.debug("[ContactPreferenceConnector][read]: Status OK")
@@ -52,30 +50,30 @@ object ContactPreferenceHttpParser {
       }
     }
   }
-
-  sealed trait ErrorResponses {
-    val status: Int = INTERNAL_SERVER_ERROR
-    val body: String
-  }
-
-  object ErrorResponses {
-    implicit val writes: Writes[ErrorResponses] = Writes {
-      error => Json.obj("status" -> error.status, "body" -> error.body)
-    }
-  }
-
-  object InvalidJson extends ErrorResponses {
-    override val body = "Invalid JSON returned from DES"
-  }
-
-  object Migration extends ErrorResponses {
-    override val body = "Downstream system of record has indicated that the record is in migration, try again later"
-  }
-
-  object DependentSystemUnavailable extends ErrorResponses {
-    override val body = "Downstream system of record is unavailable, try again later"
-  }
-
-  case class UnexpectedFailure(override val status: Int, override val body: String)
-    extends ErrorResponses
 }
+
+sealed trait ErrorResponse {
+  val status: Int = INTERNAL_SERVER_ERROR
+  val body: String
+}
+
+object ErrorResponse {
+  implicit val writes: Writes[ErrorResponse] = Writes {
+    error => Json.obj("status" -> error.status, "body" -> error.body)
+  }
+}
+
+object InvalidJson extends ErrorResponse {
+  override val body = "Invalid JSON returned from DES"
+}
+
+object Migration extends ErrorResponse {
+  override val body = "Downstream system of record has indicated that the record is in migration, try again later"
+}
+
+object DependentSystemUnavailable extends ErrorResponse {
+  override val body = "Downstream system of record is unavailable, try again later"
+}
+
+case class UnexpectedFailure(override val status: Int, override val body: String)
+  extends ErrorResponse
