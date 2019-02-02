@@ -49,9 +49,20 @@ trait CustomMatchers {
       def apply(response: WSResponse) =
         HavePropertyMatchResult(
           response.json.as[T] == expectedValue,
-          "jsonBodyAs",
+          "response.jsonBody",
           expectedValue,
           response.json.as[T]
+        )
+    }
+
+  def bodyAs(expectedValue: String): HavePropertyMatcher[WSResponse, String] =
+    new HavePropertyMatcher[WSResponse, String] {
+      def apply(response: WSResponse) =
+        HavePropertyMatchResult(
+          response.body == expectedValue,
+          "response.body",
+          expectedValue,
+          response.body
         )
     }
 

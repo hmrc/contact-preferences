@@ -24,7 +24,7 @@ sealed trait Regime {
   val id: String
   val enrolmentID: String
   val delegatedAuthRule: String
-
+  val desId: String
 }
 
 object Regime {
@@ -56,4 +56,5 @@ object MTDVAT extends Regime {
   override val id = "VAT"
   override val enrolmentID = "HMRC-MTD-VAT"
   override val delegatedAuthRule: String = "mtd-vat-auth"
+  override val desId: String = "VATC"
 }

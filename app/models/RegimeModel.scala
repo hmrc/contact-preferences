@@ -26,6 +26,7 @@ case class RegimeModel(`type`: Regime,
   val typeId: String = `type`.id
   val idKey: String = identifier.key.value
   val idValue: String = identifier.value
+  val desIdType: String = `type`.desId
 }
 
 object RegimeModel {

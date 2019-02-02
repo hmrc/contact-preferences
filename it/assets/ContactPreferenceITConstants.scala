@@ -23,4 +23,19 @@ object ContactPreferenceITConstants {
 
   val digitalPreferenceJson: JsObject = Json.obj("preference" ->  Digital.value)
 
+  val digitalPreferenceDesJson: JsObject = Json.obj("customerContactPreferences" ->
+    Json.obj(
+      "preference" -> Json.obj(
+        "notification" -> "Email",
+        "channel" -> "Digital",
+        "language" -> "English",
+        "format" -> "Text"
+      ),
+      "communications" -> Json.obj(
+        "emailAddress" -> "customer@email.com",
+        "emailStatus" -> true
+      )
+    )
+  )
+
 }

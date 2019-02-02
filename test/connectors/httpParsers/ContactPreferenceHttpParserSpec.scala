@@ -30,7 +30,7 @@ class ContactPreferenceHttpParserSpec extends TestUtils {
     "given an OK with a correct Json model" should {
 
       "return a Right containing the correct contact preference moodel" in {
-        ContactPreferenceHttpReads.read("", "", HttpResponse(Status.OK, Some(digitalPreferenceJson))) shouldBe Right(digitalPreferenceModel)
+        ContactPreferenceHttpReads.read("", "", HttpResponse(Status.OK, Some(paperPreferenceDesJson))) shouldBe Right(paperPreferenceModel)
       }
     }
 

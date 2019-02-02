@@ -19,7 +19,6 @@ package connectors.httpParsers
 import models.ContactPreferenceModel
 import play.api.Logger
 import play.api.http.Status._
-import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 
 object ContactPreferenceHttpParser {
@@ -32,7 +31,7 @@ object ContactPreferenceHttpParser {
       response.status match {
         case OK => {
           Logger.debug("[ContactPreferenceConnector][read]: Status OK")
-          response.json.validate[ContactPreferenceModel].fold(
+          response.json.validate[ContactPreferenceModel](ContactPreferenceModel.desReads).fold(
             invalid => {
               Logger.warn(s"[ContactPreferenceConnector][read]: Invalid Json - $invalid")
               Left(InvalidJson)
@@ -63,10 +62,12 @@ object ContactPreferenceHttpParser {
   }
 
   object Migration extends ErrorResponse {
+    override val status: Int = PRECONDITION_FAILED
     override val body = "Downstream system of record has indicated that the record is in migration, try again later"
   }
 
   object DependentSystemUnavailable extends ErrorResponse {
+    override val status: Int = SERVICE_UNAVAILABLE
     override val body = "Downstream system of record is unavailable, try again later"
   }
 

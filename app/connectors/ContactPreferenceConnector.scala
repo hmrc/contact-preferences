@@ -29,7 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class ContactPreferenceConnector @Inject()(val http: HttpClient, implicit val appConfig: AppConfig) extends DesBaseConnector {
 
   private[connectors] val contactPreferenceUrl = (regimeModel: RegimeModel) =>
-    s"${appConfig.desUrl}/${regimeModel.typeId}/${regimeModel.idKey}/${regimeModel.idValue}/contact-preference"
+    s"${appConfig.desUrl}/${regimeModel.desIdType}/${regimeModel.idKey}/${regimeModel.idValue}/contact-preference"
 
   def getContactPreference(regimeModel: RegimeModel)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Response] = {
     http.GET(contactPreferenceUrl(regimeModel))(ContactPreferenceHttpReads, desHc, ec)
