@@ -21,18 +21,16 @@ import connectors.httpParsers.ContactPreferenceHttpParser.{ContactPreferenceHttp
 import javax.inject.{Inject, Singleton}
 import models.RegimeModel
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
 import scala.concurrent.{ExecutionContext, Future}
 
-@Singleton
-class ContactPreferenceConnector @Inject()(val http: HttpClient, implicit val appConfig: AppConfig) extends DesBaseConnector {
+trait DesBaseConnector {
 
-  private[connectors] val contactPreferenceUrl = (regimeModel: RegimeModel) =>
-    s"${appConfig.desUrl}/${regimeModel.typeId}/${regimeModel.idKey}/${regimeModel.idValue}/contact-preference"
-
-  def getContactPreference(regimeModel: RegimeModel)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Response] = {
-    http.GET(contactPreferenceUrl(regimeModel))(ContactPreferenceHttpReads, desHc, ec)
-  }
+  def desHc(implicit hc: HeaderCarrier, appConfig: AppConfig): HeaderCarrier =
+    hc
+      .withExtraHeaders(appConfig.desEnvironmentHeader)
+      .copy(authorization = Some(Authorization(appConfig.desAuthorisationToken)))
 
 }
