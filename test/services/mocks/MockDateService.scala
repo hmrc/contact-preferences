@@ -16,13 +16,10 @@
 
 package services.mocks
 
-import org.scalamock.scalatest.MockFactory
 import services.DateService
 
-trait MockDateService extends MockFactory {
+object MockDateService extends DateService {
 
-  lazy val mockDateService: DateService = mock[DateService]
-
-  def mockDate = (mockDateService.timestamp _).expects().returning(123)
+  override def timestamp = 123
 
 }

@@ -17,6 +17,7 @@
 package models
 
 import play.api.libs.json.{JsResultException, JsString, Json, __}
+import play.api.mvc.PathBindable
 import utils.{JsonSugar, TestUtils}
 
 class RegimeSpec extends TestUtils with JsonSugar {
@@ -85,6 +86,34 @@ class RegimeSpec extends TestUtils with JsonSugar {
 
       "for DIGITAL return MTDVAT case object" in {
         Json.toJson(MTDVAT) shouldBe mtdVatJson
+      }
+    }
+  }
+
+  "Regime.pathBinder" should {
+
+    "for the .bind method" should {
+
+      "when given a valid Regime" should {
+
+        "for VRN return VRN case object" in {
+          Regime.pathBinder(PathBindable.bindableString).bind("regime","vat") shouldBe Right(MTDVAT)
+        }
+      }
+
+      "when given an invalid Regime" should {
+
+        "for FOO return Left(err)" in {
+          Regime.pathBinder(PathBindable.bindableString).bind("regime", "foo") shouldBe
+            Left(s"Invalid Regime: FOO. Valid Regime set: (${MTDVAT.id})")
+        }
+      }
+    }
+
+    "for the unbind method" should {
+
+      "return the string value of the Regime" in {
+        Regime.pathBinder(PathBindable.bindableString).unbind("regime", MTDVAT) shouldBe MTDVAT.id.toLowerCase
       }
     }
   }

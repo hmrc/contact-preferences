@@ -5,3 +5,4 @@ GET        /journey/:id             controllers.JourneyController.findJourney(id
 
 PUT        /:id                     controllers.ContactPreferenceController.storeContactPreference(id: String)
 GET        /:id                     controllers.ContactPreferenceController.findContactPreference(id: String)
+GET        /:regimeType/:id/:value  controllers.ContactPreferenceController.getDesContactPreference(regimeType: models.Regime, id: models.Identifier, value: String)

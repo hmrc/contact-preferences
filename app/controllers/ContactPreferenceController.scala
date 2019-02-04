@@ -18,12 +18,12 @@ package controllers
 
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
-import models.ContactPreferenceModel
+import models._
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent}
 import repositories.documents.{ContactPreferenceDocument, DateDocument}
 import repositories.{ContactPreferenceRepository, JourneyRepository}
-import services.{AuthService, DateService}
+import services.{AuthService, ContactPreferenceService, DateService}
 import uk.gov.hmrc.play.bootstrap.controller.BaseController
 import utils.MongoSugar
 
@@ -31,10 +31,12 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ContactPreferenceController @Inject()(contactPreferenceRepository: ContactPreferenceRepository,
+                                            contactPreferenceService: ContactPreferenceService,
                                             journeyRepository: JourneyRepository,
                                             appConfig: AppConfig,
                                             dateService: DateService,
-                                            authService: AuthService)(implicit ec: ExecutionContext) extends BaseController with MongoSugar {
+                                            authService: AuthService)
+                                           (implicit ec: ExecutionContext) extends BaseController with MongoSugar {
 
   def storeContactPreference(journeyId: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
     withJsonBody[ContactPreferenceModel] { contactPreference =>
@@ -55,6 +57,16 @@ class ContactPreferenceController @Inject()(contactPreferenceRepository: Contact
         findById(contactPreferenceRepository)(journeyId) { contactPreference =>
           Future.successful(Ok(Json.toJson(ContactPreferenceModel(contactPreference.preference))))
         }
+      }
+    }
+  }
+
+  def getDesContactPreference(regimeType: Regime, id: Identifier, value: String): Action[AnyContent] = Action.async { implicit request =>
+    val regime = RegimeModel(regimeType, IdModel(id, value))
+    authService.authorised(regime) { implicit user =>
+      contactPreferenceService.getContactPreference(regime)(ec, hc(user)).map {
+        case Left(err) => Status(err.status)(err.body)
+        case Right(data) => Ok(Json.toJson(data))
       }
     }
   }

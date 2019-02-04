@@ -45,6 +45,21 @@ object ContactPreferencesTestConstants {
       "$date" -> 123
     )
   )
+  val paperPreferenceDesJson: JsObject = Json.obj("customerContactPreferences" ->
+    Json.obj(
+      "preference" -> Json.obj(
+        "notification" -> "Email",
+        "channel" -> "Paper",
+        "language" -> "English",
+        "format" -> "Text"
+      ),
+      "communications" -> Json.obj(
+        "emailAddress" -> "customer@email.com",
+        "emailStatus" -> true
+      )
+    )
+  )
+
   val paperPreferenceDocumentModel = ContactPreferenceDocument(MockUUIDService.generateUUID, Paper, DateDocument(123))
 
 }

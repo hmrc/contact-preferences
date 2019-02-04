@@ -17,32 +17,24 @@
 package connectors.mocks
 
 import assets.BaseTestConstants._
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
+import org.scalamock.scalatest.MockFactory
 import uk.gov.hmrc.auth.core.authorise.{EmptyPredicate, Predicate}
 import uk.gov.hmrc.auth.core.retrieve._
 import uk.gov.hmrc.auth.core.{AuthConnector, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.TestUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait MockAuthConnector extends TestUtils with MockitoSugar {
+trait MockAuthConnector extends MockFactory {
 
-  val mockAuthConnector: AuthConnector = mock[AuthConnector]
+  lazy val mockAuthConnector: AuthConnector = mock[AuthConnector]
 
   def mockAuthorise[T](predicate: Predicate = EmptyPredicate,
                        retrievals: Retrieval[T] = EmptyRetrieval
                       )(response: Future[T]): Unit = {
-    when(
-      mockAuthConnector.authorise(
-        ArgumentMatchers.eq(predicate),
-        ArgumentMatchers.eq(retrievals)
-      )(
-        ArgumentMatchers.any[HeaderCarrier],
-        ArgumentMatchers.any[ExecutionContext])
-    ) thenReturn response
+    (mockAuthConnector.authorise(_: Predicate, _: Retrieval[T])(_: HeaderCarrier, _: ExecutionContext))
+      .expects(predicate, retrievals, *, *)
+      .returns(response)
   }
 
   val retrievals: Retrieval[Enrolments] = Retrievals.allEnrolments
@@ -57,10 +49,5 @@ trait MockAuthConnector extends TestUtils with MockitoSugar {
     mockAuthorise(predicate = predicate, retrievals = retrievals)(
       Future.successful(Enrolments(Set(testMtdVatEnrolment)))
     )
-
-  override def beforeEach(): Unit = {
-    super.beforeEach()
-    reset(mockAuthConnector)
-  }
 
 }

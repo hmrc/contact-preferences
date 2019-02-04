@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-package config
+package utils
 
-object AppConfigKeys {
+import org.scalamock.scalatest.MockFactory
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
+import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
-  val contactPreferencesFrontendHost: String = "contact-preferences-frontend.host"
-  val contactPreferencesFrontendUrl: String = "contact-preferences-frontend.url"
+import scala.concurrent.{ExecutionContext, Future}
 
-  val desUrl: String = "microservice.services.des.url"
-  val desAuthorisationToken: String = "microservice.services.des.authorisation-token"
-  val desEnvironmentHeader: String = "microservice.services.des.environment"
+trait MockHttpClient extends MockFactory {
 
-  val bypassAuthFeature: String = "features.bypassAuthEnabled"
+  lazy val mockHttpClient: HttpClient = mock[HttpClient]
 
+  def mockHttpGet[A](response: A): Unit = {
+    (mockHttpClient.GET[A](_: String)(_: HttpReads[A], _: HeaderCarrier, _: ExecutionContext))
+      .expects(*, *, *, *)
+      .returns(Future.successful(response))
+  }
 }

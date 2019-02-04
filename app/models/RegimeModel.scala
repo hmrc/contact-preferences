@@ -17,10 +17,17 @@
 package models
 
 import play.api.libs.json._
+import play.api.mvc.PathBindable
 
 
 case class RegimeModel(`type`: Regime,
-                       identifier: IdModel)
+                       identifier: IdModel) {
+
+  val typeId: String = `type`.id
+  val idKey: String = identifier.key.value
+  val idValue: String = identifier.value
+  val desIdType: String = `type`.desId
+}
 
 object RegimeModel {
   implicit val fmt: Format[RegimeModel] = Json.format[RegimeModel]

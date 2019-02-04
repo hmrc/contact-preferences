@@ -26,13 +26,13 @@ import services.mocks.{MockAuthService, MockDateService, MockUUIDService}
 
 import scala.concurrent.Future
 
-class JourneyControllerSpec extends MockJourneyRepository with MockDateService with MockAuthService{
+class JourneyControllerSpec extends MockJourneyRepository with MockAuthService {
 
   object TestJourneyController extends JourneyController(
     journeyRepository = mockJourneyRepository,
     appConfig = appConfig,
     uuidService = MockUUIDService,
-    dateService = mockDateService,
+    dateService = MockDateService,
     authService = mockAuthService
   )
 
@@ -48,7 +48,6 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService w
       "successfully updated journey repository" should {
 
         "return an Ok" in {
-          mockDate
           setupMockInsertJourney(journeyDocumentMax)(true)
           mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
           status(result) shouldBe Status.CREATED
@@ -58,7 +57,6 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService w
       "failed at updating journey repository" should {
 
         "return an InternalServerError" in {
-          mockDate
           setupMockInsertJourney(journeyDocumentMax)(false)
           mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
           status(result) shouldBe Status.INTERNAL_SERVER_ERROR
@@ -68,7 +66,6 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService w
       "fails to insert into journey repository" should {
 
         "return an InternalServerError" in {
-          mockDate
           setupMockFailedInsertJourney(journeyDocumentMax)
           mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
           status(result) shouldBe Status.SERVICE_UNAVAILABLE
@@ -95,7 +92,6 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService w
     }
 
     "fails to findById in the journey repository" in {
-      mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
       setupMockFailedFindJourneyById(Some(journeyDocumentMax))
       status(TestJourneyController.findJourney("id")(fakeRequest)) shouldBe Status.SERVICE_UNAVAILABLE
     }
@@ -103,7 +99,6 @@ class JourneyControllerSpec extends MockJourneyRepository with MockDateService w
     "given an id not contained in the journey repository" should {
 
       "return NotFound" in {
-        mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
         setupMockFindJourneyById(None)
         status(TestJourneyController.findJourney("id")(fakeRequest)) shouldBe Status.NOT_FOUND
       }

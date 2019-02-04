@@ -39,6 +39,23 @@ class ContactPreferencesModelSpec extends TestUtils {
     }
   }
 
+  "ContactPreferenceModel.desReads" when {
+
+    "given correct json values" should {
+
+      "return the correct model" in {
+        paperPreferenceDesJson.as[ContactPreferenceModel](ContactPreferenceModel.desReads) shouldBe paperPreferenceModel
+      }
+    }
+
+    "given incorrect json values" should {
+
+      "throw an exception" in {
+        Json.obj().validate[ContactPreferenceModel](ContactPreferenceModel.desReads).isError shouldBe true
+      }
+    }
+  }
+
   "ContactPreferenceModel.writes" when {
 
     "return the correct json" in {

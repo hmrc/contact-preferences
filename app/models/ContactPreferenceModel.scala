@@ -16,11 +16,13 @@
 
 package models
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json._
 
 case class ContactPreferenceModel(preference: Preference)
 
 object ContactPreferenceModel {
+
   implicit val format: Format[ContactPreferenceModel] = Json.format[ContactPreferenceModel]
+  val desReads: Reads[ContactPreferenceModel] = (__ \ "customerContactPreferences" \ "preference" \ "channel").read[Preference].map(apply)
 }
 

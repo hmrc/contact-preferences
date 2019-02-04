@@ -16,18 +16,21 @@
 
 package controllers
 
+import assets.CommonITConstants
 import assets.ContactPreferenceITConstants._
 import assets.JourneyITConstants.journeyJson
+import connectors.httpParsers.ContactPreferenceHttpParser.DependentSystemUnavailable
+import models.{MTDVAT, VRN}
 import play.api.http.Status._
 import play.api.libs.ws.WSResponse
-import stubs.AuthStub
+import stubs.{AuthStub, DESStub}
 import utils.ITUtils
 import utils.mocks.MockUUIDService
 
 
 class ContactPreferenceControllerISpec extends ITUtils {
 
-  "PUT /:id" when {
+  "PUT /:journeyId" when {
 
     "update is successful" should {
 
@@ -45,7 +48,7 @@ class ContactPreferenceControllerISpec extends ITUtils {
     }
   }
 
-  "GET /:id" when {
+  "GET /:journeyId" when {
 
     "given exists" should {
 
@@ -61,6 +64,74 @@ class ContactPreferenceControllerISpec extends ITUtils {
         res should have(
           httpStatus(OK)
         )
+      }
+    }
+  }
+
+  "GET /:regimeType/:regimeId/:id" when {
+
+    "given I provide valid parameters" when {
+
+      "a successful response from DES is returned" should {
+
+        "should return OK (200)" in {
+
+          AuthStub.authorisedIndividual()
+          DESStub.getContactPreferenceSuccess(digitalPreferenceDesJson)
+
+          val res = await(get(s"/${MTDVAT.id}/${VRN.value}/${CommonITConstants.vrn}"))
+
+          res should have(
+            httpStatus(OK),
+            jsonBodyAs(digitalPreferenceJson)
+          )
+        }
+      }
+
+      "an error response from DES is returned" should {
+
+        "should return SERVICE_UNAVAILABLE (503)" in {
+
+          AuthStub.authorisedIndividual()
+          DESStub.getContactPreferenceError
+
+          val res = await(get(s"/${MTDVAT.id}/${VRN.value}/${CommonITConstants.vrn}"))
+
+          res should have(
+            httpStatus(SERVICE_UNAVAILABLE),
+            bodyAs(DependentSystemUnavailable.body)
+          )
+        }
+      }
+
+    }
+
+    "given I provide INVALID parameters" when {
+
+      "supplying an invalid regime" should {
+
+        "should return BAD_REQUEST (400)" in {
+
+          val res = await(get(s"/foo/${VRN.value}/${CommonITConstants.vrn}"))
+
+          res should have(
+            httpStatus(BAD_REQUEST),
+            bodyAs("Invalid Regime: FOO. Valid Regime set: (VAT)")
+          )
+        }
+      }
+
+      "supplying an invalid identifier" should {
+
+        "should return BAD_REQUEST (400)" in {
+
+          val res = await(get(s"/${MTDVAT.id}/foo/${CommonITConstants.vrn}"))
+
+          res should have(
+            httpStatus(BAD_REQUEST),
+            bodyAs("Invalid Identifier: FOO. Valid Identifier set: (VRN)")
+          )
+        }
       }
     }
   }
