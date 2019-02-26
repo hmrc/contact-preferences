@@ -51,10 +51,10 @@ class AuthService @Inject()(val authConnector: AuthConnector, appConfig: AppConf
       } recover {
         case _: NoActiveSession =>
           Logger.debug(s"[ContactPreferencesAuthorised][async] - User has no active session, unauthorised")
-          Unauthorized
+          Unauthorized("The request was not authenticated")
         case _: AuthorisationException =>
           Logger.debug(s"[ContactPreferencesAuthorised][async] - User has an active session, but does not have sufficient authority")
-          Forbidden
+          Forbidden("The request was authenticated but the user does not have the necessary authority")
       }
     }
   }
