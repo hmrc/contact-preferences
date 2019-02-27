@@ -38,6 +38,14 @@ class JourneyModelSpec extends TestUtils {
       }
     }
 
+    "given an invalid continueUrl" should {
+
+      "return the correct model" in {
+        intercept[IllegalArgumentException](journeyJsonInvalidContinueUrl.validate[JourneyModel]).getMessage shouldBe
+          "requirement failed: 'invalid' is not a valid continue URL"
+      }
+    }
+
     "given incorrect json values" should {
 
       "throw an exception" in {

@@ -37,7 +37,7 @@ class JourneyControllerISpec extends ITUtils {
 
         res should have(
           httpStatus(CREATED),
-          continueUrl(s"http://localhost:9591/contact-preferences-frontend/start/${MockUUIDService.uuid}")
+          continueUrl(s"http://localhost:9591/contact-preferences/${MockUUIDService.uuid}")
         )
       }
     }
