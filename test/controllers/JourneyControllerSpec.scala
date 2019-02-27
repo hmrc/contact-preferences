@@ -52,6 +52,12 @@ class JourneyControllerSpec extends MockJourneyRepository with MockAuthService {
           mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
           status(result) shouldBe Status.CREATED
         }
+
+        "have a location header with a redirect to the contact preferences FE" in {
+          setupMockInsertJourney(journeyDocumentMax)(true)
+          mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+          redirectLocation(result) shouldBe Some(appConfig.contactPreferencesUrl + s"/${MockUUIDService.generateUUID}")
+        }
       }
 
       "failed at updating journey repository" should {
