@@ -20,6 +20,7 @@ import models._
 import play.api.libs.json.{JsObject, Json}
 import repositories.documents.{DateDocument, JourneyDocument}
 import services.mocks.{MockDateService, MockUUIDService}
+import uk.gov.hmrc.play.binders.ContinueUrl
 
 object JourneyTestConstants {
 
@@ -31,7 +32,19 @@ object JourneyTestConstants {
         "value" -> "999999999"
       )
     ),
-    "continueUrl" -> "continueUrl",
+    "continueUrl" -> "/continueUrl",
+    "email" -> "email"
+  )
+
+  val journeyJsonInvalidContinueUrl: JsObject = Json.obj(
+    "regime" -> Json.obj(
+      "type" -> "VAT",
+      "identifier" -> Json.obj(
+        "key" -> "VRN",
+        "value" -> "999999999"
+      )
+    ),
+    "continueUrl" -> "invalid",
     "email" -> "email"
   )
 
@@ -43,18 +56,18 @@ object JourneyTestConstants {
         "value" -> "999999999"
       )
     ),
-    "continueUrl" -> "continueUrl"
+    "continueUrl" -> "/continueUrl"
   )
 
   val journeyModelMax = JourneyModel(
     regime = RegimeModel(MTDVAT, IdModel(VRN, "999999999")),
-    continueUrl = "continueUrl",
+    continueUrl = ContinueUrl("/continueUrl"),
     email = Some("email")
   )
 
   val journeyModelMin =  JourneyModel(
     regime = RegimeModel(MTDVAT, IdModel(VRN, "999999999")),
-    continueUrl = "continueUrl"
+    continueUrl = ContinueUrl("/continueUrl")
   )
 
   val journeyDocumentJsonMax: JsObject = Json.obj(

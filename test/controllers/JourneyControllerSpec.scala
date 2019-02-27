@@ -38,7 +38,7 @@ class JourneyControllerSpec extends MockJourneyRepository with MockAuthService {
 
   "JourneyController.storeJourney" when {
 
-    "successfully given a JourneyModel" when {
+    "given a valid JourneyModel" when {
 
       lazy val fakePost = FakeRequest("POST", "/")
         .withBody(journeyJsonMax)
@@ -78,6 +78,26 @@ class JourneyControllerSpec extends MockJourneyRepository with MockAuthService {
         }
       }
     }
+
+    "given an invalid JourneyModel" should {
+
+      lazy val fakePost = FakeRequest("POST", "/")
+        .withBody(journeyJsonInvalidContinueUrl)
+        .withHeaders("Content-Type" -> "application/json")
+      def result: Future[Result] = TestJourneyController.storeJourney(fakePost)
+
+      "successfully updated journey repository" should {
+
+        "return an Bad Request (400)" in {
+          status(result) shouldBe Status.BAD_REQUEST
+        }
+
+        "Include a message for the error" in {
+          await(bodyOf(result)) shouldBe "could not parse body due to requirement failed: 'invalid' is not a valid continue URL"
+        }
+      }
+    }
+
   }
 
   "JourneyController.findJourney" when {

@@ -16,13 +16,26 @@
 
 package models
 
+import play.api.libs.functional.syntax._
 import play.api.libs.json._
+import uk.gov.hmrc.play.binders.ContinueUrl
+import utils.JsonSugar
 
 case class JourneyModel(regime: RegimeModel,
-                        continueUrl: String,
+                        continueUrl: ContinueUrl,
                         email: Option[String] = None)
 
-object JourneyModel {
+object JourneyModel extends JsonSugar {
 
-  implicit val formats: Format[JourneyModel] = Json.format[JourneyModel]
+  implicit val reads: Reads[JourneyModel] = (
+    (__ \ "regime").read[RegimeModel] and
+      (__ \ "continueUrl").read[String].map(url => new ContinueUrl(url)) and
+      (__ \ "email").readNullable[String]
+  )(JourneyModel.apply _)
+
+  implicit val writes: Writes[JourneyModel] = (
+    (__ \ "regime").write[RegimeModel] and
+      (__ \ "continueUrl").write[ContinueUrl](Writes[ContinueUrl](url => JsString(url.url))) and
+      (__ \ "email").writeNullable[String]
+    )(unlift(JourneyModel.unapply))
 }
