@@ -43,7 +43,7 @@ A JourneyID will be generated and returned as a location header on the request w
 
 ##### 201 (CREATED): 
     Response Body: N/A *empty*
-    Response Headers: "Location" : "/contact-preferences-frontend/start/{journeyID}"
+    Response Headers: "Location" : "/contact-preferences/{journeyID}"
         
 ##### 400 (BAD_REQUEST): 
     Response Body: "Invalid JourneyModel payload: {json validation errors}"
@@ -86,7 +86,7 @@ A JourneyID will be generated and returned as a location header on the request w
     Response Status: 201 (CREATED)
     Response Body: Empty
     Response Headers:
-        location → /contact-preferences-frontend/start/42009459-90e8-416a-8947-37a60299680a
+        location → /contact-preferences/42009459-90e8-416a-8947-37a60299680a
 
 ---        
         
