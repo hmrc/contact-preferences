@@ -26,7 +26,6 @@ object BaseTestConstants {
   val testVatNumber: String = "999999999"
   val testArn: String = "XARN1234567"
 
-  val testMtdVatEnrolment: Enrolment = Enrolment(MtdContactPreferencesEnrolmentKey).withIdentifier(MtdContactPreferencesReferenceKey, testVatNumber)
   val testAgentServicesEnrolment: Enrolment = Enrolment(AgentServicesEnrolment).withIdentifier(AgentServicesReference, testArn)
   val testCredentials: Credentials = Credentials("GG123456789", "GG")
 

@@ -27,6 +27,7 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import repositories.mocks.{MockContactPreferenceRepository, MockJourneyRepository}
 import services.mocks.{MockAuthService, MockContactPreferenceService, MockDateService, MockUUIDService}
+import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
 
 import scala.concurrent.Future
 
@@ -54,7 +55,7 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
       "successfully updated contactPreference repository" should {
 
         "return an Ok" in {
-          mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+          mockAuthenticated(EmptyPredicate)
           setupMockFindJourneyById(Some(journeyDocumentMax))
           setupMockUpdatePreference(digitalPreferenceDocumentModel, MockUUIDService.generateUUID)(true)
           status(result) shouldBe Status.NO_CONTENT
@@ -64,7 +65,7 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
       "failed at updating contactPreference repository" should {
 
         "return an InternalServerError" in {
-          mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+          mockAuthenticated(EmptyPredicate)
           setupMockFindJourneyById(Some(journeyDocumentMax))
           setupMockUpdatePreference(digitalPreferenceDocumentModel, MockUUIDService.generateUUID)(false)
           status(result) shouldBe Status.INTERNAL_SERVER_ERROR
@@ -74,7 +75,7 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
       "fails to update Contact preference repository" should {
 
         "return an InternalServerError" in {
-          mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+          mockAuthenticated(EmptyPredicate)
           setupMockFindJourneyById(Some(journeyDocumentMax))
           setupMockFailedUpdatePreference(digitalPreferenceDocumentModel, MockUUIDService.generateUUID)
           status(result) shouldBe Status.SERVICE_UNAVAILABLE
@@ -90,7 +91,7 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
       lazy val result: Future[Result] = TestContactPreferenceController.findContactPreference(MockUUIDService.generateUUID)(fakeRequest)
 
       "return status Ok" in {
-        mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+        mockAuthenticated(EmptyPredicate)
         setupMockFindJourneyById(Some(journeyDocumentMax))
         setupMockFindPreferenceById(Some(digitalPreferenceDocumentModel))
         status(result) shouldBe Status.OK
@@ -104,7 +105,7 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
     "fails to findById in the journey repository" should {
 
       "return NotFound" in {
-        mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+        mockAuthenticated(EmptyPredicate)
         setupMockFindJourneyById(Some(journeyDocumentMax))
         setupMockFailedFindPreferenceById(None)
         status(TestContactPreferenceController.findContactPreference(MockUUIDService.generateUUID)(fakeRequest)) shouldBe Status.SERVICE_UNAVAILABLE
@@ -114,7 +115,7 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
     "given an id not contained in the contactPreference repository" should {
 
       "return NotFound" in {
-        mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+        mockAuthenticated(EmptyPredicate)
         setupMockFindJourneyById(Some(journeyDocumentMax))
         setupMockFindPreferenceById(None)
         status(TestContactPreferenceController.findContactPreference(MockUUIDService.generateUUID)(fakeRequest)) shouldBe Status.NOT_FOUND
@@ -129,7 +130,7 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
       lazy val result: Future[Result] = TestContactPreferenceController.getDesContactPreference(MTDVAT, VRN, BaseTestConstants.testVatNumber)(fakeRequest)
 
       "return status Ok" in {
-        mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+        mockAuthenticated(EmptyPredicate)
         mockDesContactPreference(RegimeTestConstants.regimeModel)(Right(ContactPreferenceModel(Digital)))
         status(result) shouldBe Status.OK
       }
@@ -142,7 +143,7 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
     "given an error response is returned from the service" should {
 
       "return NotFound" in {
-        mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+        mockAuthenticated(EmptyPredicate)
         mockDesContactPreference(RegimeTestConstants.regimeModel)(Left(InvalidJson))
         status(
           TestContactPreferenceController.getDesContactPreference(MTDVAT, VRN, BaseTestConstants.testVatNumber)(fakeRequest)
