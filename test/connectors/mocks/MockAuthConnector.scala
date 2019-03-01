@@ -45,9 +45,9 @@ trait MockAuthConnector extends MockFactory {
       )
     )
 
-  def mockAuthRetrieveMtdVatEnrolled(predicate: Predicate = EmptyPredicate): Unit =
+  def mockAuthenticated(predicate: Predicate = EmptyPredicate): Unit =
     mockAuthorise(predicate = predicate, retrievals = retrievals)(
-      Future.successful(Enrolments(Set(testMtdVatEnrolment)))
+      Future.successful(Enrolments(Set()))
     )
 
 }

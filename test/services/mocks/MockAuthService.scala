@@ -16,22 +16,15 @@
 
 package services.mocks
 
-import assets.BaseTestConstants.testVatNumber
-import config.Constants
 import connectors.mocks.MockAuthConnector
 import services.AuthService
-import uk.gov.hmrc.auth.core.authorise.Predicate
+import uk.gov.hmrc.auth.core.Enrolments
 import uk.gov.hmrc.auth.core.retrieve.{Retrieval, Retrievals}
-import uk.gov.hmrc.auth.core.{Enrolment, Enrolments}
 import utils.TestUtils
 
 trait MockAuthService extends MockAuthConnector with TestUtils {
 
   lazy val mockAuthService = new AuthService(mockAuthConnector, appConfig)
-
-  val vatAuthPredicate: Predicate = Enrolment(Constants.MtdContactPreferencesEnrolmentKey)
-    .withIdentifier(Constants.MtdContactPreferencesReferenceKey, testVatNumber)
-    .withDelegatedAuthRule(Constants.MtdContactPreferencesDelegatedAuth)
 
   val allEnrolments: Retrieval[Enrolments] = Retrievals.allEnrolments
 
