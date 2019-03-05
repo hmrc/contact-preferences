@@ -25,7 +25,7 @@ import utils.WireMockMethods
 
 object DESStub extends WireMockMethods {
 
-  private val contactPreferenceDesUrl = s"/${MTDVAT.desId}/${VRN.value}/${CommonITConstants.vrn}/contact-preference"
+  private val contactPreferenceDesUrl = s"/cross-regime/customer/${MTDVAT.desId}/${VRN.value}/${CommonITConstants.vrn}/contact-preference"
 
   def getContactPreferenceSuccess(response: JsValue): StubMapping =
     when(method = GET, uri = contactPreferenceDesUrl).thenReturn(status = OK, body = response)
