@@ -22,9 +22,9 @@ object JourneyITConstants {
 
   val journeyJson: JsObject = Json.obj(
     "regime" -> Json.obj(
-      "type" -> "VAT",
+      "type" -> "vat",
       "identifier" -> Json.obj(
-        "key" -> "VRN",
+        "key" -> "vrn",
         "value" -> "999999999"
       )
     ),

@@ -31,7 +31,7 @@ object Regime {
   implicit val reads: Reads[Regime] = __.read[String] map apply
   implicit val writes: Writes[Regime] = Writes { x => JsString(unapply(x)) }
 
-  def apply(arg: String): Regime = arg.toUpperCase match {
+  def apply(arg: String): Regime = arg match {
     case MTDVAT.id => MTDVAT
     case x => throw jsonError(__, s"Invalid Regime: $x. Valid Regime set: (${MTDVAT.id})")
   }
@@ -43,7 +43,7 @@ object Regime {
   implicit def pathBinder(implicit stringBinder: PathBindable[String]): PathBindable[Regime] = new PathBindable[Regime] {
     override def bind(key: String, value: String): Either[String, Regime] = stringBinder.bind(key, value) match {
       case Left(err) => Left(err)
-      case Right(regime) => regime.toUpperCase match {
+      case Right(regime) => regime match {
         case MTDVAT.id => Right(MTDVAT)
         case x => Left(s"Invalid Regime: $x. Valid Regime set: (${MTDVAT.id})")
       }
@@ -53,8 +53,8 @@ object Regime {
 }
 
 object MTDVAT extends Regime {
-  override val id = "VAT"
+  override val id = "vat"
   override val enrolmentID = "HMRC-MTD-VAT"
   override val delegatedAuthRule: String = "mtd-vat-auth"
-  override val desId: String = "VATC"
+  override val desId: String = "vatc"
 }

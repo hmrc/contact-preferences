@@ -37,7 +37,7 @@ class IdentifierSpec extends TestUtils with JsonSugar {
     "when given an invalid Identifier" should {
 
       "for foo raise a JsResultException InvalidIdentifier" in {
-        intercept[JsResultException](Identifier("foo")) shouldBe jsonError(__, s"Invalid Identifier: FOO. Valid Identifier set: (${VRN.value})")
+        intercept[JsResultException](Identifier("foo")) shouldBe jsonError(__, s"Invalid Identifier: foo. Valid Identifier set: (${VRN.value})")
       }
     }
   }
@@ -66,7 +66,7 @@ class IdentifierSpec extends TestUtils with JsonSugar {
       "when given an invalid Identifier" should {
 
         "for invalidJson return InvalidIdentifier case object" in {
-          intercept[JsResultException](invalidJson.as[Identifier]) shouldBe jsonError(__, s"Invalid Identifier: FOO. Valid Identifier set: (${VRN.value})")
+          intercept[JsResultException](invalidJson.as[Identifier]) shouldBe jsonError(__, s"Invalid Identifier: foo. Valid Identifier set: (${VRN.value})")
         }
       }
     }
@@ -105,7 +105,7 @@ class IdentifierSpec extends TestUtils with JsonSugar {
 
         "for FOO return Left(err)" in {
           Identifier.pathBinder(PathBindable.bindableString).bind("id", "foo") shouldBe
-            Left(s"Invalid Identifier: FOO. Valid Identifier set: (${VRN.value})")
+            Left(s"Invalid Identifier: foo. Valid Identifier set: (${VRN.value})")
         }
       }
     }
