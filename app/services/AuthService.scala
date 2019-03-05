@@ -33,11 +33,6 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class AuthService @Inject()(val authConnector: AuthConnector, appConfig: AppConfig) extends AuthorisedFunctions with MongoSugar {
 
-  private def delegatedAuthRule(regime: RegimeModel): Enrolment =
-    Enrolment(regime.`type`.enrolmentID)
-      .withIdentifier(regime.identifier.key.value, regime.identifier.value)
-      .withDelegatedAuthRule(regime.`type`.delegatedAuthRule)
-
   private val arn: Enrolments => Option[String] = _.getEnrolment(Constants.AgentServicesEnrolment) flatMap {
     _.getIdentifier(Constants.AgentServicesReference).map(_.value)
   }
@@ -46,15 +41,15 @@ class AuthService @Inject()(val authConnector: AuthConnector, appConfig: AppConf
     if (appConfig.features.bypassAuth()) {
       f(User(regime.identifier.value, None)(request))
     } else {
-      authorised(delegatedAuthRule(regime)).retrieve(Retrievals.allEnrolments) { enrolments =>
+      authorised().retrieve(Retrievals.allEnrolments) { enrolments =>
         f(User(regime.identifier.value, arn(enrolments))(request))
       } recover {
         case _: NoActiveSession =>
           Logger.debug(s"[ContactPreferencesAuthorised][async] - User has no active session, unauthorised")
-          Unauthorized
+          Unauthorized("The request was not authenticated")
         case _: AuthorisationException =>
           Logger.debug(s"[ContactPreferencesAuthorised][async] - User has an active session, but does not have sufficient authority")
-          Forbidden
+          Forbidden("The request was authenticated but the user does not have the necessary authority")
       }
     }
   }

@@ -28,7 +28,7 @@ object JourneyITConstants {
         "value" -> "999999999"
       )
     ),
-    "continueUrl" -> "continueUrl",
+    "continueUrl" -> "/continueUrl",
     "email" -> "email"
   )
 

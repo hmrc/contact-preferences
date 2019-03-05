@@ -23,6 +23,7 @@ import play.api.mvc.Result
 import play.api.test.FakeRequest
 import repositories.mocks.MockJourneyRepository
 import services.mocks.{MockAuthService, MockDateService, MockUUIDService}
+import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
 
 import scala.concurrent.Future
 
@@ -38,7 +39,7 @@ class JourneyControllerSpec extends MockJourneyRepository with MockAuthService {
 
   "JourneyController.storeJourney" when {
 
-    "successfully given a JourneyModel" when {
+    "given a valid JourneyModel" when {
 
       lazy val fakePost = FakeRequest("POST", "/")
         .withBody(journeyJsonMax)
@@ -49,8 +50,14 @@ class JourneyControllerSpec extends MockJourneyRepository with MockAuthService {
 
         "return an Ok" in {
           setupMockInsertJourney(journeyDocumentMax)(true)
-          mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+          mockAuthenticated(EmptyPredicate)
           status(result) shouldBe Status.CREATED
+        }
+
+        "have a location header with a redirect to the contact preferences FE" in {
+          setupMockInsertJourney(journeyDocumentMax)(true)
+          mockAuthenticated(EmptyPredicate)
+          redirectLocation(result) shouldBe Some(appConfig.contactPreferencesUrl + s"/${MockUUIDService.generateUUID}")
         }
       }
 
@@ -58,7 +65,7 @@ class JourneyControllerSpec extends MockJourneyRepository with MockAuthService {
 
         "return an InternalServerError" in {
           setupMockInsertJourney(journeyDocumentMax)(false)
-          mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+          mockAuthenticated(EmptyPredicate)
           status(result) shouldBe Status.INTERNAL_SERVER_ERROR
         }
       }
@@ -67,11 +74,31 @@ class JourneyControllerSpec extends MockJourneyRepository with MockAuthService {
 
         "return an InternalServerError" in {
           setupMockFailedInsertJourney(journeyDocumentMax)
-          mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+          mockAuthenticated(EmptyPredicate)
           status(result) shouldBe Status.SERVICE_UNAVAILABLE
         }
       }
     }
+
+    "given an invalid JourneyModel" should {
+
+      lazy val fakePost = FakeRequest("POST", "/")
+        .withBody(journeyJsonInvalidContinueUrl)
+        .withHeaders("Content-Type" -> "application/json")
+      def result: Future[Result] = TestJourneyController.storeJourney(fakePost)
+
+      "successfully updated journey repository" should {
+
+        "return an Bad Request (400)" in {
+          status(result) shouldBe Status.BAD_REQUEST
+        }
+
+        "Include a message for the error" in {
+          await(bodyOf(result)) shouldBe "could not parse body due to requirement failed: 'invalid' is not a valid continue URL"
+        }
+      }
+    }
+
   }
 
   "JourneyController.findJourney" when {
@@ -81,7 +108,7 @@ class JourneyControllerSpec extends MockJourneyRepository with MockAuthService {
       lazy val result: Future[Result] = TestJourneyController.findJourney("id")(fakeRequest)
 
       "return status Ok" in {
-        mockAuthRetrieveMtdVatEnrolled(vatAuthPredicate)
+        mockAuthenticated(EmptyPredicate)
         setupMockFindJourneyById(Some(journeyDocumentMax))
         status(result) shouldBe Status.OK
       }

@@ -5,12 +5,13 @@ object AppDependencies {
 
   val compile = Seq(
 
-    "uk.gov.hmrc"             %% "play-reactivemongo"       % "6.2.0",
-    "uk.gov.hmrc"             %% "bootstrap-play-25"        % "4.7.0"
+    "uk.gov.hmrc"             %% "play-reactivemongo"       % "6.4.0",
+    "uk.gov.hmrc"             %% "bootstrap-play-25"        % "4.9.0",
+    "uk.gov.hmrc"             %% "play-ui"                  % "7.32.0-play-25"
   )
 
   val test = Seq(
-    "uk.gov.hmrc"             %% "hmrctest"                    % "3.4.0-play-25"         % "test, it",
+    "uk.gov.hmrc"             %% "hmrctest"                    % "3.5.0-play-25"         % "test, it",
     "org.scalatest"           %% "scalatest"                   % "3.0.4"                 % "test",
     "com.typesafe.play"       %% "play-test"                   % current                 % "test",
     "org.pegdown"             %  "pegdown"                     % "1.6.0"                 % "test, it",

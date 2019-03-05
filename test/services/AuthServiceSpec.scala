@@ -23,7 +23,7 @@ import connectors.mocks.MockAuthConnector
 import play.api.http.Status._
 import play.api.mvc.Result
 import play.api.mvc.Results._
-import uk.gov.hmrc.auth.core.authorise.Predicate
+import uk.gov.hmrc.auth.core.authorise.{EmptyPredicate, Predicate}
 import uk.gov.hmrc.auth.core.{Enrolment, InsufficientEnrolments, MissingBearerToken}
 import utils.TestUtils
 
@@ -38,11 +38,6 @@ class AuthServiceSpec extends MockAuthConnector with TestUtils {
       Future.successful(Ok)
   }
 
-  val authPredicate: Predicate =
-    Enrolment(Constants.MtdContactPreferencesEnrolmentKey)
-      .withIdentifier(Constants.MtdContactPreferencesReferenceKey, testVatNumber)
-      .withDelegatedAuthRule(Constants.MtdContactPreferencesDelegatedAuth)
-
   "The ContactPreferencesAuthorised.async method" should {
 
     "For a Principal User" when {
@@ -50,7 +45,7 @@ class AuthServiceSpec extends MockAuthConnector with TestUtils {
       "an authorised result is returned from the Auth Connector" should {
 
         "Successfully authenticate and process the request" in {
-          mockAuthRetrieveMtdVatEnrolled(authPredicate)
+          mockAuthenticated(EmptyPredicate)
           status(result) shouldBe OK
         }
       }
@@ -61,7 +56,7 @@ class AuthServiceSpec extends MockAuthConnector with TestUtils {
       "they are Signed Up to MTD ContactPreferences" should {
 
         "Successfully authenticate and process the request" in {
-          mockAuthRetrieveAgentServicesEnrolled(authPredicate)
+          mockAuthRetrieveAgentServicesEnrolled(EmptyPredicate)
           status(result) shouldBe OK
         }
       }
@@ -72,16 +67,26 @@ class AuthServiceSpec extends MockAuthConnector with TestUtils {
       "a NoActiveSession exception is returned from the Auth Connector" should {
 
         "Return a unauthorised response" in {
-          mockAuthorise(authPredicate, retrievals)(Future.failed(MissingBearerToken()))
+          mockAuthorise(EmptyPredicate, retrievals)(Future.failed(MissingBearerToken()))
           status(result) shouldBe UNAUTHORIZED
+        }
+
+        "Return the correct unauthorised response message" in {
+          mockAuthorise(EmptyPredicate, retrievals)(Future.failed(MissingBearerToken()))
+          await(bodyOf(result)) shouldBe "The request was not authenticated"
         }
       }
 
       "an InsufficientAuthority exception is returned from the Auth Connector" should {
 
         "Return a forbidden response" in {
-          mockAuthorise(authPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
+          mockAuthorise(EmptyPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
           status(result) shouldBe FORBIDDEN
+        }
+
+        "Return the correct unauthorised response message" in {
+          mockAuthorise(EmptyPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
+          await(bodyOf(result)) shouldBe "The request was authenticated but the user does not have the necessary authority"
         }
       }
     }

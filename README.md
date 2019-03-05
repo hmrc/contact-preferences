@@ -43,7 +43,7 @@ A JourneyID will be generated and returned as a location header on the request w
 
 ##### 201 (CREATED): 
     Response Body: N/A *empty*
-    Response Headers: "Location" : "/contact-preferences-frontend/start/{journeyID}"
+    Response Headers: "Location" : "/contact-preferences/{journeyID}"
         
 ##### 400 (BAD_REQUEST): 
     Response Body: "Invalid JourneyModel payload: {json validation errors}"
@@ -86,7 +86,7 @@ A JourneyID will be generated and returned as a location header on the request w
     Response Status: 201 (CREATED)
     Response Body: Empty
     Response Headers:
-        location → /contact-preferences-frontend/start/42009459-90e8-416a-8947-37a60299680a
+        location → /contact-preferences/42009459-90e8-416a-8947-37a60299680a
 
 ---        
         
@@ -296,13 +296,13 @@ Provides an API to call to get the preference stored in the backend System of Re
     Response Body: "The request was authenticated but the user does not have the necessary authority"
     
 ##### 412 (PRECONDITION_FAILED): 
-    Response Body: "The system of record has indicated that the record is in migration, try again later"
+    Response Body: "Downstream system of record has indicated that the record is in migration, try again later"
 
 ##### 500 (INTERNAL_SERVER_ERROR): 
-    Response Body: "An unexpected error occured. {error message}"
+    Response Body: "{error message}"
 
 ##### 503 (SERVICE_UNAVAILABLE): 
-    Response Body: "There was an error communicating with the downstream system of record, try again later"        
+    Response Body: "Downstream system of record is unavailable, try again later"        
     
     
 #### Example Request/Response
