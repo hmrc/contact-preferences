@@ -34,7 +34,7 @@ class ContactPreferenceConnectorSpec extends MockHttpClient with TestUtils {
 
       "return the correct url" in {
         TestContactPreferenceConnector.contactPreferenceUrl(regimeModel) shouldBe
-          "http://localhost:9593/cross-regime/customer/VATC/VRN/999999999/contact-preference"
+          "http://localhost:9593/cross-regime/customer/vatc/vrn/999999999/contact-preference"
       }
     }
   }

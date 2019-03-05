@@ -37,7 +37,7 @@ class RegimeSpec extends TestUtils with JsonSugar {
     "when given an invalid Regime" should {
 
       "for foo an InvalidRegime" in {
-        intercept[JsResultException](Regime("foo")) shouldBe jsonError(__, s"Invalid Regime: FOO. Valid Regime set: (${MTDVAT.id})")
+        intercept[JsResultException](Regime("foo")) shouldBe jsonError(__, s"Invalid Regime: foo. Valid Regime set: (${MTDVAT.id})")
       }
     }
   }
@@ -66,7 +66,7 @@ class RegimeSpec extends TestUtils with JsonSugar {
       "when given an invalid Regime" should {
 
         "for invalidJson return InvalidRegime case object" in {
-          intercept[JsResultException](invalidJson.as[Regime]) shouldBe jsonError(__, s"Invalid Regime: FOO. Valid Regime set: (${MTDVAT.id})")
+          intercept[JsResultException](invalidJson.as[Regime]) shouldBe jsonError(__, s"Invalid Regime: foo. Valid Regime set: (${MTDVAT.id})")
         }
       }
     }
@@ -105,7 +105,7 @@ class RegimeSpec extends TestUtils with JsonSugar {
 
         "for FOO return Left(err)" in {
           Regime.pathBinder(PathBindable.bindableString).bind("regime", "foo") shouldBe
-            Left(s"Invalid Regime: FOO. Valid Regime set: (${MTDVAT.id})")
+            Left(s"Invalid Regime: foo. Valid Regime set: (${MTDVAT.id})")
         }
       }
     }

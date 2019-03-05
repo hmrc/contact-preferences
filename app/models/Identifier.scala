@@ -28,7 +28,7 @@ object Identifier extends JsonSugar {
   implicit val reads: Reads[Identifier] = __.read[String] map apply
   implicit val writes: Writes[Identifier] = Writes { x => JsString(unapply(x)) }
 
-  def apply(arg: String): Identifier = arg.toUpperCase match {
+  def apply(arg: String): Identifier = arg match {
     case VRN.value => VRN
     case x => throw jsonError(__, s"Invalid Identifier: $x. Valid Identifier set: (${VRN.value})")
   }
@@ -40,7 +40,7 @@ object Identifier extends JsonSugar {
   implicit def pathBinder(implicit stringBinder: PathBindable[String]): PathBindable[Identifier] = new PathBindable[Identifier] {
     override def bind(key: String, value: String): Either[String, Identifier] = stringBinder.bind(key, value) match {
       case Left(err) => Left(err)
-      case Right(id) => id.toUpperCase match {
+      case Right(id) => id match {
         case VRN.value => Right(VRN)
         case x => Left(s"Invalid Identifier: $x. Valid Identifier set: (${VRN.value})")
       }
@@ -50,5 +50,5 @@ object Identifier extends JsonSugar {
 }
 
 object VRN extends Identifier {
-  val value = "VRN"
+  val value = "vrn"
 }

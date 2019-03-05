@@ -116,7 +116,7 @@ class ContactPreferenceControllerISpec extends ITUtils {
 
           res should have(
             httpStatus(BAD_REQUEST),
-            bodyAs("Invalid Regime: FOO. Valid Regime set: (VAT)")
+            bodyAs("Invalid Regime: foo. Valid Regime set: (vat)")
           )
         }
       }
@@ -129,7 +129,7 @@ class ContactPreferenceControllerISpec extends ITUtils {
 
           res should have(
             httpStatus(BAD_REQUEST),
-            bodyAs("Invalid Identifier: FOO. Valid Identifier set: (VRN)")
+            bodyAs("Invalid Identifier: foo. Valid Identifier set: (vrn)")
           )
         }
       }
