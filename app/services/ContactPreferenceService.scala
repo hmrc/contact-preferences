@@ -17,7 +17,7 @@
 package services
 
 import connectors.ContactPreferenceConnector
-import connectors.httpParsers.ContactPreferenceHttpParser.Response
+import connectors.httpParsers.GetContactPreferenceHttpParser.GetContactPreferenceResponse
 import javax.inject.{Inject, Singleton}
 import models.RegimeModel
 import uk.gov.hmrc.http.HeaderCarrier
@@ -27,7 +27,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class ContactPreferenceService @Inject()(contactPreferenceConnector: ContactPreferenceConnector) {
 
-  def getContactPreference(regimeModel: RegimeModel)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Response] =
+  def getContactPreference(regimeModel: RegimeModel)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[GetContactPreferenceResponse] =
     contactPreferenceConnector.getContactPreference(regimeModel)
 
 }

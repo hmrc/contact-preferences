@@ -21,13 +21,13 @@ import play.api.Logger
 import play.api.http.Status._
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 
-object ContactPreferenceHttpParser {
+object GetContactPreferenceHttpParser {
 
-  type Response = Either[ErrorResponse, ContactPreferenceModel]
+  type GetContactPreferenceResponse = Either[ErrorResponse, ContactPreferenceModel]
 
-  implicit object ContactPreferenceHttpReads extends HttpReads[Response] {
+  implicit object GetContactPreferenceHttpReads extends HttpReads[GetContactPreferenceResponse] {
 
-    override def read(method: String, url: String, response: HttpResponse): Response = {
+    override def read(method: String, url: String, response: HttpResponse): GetContactPreferenceResponse = {
       response.status match {
         case OK => {
           Logger.debug("[ContactPreferenceConnector][read]: Status OK")
@@ -52,7 +52,7 @@ object ContactPreferenceHttpParser {
     }
   }
 
-  sealed trait ErrorResponse {
+  trait ErrorResponse {
     val status: Int = INTERNAL_SERVER_ERROR
     val body: String
   }

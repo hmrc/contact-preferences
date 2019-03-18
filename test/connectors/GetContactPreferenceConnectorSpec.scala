@@ -18,12 +18,13 @@ package connectors
 
 import assets.RegimeTestConstants.regimeModel
 import assets.ContactPreferencesTestConstants.digitalPreferenceModel
+import connectors.httpParsers.UpdateContactPreferenceHttpParser.{UpdateContactPreferenceFailed, UpdateContactPreferenceResponse, UpdateContactPreferenceSuccess}
 import models.{ContactPreferenceModel, ErrorModel}
 import utils.{MockHttpClient, TestUtils}
 import play.api.http.Status._
 
 
-class ContactPreferenceConnectorSpec extends MockHttpClient with TestUtils {
+class GetContactPreferenceConnectorSpec extends MockHttpClient with TestUtils {
 
 
   "ContactPreferenceConnector.contactPreferenceUrl" when {
@@ -65,6 +66,36 @@ class ContactPreferenceConnectorSpec extends MockHttpClient with TestUtils {
         val result = connector.getContactPreference(regimeModel)
 
         await(result) shouldBe Left(ErrorModel(INTERNAL_SERVER_ERROR, "Error"))
+      }
+    }
+  }
+
+  "ContactPreferenceConnector.updateContactPreference" when {
+
+    def setup(response: Either[UpdateContactPreferenceFailed, UpdateContactPreferenceResponse]): ContactPreferenceConnector = {
+      mockHttpPut[ContactPreferenceModel, Either[UpdateContactPreferenceFailed, UpdateContactPreferenceResponse]](digitalPreferenceModel)(response)
+      new ContactPreferenceConnector(mockHttpClient, appConfig)
+    }
+
+    "update is successful" should {
+
+      "return a Right(UpdateContactPreferenceSuccess)" in {
+
+        val connector = setup(Right(UpdateContactPreferenceSuccess))
+        val result = connector.updateContactPreference(regimeModel, digitalPreferenceModel)
+
+        await(result) shouldBe Right(UpdateContactPreferenceSuccess)
+      }
+    }
+
+    "update is unsuccessul" should {
+
+      "return an error model" in {
+
+        val connector = setup(Left(UpdateContactPreferenceFailed(INTERNAL_SERVER_ERROR, "Error")))
+        val result = connector.updateContactPreference(regimeModel, digitalPreferenceModel)
+
+        await(result) shouldBe Left(UpdateContactPreferenceFailed(INTERNAL_SERVER_ERROR, "Error"))
       }
     }
   }

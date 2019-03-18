@@ -17,6 +17,7 @@
 package utils
 
 import org.scalamock.scalatest.MockFactory
+import play.api.libs.json.Format
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
@@ -29,6 +30,13 @@ trait MockHttpClient extends MockFactory {
   def mockHttpGet[A](response: A): Unit = {
     (mockHttpClient.GET[A](_: String)(_: HttpReads[A], _: HeaderCarrier, _: ExecutionContext))
       .expects(*, *, *, *)
+      .returns(Future.successful(response))
+  }
+
+  def mockHttpPut[I,O](model: I)(response: O): Unit = {
+    (mockHttpClient.PUT[I,O](_: String, _: I)
+      (_: Format[I], _: HttpReads[O], _: HeaderCarrier, _: ExecutionContext))
+      .expects(*, *, *, *, *, *)
       .returns(Future.successful(response))
   }
 }

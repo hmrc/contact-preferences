@@ -17,9 +17,10 @@
 package connectors
 
 import config.AppConfig
-import connectors.httpParsers.ContactPreferenceHttpParser.{ContactPreferenceHttpReads, _}
+import connectors.httpParsers.GetContactPreferenceHttpParser.{GetContactPreferenceHttpReads, _}
+import connectors.httpParsers.UpdateContactPreferenceHttpParser.{UpdateContactPreferenceHttpReads, _}
 import javax.inject.{Inject, Singleton}
-import models.RegimeModel
+import models.{ContactPreferenceModel, RegimeModel}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.http.HttpClient
 
@@ -31,7 +32,15 @@ class ContactPreferenceConnector @Inject()(val http: HttpClient, implicit val ap
   private[connectors] val contactPreferenceUrl = (regimeModel: RegimeModel) =>
     s"${appConfig.desUrl}/cross-regime/customer/${regimeModel.desIdType}/${regimeModel.idKey}/${regimeModel.idValue}/contact-preference"
 
-  def getContactPreference(regimeModel: RegimeModel)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Response] = {
-    http.GET(contactPreferenceUrl(regimeModel))(ContactPreferenceHttpReads, desHc, ec)
+  def getContactPreference(regimeModel: RegimeModel)
+                          (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[GetContactPreferenceResponse] = {
+    http.GET(contactPreferenceUrl(regimeModel))(GetContactPreferenceHttpReads, desHc, ec)
+  }
+
+  def updateContactPreference(regimeModel: RegimeModel, contactPreferenceModel: ContactPreferenceModel)
+                           (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[PutContactPreferenceResponse] = {
+    http.PUT[ContactPreferenceModel, PutContactPreferenceResponse](
+      contactPreferenceUrl(regimeModel), contactPreferenceModel
+    )(ContactPreferenceModel.format, UpdateContactPreferenceHttpReads, hc, ec)
   }
 }

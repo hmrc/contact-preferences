@@ -17,27 +17,27 @@
 package connectors.httpParsers
 
 import assets.ContactPreferencesTestConstants._
-import connectors.httpParsers.ContactPreferenceHttpParser.{ContactPreferenceHttpReads, _}
+import connectors.httpParsers.GetContactPreferenceHttpParser.{GetContactPreferenceHttpReads, _}
 import play.api.http.Status
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpResponse
 import utils.TestUtils
 
-class ContactPreferenceHttpParserSpec extends TestUtils {
+class GetContactPreferenceHttpParserSpec extends TestUtils {
 
-  "ContactPreferenceHttpParser.ContactPreferenceHttpReads" when {
+  "GetContactPreferenceHttpParser.GetContactPreferenceHttpReads" when {
 
     "given an OK with a correct Json model" should {
 
       "return a Right containing the correct contact preference moodel" in {
-        ContactPreferenceHttpReads.read("", "", HttpResponse(Status.OK, Some(paperPreferenceDesJson))) shouldBe Right(paperPreferenceModel)
+        GetContactPreferenceHttpReads.read("", "", HttpResponse(Status.OK, Some(paperPreferenceDesJson))) shouldBe Right(paperPreferenceModel)
       }
     }
 
     "given an OK with incorrect Json" should {
 
       "return a Left(ErrorMessage)" in {
-        ContactPreferenceHttpReads.read("", "", HttpResponse(Status.OK, Some(Json.obj("bad" -> "data")))) shouldBe
+        GetContactPreferenceHttpReads.read("", "", HttpResponse(Status.OK, Some(Json.obj("bad" -> "data")))) shouldBe
           Left(InvalidJson)
       }
     }
@@ -45,7 +45,7 @@ class ContactPreferenceHttpParserSpec extends TestUtils {
     "given an FORBIDDEN with message 'MIGRATION' response" should {
 
       "return a Left(Migration)" in {
-        ContactPreferenceHttpReads.read("", "", HttpResponse(Status.FORBIDDEN, responseString = Some("MIGRATION"))) shouldBe
+        GetContactPreferenceHttpReads.read("", "", HttpResponse(Status.FORBIDDEN, responseString = Some("MIGRATION"))) shouldBe
           Left(Migration)
       }
     }
@@ -53,7 +53,7 @@ class ContactPreferenceHttpParserSpec extends TestUtils {
     "given an SERVICE_UNAVAILABLE response" should {
 
       "return a Left(ErrorMessage)" in {
-        ContactPreferenceHttpReads.read("", "", HttpResponse(Status.SERVICE_UNAVAILABLE)) shouldBe
+        GetContactPreferenceHttpReads.read("", "", HttpResponse(Status.SERVICE_UNAVAILABLE)) shouldBe
           Left(DependentSystemUnavailable)
       }
     }
@@ -61,7 +61,7 @@ class ContactPreferenceHttpParserSpec extends TestUtils {
     "given any other status" should {
 
       "return a Left(UnexpectedFailure)" in {
-        ContactPreferenceHttpReads.read("", "", HttpResponse(Status.BAD_GATEWAY)) shouldBe
+        GetContactPreferenceHttpReads.read("", "", HttpResponse(Status.BAD_GATEWAY)) shouldBe
           Left(UnexpectedFailure(Status.BAD_GATEWAY, s"Status ${Status.BAD_GATEWAY} Error returned when retrieving contact preference"))
       }
     }
