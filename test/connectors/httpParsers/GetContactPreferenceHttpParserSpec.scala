@@ -30,39 +30,55 @@ class GetContactPreferenceHttpParserSpec extends TestUtils {
     "given an OK with a correct Json model" should {
 
       "return a Right containing the correct contact preference moodel" in {
-        GetContactPreferenceHttpReads.read("", "", HttpResponse(Status.OK, Some(paperPreferenceDesJson))) shouldBe Right(paperPreferenceModel)
+
+        val expectedResult = Right(paperPreferenceModel)
+        val actualResult = GetContactPreferenceHttpReads.read("", "", HttpResponse(Status.OK, Some(paperPreferenceDesJson)))
+
+        actualResult shouldBe expectedResult
       }
     }
 
     "given an OK with incorrect Json" should {
 
       "return a Left(ErrorMessage)" in {
-        GetContactPreferenceHttpReads.read("", "", HttpResponse(Status.OK, Some(Json.obj("bad" -> "data")))) shouldBe
-          Left(InvalidJson)
+
+        val expectedResult = Left(InvalidJson)
+        val actualResult = GetContactPreferenceHttpReads.read("", "", HttpResponse(Status.OK, Some(Json.obj("bad" -> "data"))))
+
+        actualResult shouldBe expectedResult
       }
     }
 
     "given an FORBIDDEN with message 'MIGRATION' response" should {
 
       "return a Left(Migration)" in {
-        GetContactPreferenceHttpReads.read("", "", HttpResponse(Status.FORBIDDEN, responseString = Some("MIGRATION"))) shouldBe
-          Left(Migration)
+
+        val expectedResult = Left(Migration)
+        val actualResult = GetContactPreferenceHttpReads.read("", "", HttpResponse(Status.FORBIDDEN, responseString = Some("MIGRATION")))
+
+        actualResult shouldBe expectedResult
       }
     }
 
     "given an SERVICE_UNAVAILABLE response" should {
 
       "return a Left(ErrorMessage)" in {
-        GetContactPreferenceHttpReads.read("", "", HttpResponse(Status.SERVICE_UNAVAILABLE)) shouldBe
-          Left(DependentSystemUnavailable)
+
+        val expectedResult = Left(DependentSystemUnavailable)
+        val actualResult = GetContactPreferenceHttpReads.read("", "", HttpResponse(Status.SERVICE_UNAVAILABLE))
+
+        actualResult shouldBe expectedResult
       }
     }
 
     "given any other status" should {
 
-      "return a Left(UnexpectedFailure)" in {
-        GetContactPreferenceHttpReads.read("", "", HttpResponse(Status.BAD_GATEWAY)) shouldBe
-          Left(UnexpectedFailure(Status.BAD_GATEWAY, s"Status ${Status.BAD_GATEWAY} Error returned when retrieving contact preference"))
+      "return a Left(UnexpectedResultFailure)" in {
+
+        val actualResult = GetContactPreferenceHttpReads.read("", "", HttpResponse(Status.BAD_GATEWAY))
+        val expectedResult = Left(UnexpectedFailure(Status.BAD_GATEWAY, s"Status ${Status.BAD_GATEWAY} Error returned when retrieving contact preference"))
+
+        actualResult shouldBe expectedResult
       }
     }
   }
