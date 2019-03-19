@@ -36,7 +36,7 @@ trait MockHttpClient extends MockFactory {
   def mockHttpPut[I,O](model: I)(response: O): Unit = {
     (mockHttpClient.PUT[I,O](_: String, _: I)
       (_: Format[I], _: HttpReads[O], _: HeaderCarrier, _: ExecutionContext))
-      .expects(*, *, *, *, *, *)
+      .expects(*, model, *, *, *, *)
       .returns(Future.successful(response))
   }
 }

@@ -52,7 +52,7 @@ object GetContactPreferenceHttpParser {
     }
   }
 
-  trait ErrorResponse {
+  sealed trait ErrorResponse {
     val status: Int = INTERNAL_SERVER_ERROR
     val body: String
   }

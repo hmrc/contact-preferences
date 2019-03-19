@@ -45,7 +45,7 @@ object UpdateContactPreferenceHttpParser {
   sealed trait UpdateContactPreferenceResponse
   object UpdateContactPreferenceSuccess extends UpdateContactPreferenceResponse
 
-  trait ErrorResponse {
+  sealed trait ErrorResponse {
     val status: Int = INTERNAL_SERVER_ERROR
     val body: String
   }
