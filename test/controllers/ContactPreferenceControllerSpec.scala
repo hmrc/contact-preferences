@@ -19,7 +19,7 @@ package controllers
 import assets.{BaseTestConstants, RegimeTestConstants}
 import assets.ContactPreferencesTestConstants._
 import assets.JourneyTestConstants._
-import connectors.httpParsers.ContactPreferenceHttpParser.InvalidJson
+import connectors.httpParsers.GetContactPreferenceHttpParser.InvalidJson
 import models.{ContactPreferenceModel, Digital, MTDVAT, VRN}
 import play.api.http.Status
 import play.api.libs.json.Json

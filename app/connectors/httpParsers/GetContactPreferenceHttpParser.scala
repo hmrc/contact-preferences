@@ -21,32 +21,32 @@ import play.api.Logger
 import play.api.http.Status._
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 
-object ContactPreferenceHttpParser {
+object GetContactPreferenceHttpParser {
 
-  type Response = Either[ErrorResponse, ContactPreferenceModel]
+  type GetContactPreferenceResponse = Either[ErrorResponse, ContactPreferenceModel]
 
-  implicit object ContactPreferenceHttpReads extends HttpReads[Response] {
+  implicit object GetContactPreferenceHttpReads extends HttpReads[GetContactPreferenceResponse] {
 
-    override def read(method: String, url: String, response: HttpResponse): Response = {
+    override def read(method: String, url: String, response: HttpResponse): GetContactPreferenceResponse = {
       response.status match {
         case OK => {
-          Logger.debug("[ContactPreferenceConnector][read]: Status OK")
+          Logger.debug("[GetContactPreferenceReads][read]: Status OK")
           response.json.validate[ContactPreferenceModel](ContactPreferenceModel.desReads).fold(
             invalid => {
-              Logger.warn(s"[ContactPreferenceConnector][read]: Invalid Json - $invalid")
+              Logger.warn(s"[GetContactPreferenceReads][read]: Invalid Json - $invalid")
               Left(InvalidJson)
             },
             valid => Right(valid)
           )
         }
         case FORBIDDEN if response.body.contains("MIGRATION") =>
-          Logger.warn("[ContactPreferenceConnector][read]: Migration Case")
+          Logger.warn("[GetContactPreferenceReads][read]: Migration Case")
           Left(Migration)
         case SERVICE_UNAVAILABLE =>
-          Logger.warn("[ContactPreferenceConnector][read]: DES reported downstream system of record unavailable")
+          Logger.warn("[GetContactPreferenceReads][read]: DES reported downstream system of record unavailable")
           Left(DependentSystemUnavailable)
         case status =>
-          Logger.warn(s"[ContactPreferenceConnector][read]: Unexpected Response, Status $status returned")
+          Logger.warn(s"[GetContactPreferenceReads][read]: Unexpected Response, Status $status returned")
           Left(UnexpectedFailure(status, s"Status ${status } Error returned when retrieving contact preference"))
       }
     }

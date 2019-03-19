@@ -19,7 +19,7 @@ package controllers
 import assets.CommonITConstants
 import assets.ContactPreferenceITConstants._
 import assets.JourneyITConstants.journeyJson
-import connectors.httpParsers.ContactPreferenceHttpParser.DependentSystemUnavailable
+import connectors.httpParsers.GetContactPreferenceHttpParser.DependentSystemUnavailable
 import models.{MTDVAT, VRN}
 import play.api.http.Status._
 import play.api.libs.ws.WSResponse

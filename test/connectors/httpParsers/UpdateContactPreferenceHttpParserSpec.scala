@@ -16,36 +16,26 @@
 
 package connectors.httpParsers
 
-import assets.ContactPreferencesTestConstants._
-import connectors.httpParsers.ContactPreferenceHttpParser.{ContactPreferenceHttpReads, _}
+import connectors.httpParsers.UpdateContactPreferenceHttpParser.{UpdateContactPreferenceHttpReads, _}
 import play.api.http.Status
-import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpResponse
 import utils.TestUtils
 
-class ContactPreferenceHttpParserSpec extends TestUtils {
+class UpdateContactPreferenceHttpParserSpec extends TestUtils {
 
-  "ContactPreferenceHttpParser.ContactPreferenceHttpReads" when {
+  "UpdateContactPreferenceHttpParser.UpdateContactPreferenceHttpReads" when {
 
-    "given an OK with a correct Json model" should {
+    "given an NO_CONTENT (204)" should {
 
       "return a Right containing the correct contact preference moodel" in {
-        ContactPreferenceHttpReads.read("", "", HttpResponse(Status.OK, Some(paperPreferenceDesJson))) shouldBe Right(paperPreferenceModel)
-      }
-    }
-
-    "given an OK with incorrect Json" should {
-
-      "return a Left(ErrorMessage)" in {
-        ContactPreferenceHttpReads.read("", "", HttpResponse(Status.OK, Some(Json.obj("bad" -> "data")))) shouldBe
-          Left(InvalidJson)
+        UpdateContactPreferenceHttpReads.read("", "", HttpResponse(Status.NO_CONTENT)) shouldBe Right(UpdateContactPreferenceSuccess)
       }
     }
 
     "given an FORBIDDEN with message 'MIGRATION' response" should {
 
       "return a Left(Migration)" in {
-        ContactPreferenceHttpReads.read("", "", HttpResponse(Status.FORBIDDEN, responseString = Some("MIGRATION"))) shouldBe
+        UpdateContactPreferenceHttpReads.read("", "", HttpResponse(Status.FORBIDDEN, responseString = Some("MIGRATION"))) shouldBe
           Left(Migration)
       }
     }
@@ -53,16 +43,20 @@ class ContactPreferenceHttpParserSpec extends TestUtils {
     "given an SERVICE_UNAVAILABLE response" should {
 
       "return a Left(ErrorMessage)" in {
-        ContactPreferenceHttpReads.read("", "", HttpResponse(Status.SERVICE_UNAVAILABLE)) shouldBe
+        UpdateContactPreferenceHttpReads.read("", "", HttpResponse(Status.SERVICE_UNAVAILABLE)) shouldBe
           Left(DependentSystemUnavailable)
       }
     }
 
+
     "given any other status" should {
 
       "return a Left(UnexpectedFailure)" in {
-        ContactPreferenceHttpReads.read("", "", HttpResponse(Status.BAD_GATEWAY)) shouldBe
-          Left(UnexpectedFailure(Status.BAD_GATEWAY, s"Status ${Status.BAD_GATEWAY} Error returned when retrieving contact preference"))
+        UpdateContactPreferenceHttpReads.read("", "", HttpResponse(Status.INTERNAL_SERVER_ERROR)) shouldBe
+          Left(UnexpectedFailure(
+            Status.INTERNAL_SERVER_ERROR,
+            s"Status ${Status.INTERNAL_SERVER_ERROR} Error returned when Updating Contact Preference"
+          ))
       }
     }
   }

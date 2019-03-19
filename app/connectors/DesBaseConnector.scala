@@ -17,14 +17,8 @@
 package connectors
 
 import config.AppConfig
-import connectors.httpParsers.ContactPreferenceHttpParser.{ContactPreferenceHttpReads, _}
-import javax.inject.{Inject, Singleton}
-import models.RegimeModel
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.Authorization
-import uk.gov.hmrc.play.bootstrap.http.HttpClient
-
-import scala.concurrent.{ExecutionContext, Future}
 
 trait DesBaseConnector {
 
