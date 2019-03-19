@@ -19,7 +19,7 @@ package services
 import assets.ContactPreferencesTestConstants.digitalPreferenceModel
 import assets.RegimeTestConstants.regimeModel
 import connectors.httpParsers.GetContactPreferenceHttpParser.InvalidJson
-import connectors.httpParsers.UpdateContactPreferenceHttpParser.{UpdateContactPreferenceFailed, UpdateContactPreferenceSuccess}
+import connectors.httpParsers.UpdateContactPreferenceHttpParser.{UnexpectedFailure, UpdateContactPreferenceSuccess}
 import connectors.mocks.MockContactPreferenceConnector
 import utils.TestUtils
 import play.api.http.Status._
@@ -76,9 +76,9 @@ class ContactPreferenceServiceSpec extends MockContactPreferenceConnector with T
 
       "return a ErrorResponse" in {
 
-        mockUpdateContactPreference(regimeModel, digitalPreferenceModel)(Left(UpdateContactPreferenceFailed(INTERNAL_SERVER_ERROR, "Error")))
+        mockUpdateContactPreference(regimeModel, digitalPreferenceModel)(Left(UnexpectedFailure(INTERNAL_SERVER_ERROR, "Error")))
 
-        val expectedResult = Left(UpdateContactPreferenceFailed(INTERNAL_SERVER_ERROR, "Error"))
+        val expectedResult = Left(UnexpectedFailure(INTERNAL_SERVER_ERROR, "Error"))
         val actualResult = await(TestContactPreferenceService.updateContactPreference(regimeModel, digitalPreferenceModel))
 
         actualResult shouldBe expectedResult
