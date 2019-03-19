@@ -17,6 +17,7 @@
 package controllers
 
 import config.AppConfig
+import connectors.httpParsers.UpdateContactPreferenceHttpParser.UpdateContactPreferenceSuccess
 import javax.inject.{Inject, Singleton}
 import models._
 import play.api.libs.json.{JsValue, Json}
@@ -67,6 +68,18 @@ class ContactPreferenceController @Inject()(contactPreferenceRepository: Contact
       contactPreferenceService.getContactPreference(regime)(ec, hc(user)).map {
         case Left(err) => Status(err.status)(err.body)
         case Right(data) => Ok(Json.toJson(data))
+      }
+    }
+  }
+
+  def updateDesContactPreference(regimeType: Regime, id: Identifier, value: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
+    val regime = RegimeModel(regimeType, IdModel(id, value))
+    withJsonBody[ContactPreferenceModel] { contactPreference =>
+      authService.authorised(regime) { implicit user =>
+        contactPreferenceService.updateContactPreference(regime, contactPreference)(ec, hc(user)).map{
+          case Right(UpdateContactPreferenceSuccess) => NoContent
+          case Left(error) => Status(error.status)(error.body)
+        }
       }
     }
   }
