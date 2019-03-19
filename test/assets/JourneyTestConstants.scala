@@ -32,6 +32,7 @@ object JourneyTestConstants {
         "value" -> "999999999"
       )
     ),
+    "serviceName" -> "serviceName",
     "continueUrl" -> "/continueUrl",
     "email" -> "email"
   )
@@ -62,6 +63,7 @@ object JourneyTestConstants {
   val journeyModelMax = JourneyModel(
     regime = RegimeModel(MTDVAT, IdModel(VRN, "999999999")),
     continueUrl = ContinueUrl("/continueUrl"),
+    serviceName = Some("serviceName"),
     email = Some("email")
   )
 
