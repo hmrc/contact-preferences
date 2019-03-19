@@ -22,6 +22,7 @@ import uk.gov.hmrc.play.binders.ContinueUrl
 import utils.JsonSugar
 
 case class JourneyModel(regime: RegimeModel,
+                        serviceName: Option[String] = None,
                         continueUrl: ContinueUrl,
                         email: Option[String] = None)
 
@@ -29,12 +30,14 @@ object JourneyModel extends JsonSugar {
 
   implicit val reads: Reads[JourneyModel] = (
     (__ \ "regime").read[RegimeModel] and
+      (__ \ "serviceName").readNullable[String] and
       (__ \ "continueUrl").read[String].map(url => new ContinueUrl(url)) and
       (__ \ "email").readNullable[String]
   )(JourneyModel.apply _)
 
   implicit val writes: Writes[JourneyModel] = (
     (__ \ "regime").write[RegimeModel] and
+      (__ \ "serviceName").writeNullable[String] and
       (__ \ "continueUrl").write[ContinueUrl](Writes[ContinueUrl](url => JsString(url.url))) and
       (__ \ "email").writeNullable[String]
     )(unlift(JourneyModel.unapply))
