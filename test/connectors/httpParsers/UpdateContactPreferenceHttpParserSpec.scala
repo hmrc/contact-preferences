@@ -25,18 +25,35 @@ class UpdateContactPreferenceHttpParserSpec extends TestUtils {
 
   "UpdateContactPreferenceHttpParser.UpdateContactPreferenceHttpReads" when {
 
-    "given an OK with a correct Json model" should {
+    "given an NO_CONTENT (204)" should {
 
       "return a Right containing the correct contact preference moodel" in {
-        UpdateContactPreferenceHttpReads.read("", "", HttpResponse(Status.OK)) shouldBe Right(UpdateContactPreferenceSuccess)
+        UpdateContactPreferenceHttpReads.read("", "", HttpResponse(Status.NO_CONTENT)) shouldBe Right(UpdateContactPreferenceSuccess)
       }
     }
+
+    "given an FORBIDDEN with message 'MIGRATION' response" should {
+
+      "return a Left(Migration)" in {
+        UpdateContactPreferenceHttpReads.read("", "", HttpResponse(Status.FORBIDDEN, responseString = Some("MIGRATION"))) shouldBe
+          Left(Migration)
+      }
+    }
+
+    "given an SERVICE_UNAVAILABLE response" should {
+
+      "return a Left(ErrorMessage)" in {
+        UpdateContactPreferenceHttpReads.read("", "", HttpResponse(Status.SERVICE_UNAVAILABLE)) shouldBe
+          Left(DependentSystemUnavailable)
+      }
+    }
+
 
     "given any other status" should {
 
       "return a Left(UnexpectedFailure)" in {
         UpdateContactPreferenceHttpReads.read("", "", HttpResponse(Status.INTERNAL_SERVER_ERROR)) shouldBe
-          Left(UpdateContactPreferenceFailed(
+          Left(UnexpectedFailure(
             Status.INTERNAL_SERVER_ERROR,
             s"Status ${Status.INTERNAL_SERVER_ERROR} Error returned when Updating Contact Preference"
           ))

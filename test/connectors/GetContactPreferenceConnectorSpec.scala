@@ -18,7 +18,7 @@ package connectors
 
 import assets.RegimeTestConstants.regimeModel
 import assets.ContactPreferencesTestConstants.digitalPreferenceModel
-import connectors.httpParsers.UpdateContactPreferenceHttpParser.{UpdateContactPreferenceFailed, UpdateContactPreferenceResponse, UpdateContactPreferenceSuccess}
+import connectors.httpParsers.UpdateContactPreferenceHttpParser.{UnexpectedFailure, UpdateContactPreferenceResponse, UpdateContactPreferenceSuccess}
 import models.{ContactPreferenceModel, ErrorModel}
 import utils.{MockHttpClient, TestUtils}
 import play.api.http.Status._
@@ -72,8 +72,8 @@ class GetContactPreferenceConnectorSpec extends MockHttpClient with TestUtils {
 
   "ContactPreferenceConnector.updateContactPreference" when {
 
-    def setup(response: Either[UpdateContactPreferenceFailed, UpdateContactPreferenceResponse]): ContactPreferenceConnector = {
-      mockHttpPut[ContactPreferenceModel, Either[UpdateContactPreferenceFailed, UpdateContactPreferenceResponse]](digitalPreferenceModel)(response)
+    def setup(response: Either[UnexpectedFailure, UpdateContactPreferenceResponse]): ContactPreferenceConnector = {
+      mockHttpPut[ContactPreferenceModel, Either[UnexpectedFailure, UpdateContactPreferenceResponse]](digitalPreferenceModel)(response)
       new ContactPreferenceConnector(mockHttpClient, appConfig)
     }
 
@@ -92,10 +92,10 @@ class GetContactPreferenceConnectorSpec extends MockHttpClient with TestUtils {
 
       "return an error model" in {
 
-        val connector = setup(Left(UpdateContactPreferenceFailed(INTERNAL_SERVER_ERROR, "Error")))
+        val connector = setup(Left(UnexpectedFailure(INTERNAL_SERVER_ERROR, "Error")))
         val result = connector.updateContactPreference(regimeModel, digitalPreferenceModel)
 
-        await(result) shouldBe Left(UpdateContactPreferenceFailed(INTERNAL_SERVER_ERROR, "Error"))
+        await(result) shouldBe Left(UnexpectedFailure(INTERNAL_SERVER_ERROR, "Error"))
       }
     }
   }
