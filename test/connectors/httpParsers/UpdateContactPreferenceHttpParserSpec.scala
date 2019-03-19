@@ -28,23 +28,33 @@ class UpdateContactPreferenceHttpParserSpec extends TestUtils {
     "given an NO_CONTENT (204)" should {
 
       "return a Right containing the correct contact preference moodel" in {
-        UpdateContactPreferenceHttpReads.read("", "", HttpResponse(Status.NO_CONTENT)) shouldBe Right(UpdateContactPreferenceSuccess)
+
+        val expectedResult = Right(UpdateContactPreferenceSuccess)
+        val actualResult = UpdateContactPreferenceHttpReads.read("", "", HttpResponse(Status.NO_CONTENT))
+
+        actualResult shouldBe expectedResult
       }
     }
 
     "given an FORBIDDEN with message 'MIGRATION' response" should {
 
       "return a Left(Migration)" in {
-        UpdateContactPreferenceHttpReads.read("", "", HttpResponse(Status.FORBIDDEN, responseString = Some("MIGRATION"))) shouldBe
-          Left(Migration)
+
+        val expectedResult = Left(Migration)
+        val actualResult = UpdateContactPreferenceHttpReads.read("", "", HttpResponse(Status.FORBIDDEN, responseString = Some("MIGRATION")))
+
+        actualResult shouldBe expectedResult
       }
     }
 
     "given an SERVICE_UNAVAILABLE response" should {
 
       "return a Left(ErrorMessage)" in {
-        UpdateContactPreferenceHttpReads.read("", "", HttpResponse(Status.SERVICE_UNAVAILABLE)) shouldBe
-          Left(DependentSystemUnavailable)
+
+        val expectedResult = Left(DependentSystemUnavailable)
+        val actualResult = UpdateContactPreferenceHttpReads.read("", "", HttpResponse(Status.SERVICE_UNAVAILABLE))
+
+        actualResult shouldBe expectedResult
       }
     }
 
@@ -52,11 +62,14 @@ class UpdateContactPreferenceHttpParserSpec extends TestUtils {
     "given any other status" should {
 
       "return a Left(UnexpectedFailure)" in {
-        UpdateContactPreferenceHttpReads.read("", "", HttpResponse(Status.INTERNAL_SERVER_ERROR)) shouldBe
-          Left(UnexpectedFailure(
-            Status.INTERNAL_SERVER_ERROR,
-            s"Status ${Status.INTERNAL_SERVER_ERROR} Error returned when Updating Contact Preference"
-          ))
+
+        val expectedResult = Left(UnexpectedFailure(
+          Status.INTERNAL_SERVER_ERROR,
+          s"Status ${Status.INTERNAL_SERVER_ERROR} Error returned when Updating Contact Preference"
+        ))
+        val actualResult = UpdateContactPreferenceHttpReads.read("", "", HttpResponse(Status.INTERNAL_SERVER_ERROR))
+
+        actualResult shouldBe expectedResult
       }
     }
   }
