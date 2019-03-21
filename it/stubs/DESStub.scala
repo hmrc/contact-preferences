@@ -19,8 +19,8 @@ package stubs
 import assets.CommonITConstants
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import models.{MTDVAT, VRN}
-import play.api.http.Status.{SERVICE_UNAVAILABLE, OK}
-import play.api.libs.json.JsValue
+import play.api.http.Status._
+import play.api.libs.json.{JsString, JsValue}
 import utils.WireMockMethods
 
 object DESStub extends WireMockMethods {
@@ -32,4 +32,10 @@ object DESStub extends WireMockMethods {
 
   def getContactPreferenceError: StubMapping =
     when(method = GET, uri = contactPreferenceDesUrl).thenReturn(status = SERVICE_UNAVAILABLE)
+
+  def updateContactPreferenceSuccess: StubMapping =
+    when(method = PUT, uri = contactPreferenceDesUrl).thenReturn(status = NO_CONTENT)
+
+  def updateContactPreferenceError: StubMapping =
+    when(method = PUT, uri = contactPreferenceDesUrl).thenReturn(status = FORBIDDEN, body = JsString("MIGRATION"))
 }

@@ -313,7 +313,57 @@ Provides an API to call to get the preference stored in the backend System of Re
         {
             "preference" : "DIGITAL"
         }
-                
+
+
+---
+
+### Update Stored Contact Preference from System of Record
+
+`PUT /contact-preferences/{regimeType}/{regimeId}/{regimeIdValue`
+
+Provides an API to call to update the preference stored in the backend System of Record.
+
+#### Request Params
+
+- `{regimeType}` ***mandatory*** enum set: (`vat`)
+- `{regimeId}` ***mandatory*** enum set: (`vrn`)
+- `{regimeIdValue}` ***mandatory***
+
+#### Responses
+
+##### 204 (OK):
+    Response Body: N/A *empty*
+
+##### 400 (BAD_REQUEST):
+    Response Body: "Invalid RegimeType supplied. Must be one of {valid regimeType enum set}"
+
+##### 400 (BAD_REQUEST):
+    Response Body: "Invalid RegimeId supplied. Must be one of {valid regimeId enum set}"
+
+##### 400 (BAD_REQUEST):
+    Response Body: "Invalid regimeIdValue supplied. Must be one of {valid regimeIdValue enum set}"
+
+##### 401 (UNAUTHORISED):
+    Response Body: "The request was not authenticated"
+
+##### 403 (FORBIDDEN):
+    Response Body: "The request was authenticated but the user does not have the necessary authority"
+
+##### 412 (PRECONDITION_FAILED):
+    Response Body: "Downstream system of record has indicated that the record is in migration, try again later"
+
+##### 500 (INTERNAL_SERVER_ERROR):
+    Response Body: "{error message}"
+
+##### 503 (SERVICE_UNAVAILABLE):
+    Response Body: "Downstream system of record is unavailable, try again later"
+
+
+#### Example Request/Response
+
+    PUT /contact-preferences/vat/vrn/999999999
+    Response Status: 204 (NO_CONTENT)
+
 ---
 
 ### License

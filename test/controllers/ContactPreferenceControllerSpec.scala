@@ -16,10 +16,13 @@
 
 package controllers
 
-import assets.{BaseTestConstants, RegimeTestConstants}
 import assets.ContactPreferencesTestConstants._
+import assets.BaseTestConstants._
 import assets.JourneyTestConstants._
+import assets.RegimeTestConstants._
 import connectors.httpParsers.GetContactPreferenceHttpParser.InvalidJson
+import connectors.httpParsers.UpdateContactPreferenceHttpParser.Migration
+import connectors.httpParsers.UpdateContactPreferenceHttpParser.UpdateContactPreferenceSuccess
 import models.{ContactPreferenceModel, Digital, MTDVAT, VRN}
 import play.api.http.Status
 import play.api.libs.json.Json
@@ -127,11 +130,11 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
 
     "given a successful response is returned from the service" should {
 
-      lazy val result: Future[Result] = TestContactPreferenceController.getDesContactPreference(MTDVAT, VRN, BaseTestConstants.testVatNumber)(fakeRequest)
+      lazy val result: Future[Result] = TestContactPreferenceController.getDesContactPreference(MTDVAT, VRN, testVatNumber)(fakeRequest)
 
       "return status Ok" in {
         mockAuthenticated(EmptyPredicate)
-        mockDesContactPreference(RegimeTestConstants.regimeModel)(Right(ContactPreferenceModel(Digital)))
+        mockGetDesContactPreference(regimeModel)(Right(ContactPreferenceModel(Digital)))
         status(result) shouldBe Status.OK
       }
 
@@ -144,10 +147,40 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
 
       "return NotFound" in {
         mockAuthenticated(EmptyPredicate)
-        mockDesContactPreference(RegimeTestConstants.regimeModel)(Left(InvalidJson))
+        mockGetDesContactPreference(regimeModel)(Left(InvalidJson))
         status(
-          TestContactPreferenceController.getDesContactPreference(MTDVAT, VRN, BaseTestConstants.testVatNumber)(fakeRequest)
+          TestContactPreferenceController.getDesContactPreference(MTDVAT, VRN, testVatNumber)(fakeRequest)
         ) shouldBe InvalidJson.status
+      }
+    }
+  }
+
+  "ContactPreferenceController.updateDesContactPreference" when {
+
+    "given a ContactPreferenceModel" when {
+
+      lazy val fakePut = FakeRequest("PUT", "/")
+        .withBody(digitalPreferenceJson)
+        .withHeaders("Content-Type" -> "application/json")
+
+      def result: Future[Result] = TestContactPreferenceController.updateDesContactPreference(MTDVAT, VRN, testVatNumber)(fakePut)
+
+      "update returns a success response" should {
+
+        "return status NoContent" in {
+          mockAuthenticated(EmptyPredicate)
+          mockUpdateDesContactPreference(regimeModel, digitalPreferenceModel)(Right(UpdateContactPreferenceSuccess))
+          status(result) shouldBe Status.NO_CONTENT
+        }
+      }
+
+      "update returns an ErrorResponse from the service" should {
+
+        "return the correct ErrorResponse" in {
+          mockAuthenticated(EmptyPredicate)
+          mockUpdateDesContactPreference(regimeModel, digitalPreferenceModel)(Left(Migration))
+          status(result) shouldBe Migration.status
+        }
       }
     }
   }

@@ -20,6 +20,7 @@ import assets.CommonITConstants
 import assets.ContactPreferenceITConstants._
 import assets.JourneyITConstants.journeyJson
 import connectors.httpParsers.GetContactPreferenceHttpParser.DependentSystemUnavailable
+import connectors.httpParsers.UpdateContactPreferenceHttpParser.Migration
 import models.{MTDVAT, VRN}
 import play.api.http.Status._
 import play.api.libs.ws.WSResponse
@@ -130,6 +131,43 @@ class ContactPreferenceControllerISpec extends ITUtils {
           res should have(
             httpStatus(BAD_REQUEST),
             bodyAs("Invalid Identifier: foo. Valid Identifier set: (vrn)")
+          )
+        }
+      }
+    }
+  }
+
+  "PUT /:regimeType/:regimeId/:id" when {
+
+    "given I provide valid parameters" when {
+
+      "a successful response from DES is returned" should {
+
+        "should return NO_CONTENT (204)" in {
+
+          AuthStub.authorisedIndividual()
+          DESStub.updateContactPreferenceSuccess
+
+          val res = await(put(s"/${MTDVAT.id}/${VRN.value}/${CommonITConstants.vrn}")(digitalPreferenceJson))
+
+          res should have(
+            httpStatus(NO_CONTENT)
+          )
+        }
+      }
+
+      "an error response from DES is returned" should {
+
+        "should return MIGRATION/PRECONDITION_FAILED (412)" in {
+
+          AuthStub.authorisedIndividual()
+          DESStub.updateContactPreferenceError
+
+          val res = await(put(s"/${MTDVAT.id}/${VRN.value}/${CommonITConstants.vrn}")(digitalPreferenceJson))
+
+          res should have(
+            httpStatus(Migration.status),
+            bodyAs(Migration.body)
           )
         }
       }
