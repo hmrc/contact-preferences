@@ -23,6 +23,7 @@ import models.requests.User
 import play.api.Logger
 import play.api.mvc.Results._
 import play.api.mvc._
+import uk.gov.hmrc.auth.core.authorise.{EmptyPredicate, Predicate}
 import uk.gov.hmrc.auth.core.retrieve.Retrievals
 import uk.gov.hmrc.auth.core.{NoActiveSession, _}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -33,15 +34,20 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class AuthService @Inject()(val authConnector: AuthConnector, appConfig: AppConfig) extends AuthorisedFunctions with MongoSugar {
 
+  private def enrolmentCheck(regime: RegimeModel): Enrolment =
+    Enrolment(regime.`type`.enrolmentID)
+      .withIdentifier(regime.identifier.key.value, regime.identifier.value)
+
   private val arn: Enrolments => Option[String] = _.getEnrolment(Constants.AgentServicesEnrolment) flatMap {
     _.getIdentifier(Constants.AgentServicesReference).map(_.value)
   }
 
-  def authorised(regime: RegimeModel)(f: User[_] => Future[Result])(implicit hc: HeaderCarrier, ec: ExecutionContext, request: Request[_]): Future[Result] = {
+  private def authorised(regime: RegimeModel, predicate: Predicate)(f: User[_] => Future[Result])
+                (implicit hc: HeaderCarrier, ec: ExecutionContext, request: Request[_]): Future[Result] = {
     if (appConfig.features.bypassAuth()) {
       f(User(regime.identifier.value, None)(request))
     } else {
-      authorised().retrieve(Retrievals.allEnrolments) { enrolments =>
+      authorised(predicate).retrieve(Retrievals.allEnrolments) { enrolments =>
         f(User(regime.identifier.value, arn(enrolments))(request))
       } recover {
         case _: NoActiveSession =>
@@ -52,5 +58,15 @@ class AuthService @Inject()(val authConnector: AuthConnector, appConfig: AppConf
           Forbidden("The request was authenticated but the user does not have the necessary authority")
       }
     }
+  }
+
+  def authorisedWithEnrolmentPredicate(regimeModel: RegimeModel)(f: User[_] => Future[Result])
+                             (implicit hc: HeaderCarrier, ec: ExecutionContext, request: Request[_]): Future[Result] = {
+    authorised(regimeModel, enrolmentCheck(regimeModel))(f)
+  }
+
+  def authorisedNoPredicate(regimeModel: RegimeModel)(f: User[_] => Future[Result])
+                             (implicit hc: HeaderCarrier, ec: ExecutionContext, request: Request[_]): Future[Result] = {
+    authorised(regimeModel, EmptyPredicate)(f)
   }
 }

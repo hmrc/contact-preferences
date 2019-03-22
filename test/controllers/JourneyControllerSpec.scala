@@ -37,34 +37,34 @@ class JourneyControllerSpec extends MockJourneyRepository with MockAuthService {
     authService = mockAuthService
   )
 
-  "JourneyController.storeJourney" when {
+  "JourneyController.storeSetPreferenceJourney" when {
 
     "given a valid JourneyModel" when {
 
       lazy val fakePost = FakeRequest("POST", "/")
         .withBody(journeyJsonMax)
         .withHeaders("Content-Type" -> "application/json")
-      def result: Future[Result] = TestJourneyController.storeJourney(fakePost)
+      def result: Future[Result] = TestJourneyController.storeSetPreferenceJourney(fakePost)
 
       "successfully updated journey repository" should {
 
         "return an Ok" in {
-          setupMockInsertJourney(journeyDocumentMax)(true)
+          setupMockInsertJourney(journeyDocumentMax)(responseIsOk = true)
           mockAuthenticated(EmptyPredicate)
           status(result) shouldBe Status.CREATED
         }
 
         "have a location header with a redirect to the contact preferences FE" in {
-          setupMockInsertJourney(journeyDocumentMax)(true)
+          setupMockInsertJourney(journeyDocumentMax)(responseIsOk = true)
           mockAuthenticated(EmptyPredicate)
-          redirectLocation(result) shouldBe Some(appConfig.contactPreferencesUrl + s"/${MockUUIDService.generateUUID}")
+          redirectLocation(result) shouldBe Some(appConfig.contactPreferencesUrl + s"/set/${MockUUIDService.generateUUID}")
         }
       }
 
       "failed at updating journey repository" should {
 
         "return an InternalServerError" in {
-          setupMockInsertJourney(journeyDocumentMax)(false)
+          setupMockInsertJourney(journeyDocumentMax)(responseIsOk = false)
           mockAuthenticated(EmptyPredicate)
           status(result) shouldBe Status.INTERNAL_SERVER_ERROR
         }
@@ -85,7 +85,71 @@ class JourneyControllerSpec extends MockJourneyRepository with MockAuthService {
       lazy val fakePost = FakeRequest("POST", "/")
         .withBody(journeyJsonInvalidContinueUrl)
         .withHeaders("Content-Type" -> "application/json")
-      def result: Future[Result] = TestJourneyController.storeJourney(fakePost)
+      def result: Future[Result] = TestJourneyController.storeSetPreferenceJourney(fakePost)
+
+      "successfully updated journey repository" should {
+
+        "return an Bad Request (400)" in {
+          status(result) shouldBe Status.BAD_REQUEST
+        }
+
+        "Include a message for the error" in {
+          await(bodyOf(result)) shouldBe "could not parse body due to requirement failed: 'invalid' is not a valid continue URL"
+        }
+      }
+    }
+
+  }
+
+  "JourneyController.storeUpdatePreferenceJourney" when {
+
+    "given a valid JourneyModel" when {
+
+      lazy val fakePost = FakeRequest("POST", "/")
+        .withBody(journeyJsonMax)
+        .withHeaders("Content-Type" -> "application/json")
+      def result: Future[Result] = TestJourneyController.storeUpdatePreferenceJourney(fakePost)
+
+      "successfully updated journey repository" should {
+
+        "return an Ok" in {
+          setupMockInsertJourney(journeyDocumentMax)(responseIsOk = true)
+          mockAuthenticated(individual)
+          status(result) shouldBe Status.CREATED
+        }
+
+        "have a location header with a redirect to the contact preferences FE" in {
+          setupMockInsertJourney(journeyDocumentMax)(responseIsOk = true)
+          mockAuthenticated(individual)
+          redirectLocation(result) shouldBe Some(appConfig.contactPreferencesUrl + s"/update/${MockUUIDService.generateUUID}")
+        }
+      }
+
+      "failed at updating journey repository" should {
+
+        "return an InternalServerError" in {
+          setupMockInsertJourney(journeyDocumentMax)(responseIsOk = false)
+          mockAuthenticated(individual)
+          status(result) shouldBe Status.INTERNAL_SERVER_ERROR
+        }
+      }
+
+      "fails to insert into journey repository" should {
+
+        "return an InternalServerError" in {
+          setupMockFailedInsertJourney(journeyDocumentMax)
+          mockAuthenticated(individual)
+          status(result) shouldBe Status.SERVICE_UNAVAILABLE
+        }
+      }
+    }
+
+    "given an invalid JourneyModel" should {
+
+      lazy val fakePost = FakeRequest("POST", "/")
+        .withBody(journeyJsonInvalidContinueUrl)
+        .withHeaders("Content-Type" -> "application/json")
+      def result: Future[Result] = TestJourneyController.storeSetPreferenceJourney(fakePost)
 
       "successfully updated journey repository" should {
 

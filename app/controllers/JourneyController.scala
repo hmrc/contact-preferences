@@ -38,14 +38,38 @@ class JourneyController @Inject()(journeyRepository: JourneyRepository,
                                   dateService: DateService,
                                   authService: AuthService)(implicit ec: ExecutionContext) extends BaseController with MongoSugar {
 
-  val storeJourney: Action[JsValue] = Action.async(parse.json) { implicit request =>
+  private def createJourneyDocument(journeyId: String, journey: JourneyModel): JourneyDocument =
+    JourneyDocument(journeyId, journey, DateDocument(dateService.timestamp))
+
+  /**
+    * Authenticated only journey; provides a Set Preference journey for frontend microservices.
+    * This captures a preference without it being submitted to DES. That responsibility is passed
+    * back to the calling service to handle.
+    */
+  val storeSetPreferenceJourney: Action[JsValue] = Action.async(parse.json) { implicit request =>
     withJsonBody[JourneyModel]( journey =>
-      authService.authorised(journey.regime) { implicit user =>
+      authService.authorisedNoPredicate(journey.regime) { implicit user =>
         val journeyId = uuidService.generateUUID
-        val journeyDocument = JourneyDocument(journeyId, journey, DateDocument(dateService.timestamp))
-        insert(journeyRepository)(journeyDocument) {
-          val redirect = s"${appConfig.contactPreferencesUrl}/$journeyId"
-          Logger.debug(s"[JourneyController][storeJourney] Header Location Redirect: $redirect")
+        insert(journeyRepository)(createJourneyDocument(journeyId, journey)) {
+          val redirect = s"${appConfig.contactPreferencesUrl}/set/$journeyId"
+          Logger.debug(s"[JourneyController][storeSetPreferenceJourney] Header Location Redirect: $redirect")
+          Future.successful(Created.withHeaders(HeaderNames.LOCATION -> redirect))
+        }
+      }
+    )
+  }
+
+  /**
+    * Authenticated AND Authorised journey; provides an Update Preference journey for frontend microservices
+    * to change a preference and submit on to DES to update the downstream System of Record.
+    */
+  val storeUpdatePreferenceJourney: Action[JsValue] = Action.async(parse.json) { implicit request =>
+    withJsonBody[JourneyModel]( journey =>
+      authService.authorisedWithEnrolmentPredicate(journey.regime) { implicit user =>
+        val journeyId = uuidService.generateUUID
+        insert(journeyRepository)(createJourneyDocument(journeyId, journey)) {
+          val redirect = s"${appConfig.contactPreferencesUrl}/update/$journeyId"
+          Logger.debug(s"[JourneyController][storeUpdatePreferenceJourney] Header Location Redirect: $redirect")
           Future.successful(Created.withHeaders(HeaderNames.LOCATION -> redirect))
         }
       }
@@ -54,7 +78,7 @@ class JourneyController @Inject()(journeyRepository: JourneyRepository,
 
   val findJourney: String => Action[AnyContent] = journeyId => Action.async { implicit request =>
     findById(journeyRepository)(journeyId) { journeyDocument =>
-      authService.authorised(journeyDocument.journey.regime) { implicit user =>
+      authService.authorisedNoPredicate(journeyDocument.journey.regime) { implicit user =>
         Future.successful(Ok(Json.toJson(journeyDocument.journey)))
       }
     }
