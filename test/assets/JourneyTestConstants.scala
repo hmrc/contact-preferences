@@ -34,7 +34,8 @@ object JourneyTestConstants {
     ),
     "serviceName" -> "serviceName",
     "continueUrl" -> "/continueUrl",
-    "email" -> "email"
+    "email" -> "email",
+    "address" -> AddressTestConstants.addressJsonMax
   )
 
   val journeyJsonInvalidContinueUrl: JsObject = Json.obj(
@@ -46,7 +47,8 @@ object JourneyTestConstants {
       )
     ),
     "continueUrl" -> "invalid",
-    "email" -> "email"
+    "email" -> "email",
+    "address" -> AddressTestConstants.addressJsonMax
   )
 
   val journeyJsonMin: JsObject = Json.obj(
@@ -57,19 +59,24 @@ object JourneyTestConstants {
         "value" -> "999999999"
       )
     ),
-    "continueUrl" -> "/continueUrl"
+    "continueUrl" -> "/continueUrl",
+    "email" -> "email",
+    "address" -> AddressTestConstants.addressJsonMin
   )
 
   val journeyModelMax = JourneyModel(
     regime = RegimeModel(MTDVAT, IdModel(VRN, "999999999")),
     continueUrl = ContinueUrl("/continueUrl"),
     serviceName = Some("serviceName"),
-    email = Some("email")
+    email = "email",
+    address = AddressTestConstants.addressModelMax
   )
 
   val journeyModelMin =  JourneyModel(
     regime = RegimeModel(MTDVAT, IdModel(VRN, "999999999")),
-    continueUrl = ContinueUrl("/continueUrl")
+    continueUrl = ContinueUrl("/continueUrl"),
+    email = "email",
+    address = AddressTestConstants.addressModelMin
   )
 
   val journeyDocumentJsonMax: JsObject = Json.obj(

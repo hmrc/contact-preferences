@@ -66,7 +66,14 @@ submitting the change to DES is placed on the calling service.
         - key: String ***mandatory** enum set: (`VRN`)*
         - value: String ***mandatory** - must be a valid identifier, e.g. valid VRN*
 - continueUrl: String **mandatory** - must be a valid URL to redirect to
-- email: String *optional* - if provided will shown the user as the email intended to be used for communications.
+- email: String **mandatory** - email intended to be used for digital communications
+- address: String **mandatory** - address intended to be used for paper communications
+  - line1: String **mandatory**
+  - line2: String **mandatory**
+  - line3: String **optional**
+  - line4: String **optional**
+  - postcode: String **optional**
+  - countryCode: String **mandatory**
     
 #### Responses
 
@@ -106,7 +113,15 @@ submitting the change to DES is placed on the calling service.
             }
         },
         "continueUrl" : "continueUrl",
-        "email" : "email"
+        "email" : "email",
+        "address" : {
+          "line1" : "line1"
+          "line2" : "line2"
+          "line3" : "line3"
+          "line4" : "line4"
+          "postcode" : "TE3 3TY"
+          "countryCode" : "GB"
+        }
     }     
     
     Response Status: 201 (CREATED)
@@ -134,7 +149,13 @@ User MUST be authenticated and MUST have an enrolment for the Tax Regime for whi
         - key: String ***mandatory** enum set: (`VRN`)*
         - value: String ***mandatory** - must be a valid identifier, e.g. valid VRN*
 - continueUrl: String **mandatory** - must be a valid URL to redirect to
-- email: String *optional* - if provided will shown the user as the email intended to be used for communications.
+- address: String **mandatory** - address intended to be used for paper communications
+  - line1: String **mandatory**
+  - line2: String **mandatory**
+  - line3: String **optional**
+  - line4: String **optional**
+  - postcode: String **optional**
+  - countryCode: String **mandatory**
     
 #### Responses
 
@@ -177,7 +198,15 @@ User MUST be authenticated and MUST have an enrolment for the Tax Regime for whi
             }
         },
         "continueUrl" : "continueUrl",
-        "email" : "email"
+        "email" : "email",
+        "address" : {
+          "line1" : "line1"
+          "line2" : "line2"
+          "line3" : "line3"
+          "line4" : "line4"
+          "postcode" : "TE3 3TY"
+          "countryCode" : "GB"
+        }
     }     
     
     Response Status: 201 (CREATED)
@@ -211,7 +240,15 @@ Provides an API for Frontend Microservices to call to get the journey context st
                  }
              },
              "continueUrl" : "continueUrl",
-             "email" : "email"
+             "email" : "email",
+             "address" : {
+               "line1" : "line1"
+               "line2" : "line2"
+               "line3" : "line3"
+               "line4" : "line4"
+               "postcode" : "TE3 3TY"
+               "countryCode" : "GB"
+             }
         }
     
 ##### 401 (UNAUTHORISED): 
@@ -247,7 +284,15 @@ Provides an API for Frontend Microservices to call to get the journey context st
                 }
             },
             "continueUrl" : "continueUrl",
-            "email" : "email"
+            "email" : "email",
+            "address" : {
+              "line1" : "line1"
+              "line2" : "line2"
+              "line3" : "line3"
+              "line4" : "line4"
+              "postcode" : "TE3 3TY"
+              "countryCode" : "GB"
+            }
         }
         
 ---
