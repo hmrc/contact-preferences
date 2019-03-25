@@ -26,18 +26,35 @@ import utils.mocks.MockUUIDService
 
 class JourneyControllerISpec extends ITUtils {
 
-  "POST /journey" when {
+  "POST /journey/set" when {
 
     "update is successful" should {
 
       "should return CREATED (201)" in {
 
         AuthStub.authorisedIndividual()
-        val res: WSResponse = await(post("/journey")(journeyJson))
+        val res: WSResponse = await(post("/journey/set")(journeyJson))
 
         res should have(
           httpStatus(CREATED),
-          continueUrl(s"http://localhost:9591/contact-preferences/${MockUUIDService.uuid}")
+          continueUrl(s"http://localhost:9591/contact-preferences/set/${MockUUIDService.uuid}")
+        )
+      }
+    }
+  }
+
+  "POST /journey/update" when {
+
+    "update is successful" should {
+
+      "should return CREATED (201)" in {
+
+        AuthStub.authorisedIndividual()
+        val res: WSResponse = await(post("/journey/update")(journeyJson))
+
+        res should have(
+          httpStatus(CREATED),
+          continueUrl(s"http://localhost:9591/contact-preferences/update/${MockUUIDService.uuid}")
         )
       }
     }
@@ -52,7 +69,7 @@ class JourneyControllerISpec extends ITUtils {
       "should return OK (200)" in {
 
         AuthStub.authorisedIndividual()
-        await(post("/journey")(journeyJson))
+        await(post("/journey/update")(journeyJson))
 
         val res = await(getJourney(MockUUIDService.uuid))
 

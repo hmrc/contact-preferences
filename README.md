@@ -1,15 +1,36 @@
 
 # Contact Preferences
 
-This service provides APIs to update a Users Contact Preferences for a Tax Regime. This service has been built so that it can scale to support future Tax Regimes although currently the only supported regime is MTD VAT.
+This service provides APIs to Set (capture) or Update (change) a Users Contact Preferences for a Tax Regime.
 
-## Frontend Integration API Sequence Diagram
+This service has been built so that it can scale to support future Tax Regimes although currently the only supported regime is MTD VAT.
 
-![Alt text](frontendApiSequence.png?raw=true "Frontend Integration API Sequence Diagram")
+There are two one time journeys available for the Contact Preferences service. 
+
+- **Set (Capture) Preference Journey**:
+
+  Allows a frontend service to capture a preference; but does not submit the change to the downstream
+System of Record. That responsibility is passed back to the Calling Service.
+
+  This journey is to support Sign-Up journeys where the records do not yet exist in the System of Record but a preference is required to be captured from the User when signing up for the
+Tax Regime
+
+  ![Alt text](setPreferenceAPISequence.png?raw=true "Frontend Integration API Sequence Diagram")
+
+- **Update (Change) Preference Journey**:
+
+  Allows a frontend service to change an existing preference; submitting the change to the downstream
+System of Record.
+
+  This journey is to support Manage journeys where the records already exists and the user is updated their subscription details.
+  
+  ![Alt text](updatePreferenceAPISequence.png?raw=true "Frontend Integration API Sequence Diagram")
 
 ## APIs
 
-- [Create Contact Preference Journey Context](#Create-Contact-Preference-Journey-Context)
+- [Create Set Contact Preference Journey Context](#Create-Set-Contact-Preference-Journey-Context)
+
+- [Create Update Contact Preference Journey Context](#Create-Update-Contact-Preference-Journey-Context)
 
 - [Retrieve Journey Context](#Retrieve-Journey-Context)
 
@@ -17,17 +38,25 @@ This service provides APIs to update a Users Contact Preferences for a Tax Regim
 
 - [Retrieve Contact Preference for Frontend User Journey](#Retrieve-Contact-Preference-for-Frontend-User-Journey)
 
-- [Retrieve Stored Contact Preference from System of Record](#Retrieve-Stored-Contact-Preference-from-System-of-Record) **(NOT IMPLEMENTED)**
+- [Retrieve Stored Contact Preference from System of Record](#Retrieve-Stored-Contact-Preference-from-System-of-Record)
+
+- [Update Stored Contact Preference in System of Record](#Update-Stored-Contact-Preference-in-System-of-Record)
+
+### 
+
 
 ---
 
-### Create Contact Preference Journey Context
+### Create Set Contact Preference Journey Context
 
-`POST /contact-preferences/journey`
+`POST /contact-preferences/journey/set`
 
-Provides an API for Frontend Microservices to call to generate a one-time journey.
+Provides an API for Frontend Microservices to call to generate a one-time journey for setting the Contact Preference.
 
 A JourneyID will be generated and returned as a location header on the request with a redirect to the Contact Preferences Frontend microservice.
+
+User must be authenticated but does NOT need the enrolment for Tax Regime they are setting the preference for. The responsibility for authorising and
+submitting the change to DES is placed on the calling service.
 
 #### Request Body
 
@@ -37,13 +66,81 @@ A JourneyID will be generated and returned as a location header on the request w
         - key: String ***mandatory** enum set: (`VRN`)*
         - value: String ***mandatory** - must be a valid identifier, e.g. valid VRN*
 - continueUrl: String **mandatory** - must be a valid URL to redirect to
-- email: String *optional* - if provided will be used as the email for digital communications
+- email: String *optional* - if provided will shown the user as the email intended to be used for communications.
     
 #### Responses
 
 ##### 201 (CREATED): 
     Response Body: N/A *empty*
-    Response Headers: "Location" : "/contact-preferences/{journeyID}"
+    Response Headers: "Location" : "/contact-preferences/set/{journeyID}"
+        
+##### 400 (BAD_REQUEST): 
+    Response Body: "Invalid JourneyModel payload: {json validation errors}"
+
+##### 400 (BAD_REQUEST): 
+    Response Body: "could not parse body due to {json validation errors}"
+    
+##### 401 (UNAUTHORISED): 
+    Response Body: "The request was not authenticated"
+    
+##### 500 (INTERNAL_SERVER_ERROR): 
+    Response Body: "An error was returned from the MongoDB repository"
+
+##### 500 (INTERNAL_SERVER_ERROR): 
+    Response Body: "{error message}"
+
+##### 503 (SERVICE_UNAVAILABLE): 
+    Response Body: "An unexpected error occurred when communicating with the MongoDB repository"        
+    
+
+#### Example Request/Response
+
+    POST /contact-preferences/journey/set    
+    
+    {
+        "regime" : {
+            "type" : "VAT",
+            "identifier" : {
+                "key" : "VRN",
+                "value" : "999999999"
+            }
+        },
+        "continueUrl" : "continueUrl",
+        "email" : "email"
+    }     
+    
+    Response Status: 201 (CREATED)
+    Response Body: Empty
+    Response Headers:
+        location → /contact-preferences/set/42009459-90e8-416a-8947-37a60299680a
+
+---
+
+### Create Update Contact Preference Journey Context
+
+`POST /contact-preferences/journey/update`
+
+Provides an API for Frontend Microservices to call to generate a one-time journey for updating the Contact Preference.
+
+A JourneyID will be generated and returned as a location header on the request with a redirect to the Contact Preferences Frontend microservice.
+
+User MUST be authenticated and MUST have an enrolment for the Tax Regime for which they are trying to update the preference.
+
+#### Request Body
+
+- regime: JsonObject ***mandatory*** 
+    - type: String ***mandatory** enum set: (`VAT`)*
+    - identifier: JsonObject ***mandatory***
+        - key: String ***mandatory** enum set: (`VRN`)*
+        - value: String ***mandatory** - must be a valid identifier, e.g. valid VRN*
+- continueUrl: String **mandatory** - must be a valid URL to redirect to
+- email: String *optional* - if provided will shown the user as the email intended to be used for communications.
+    
+#### Responses
+
+##### 201 (CREATED): 
+    Response Body: N/A *empty*
+    Response Headers: "Location" : "/contact-preferences/update/{journeyID}"
         
 ##### 400 (BAD_REQUEST): 
     Response Body: "Invalid JourneyModel payload: {json validation errors}"
@@ -69,7 +166,7 @@ A JourneyID will be generated and returned as a location header on the request w
 
 #### Example Request/Response
 
-    POST /contact-preferences/journey    
+    POST /contact-preferences/journey/update    
     
     {
         "regime" : {
@@ -86,9 +183,9 @@ A JourneyID will be generated and returned as a location header on the request w
     Response Status: 201 (CREATED)
     Response Body: Empty
     Response Headers:
-        location → /contact-preferences/42009459-90e8-416a-8947-37a60299680a
+        location → /contact-preferences/update/42009459-90e8-416a-8947-37a60299680a
 
----        
+---
         
 ### Retrieve Journey Context 
 
@@ -317,7 +414,7 @@ Provides an API to call to get the preference stored in the backend System of Re
 
 ---
 
-### Update Stored Contact Preference from System of Record
+### Update Stored Contact Preference in System of Record
 
 `PUT /contact-preferences/{regimeType}/{regimeId}/{regimeIdValue`
 

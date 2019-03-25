@@ -42,7 +42,7 @@ class ContactPreferenceController @Inject()(contactPreferenceRepository: Contact
   def storeContactPreference(journeyId: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
     withJsonBody[ContactPreferenceModel] { contactPreference =>
       findById(journeyRepository)(journeyId) { journeyDocument =>
-        authService.authorised(journeyDocument.journey.regime) { implicit user =>
+        authService.authorisedNoPredicate(journeyDocument.journey.regime) { implicit user =>
           val contactPreferenceDocument = ContactPreferenceDocument(journeyId, contactPreference.preference, DateDocument(dateService.timestamp))
           upsert(contactPreferenceRepository)(contactPreferenceDocument, journeyId) {
             Future.successful(NoContent)
@@ -54,7 +54,7 @@ class ContactPreferenceController @Inject()(contactPreferenceRepository: Contact
 
   val findContactPreference: String => Action[AnyContent] = journeyId => Action.async { implicit request =>
     findById(journeyRepository)(journeyId) { journeyDocument =>
-      authService.authorised(journeyDocument.journey.regime) { implicit user =>
+      authService.authorisedNoPredicate(journeyDocument.journey.regime) { implicit user =>
         findById(contactPreferenceRepository)(journeyId) { contactPreference =>
           Future.successful(Ok(Json.toJson(ContactPreferenceModel(contactPreference.preference))))
         }
@@ -64,7 +64,7 @@ class ContactPreferenceController @Inject()(contactPreferenceRepository: Contact
 
   def getDesContactPreference(regimeType: Regime, id: Identifier, value: String): Action[AnyContent] = Action.async { implicit request =>
     val regime = RegimeModel(regimeType, IdModel(id, value))
-    authService.authorised(regime) { implicit user =>
+    authService.authorisedWithEnrolmentPredicate(regime) { implicit user =>
       contactPreferenceService.getContactPreference(regime)(ec, hc(user)).map {
         case Left(err) => Status(err.status)(err.body)
         case Right(data) => Ok(Json.toJson(data))
@@ -75,7 +75,7 @@ class ContactPreferenceController @Inject()(contactPreferenceRepository: Contact
   def updateDesContactPreference(regimeType: Regime, id: Identifier, value: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
     val regime = RegimeModel(regimeType, IdModel(id, value))
     withJsonBody[ContactPreferenceModel] { contactPreference =>
-      authService.authorised(regime) { implicit user =>
+      authService.authorisedWithEnrolmentPredicate(regime) { implicit user =>
         contactPreferenceService.updateContactPreference(regime, contactPreference)(ec, hc(user)).map{
           case Right(UpdateContactPreferenceSuccess) => NoContent
           case Left(error) => Status(error.status)(error.body)

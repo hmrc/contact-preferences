@@ -133,7 +133,7 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
       lazy val result: Future[Result] = TestContactPreferenceController.getDesContactPreference(MTDVAT, VRN, testVatNumber)(fakeRequest)
 
       "return status Ok" in {
-        mockAuthenticated(EmptyPredicate)
+        mockAuthenticated(individual)
         mockGetDesContactPreference(regimeModel)(Right(ContactPreferenceModel(Digital)))
         status(result) shouldBe Status.OK
       }
@@ -146,7 +146,7 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
     "given an error response is returned from the service" should {
 
       "return NotFound" in {
-        mockAuthenticated(EmptyPredicate)
+        mockAuthenticated(individual)
         mockGetDesContactPreference(regimeModel)(Left(InvalidJson))
         status(
           TestContactPreferenceController.getDesContactPreference(MTDVAT, VRN, testVatNumber)(fakeRequest)
@@ -168,7 +168,7 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
       "update returns a success response" should {
 
         "return status NoContent" in {
-          mockAuthenticated(EmptyPredicate)
+          mockAuthenticated(individual)
           mockUpdateDesContactPreference(regimeModel, digitalPreferenceModel)(Right(UpdateContactPreferenceSuccess))
           status(result) shouldBe Status.NO_CONTENT
         }
@@ -177,7 +177,7 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
       "update returns an ErrorResponse from the service" should {
 
         "return the correct ErrorResponse" in {
-          mockAuthenticated(EmptyPredicate)
+          mockAuthenticated(individual)
           mockUpdateDesContactPreference(regimeModel, digitalPreferenceModel)(Left(Migration))
           status(result) shouldBe Migration.status
         }

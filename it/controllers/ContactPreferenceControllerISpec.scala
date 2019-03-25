@@ -38,7 +38,7 @@ class ContactPreferenceControllerISpec extends ITUtils {
       "should return CREATED (204)" in {
 
         AuthStub.authorisedIndividual()
-        await(post("/journey")(journeyJson))
+        await(post("/journey/set")(journeyJson))
 
         val res: WSResponse = await(put(s"/${MockUUIDService.uuid}")(digitalPreferenceJson))
 
@@ -56,7 +56,7 @@ class ContactPreferenceControllerISpec extends ITUtils {
       "should return OK (200)" in {
 
         AuthStub.authorisedIndividual()
-        await(post("/journey")(journeyJson))
+        await(post("/journey/set")(journeyJson))
 
         await(put(s"/${MockUUIDService.uuid}")(digitalPreferenceJson))
 
