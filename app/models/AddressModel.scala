@@ -14,30 +14,17 @@
  * limitations under the License.
  */
 
-package assets
+package models
 
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{Format, Json}
 
-object JourneyITConstants {
+case class AddressModel(line1: String,
+                        line2: String,
+                        line3: Option[String] = None,
+                        line4: Option[String] = None,
+                        postcode: Option[String] = None,
+                        countryCode: String)
 
-  val journeyJson: JsObject = Json.obj(
-    "regime" -> Json.obj(
-      "type" -> "vat",
-      "identifier" -> Json.obj(
-        "key" -> "vrn",
-        "value" -> "999999999"
-      )
-    ),
-    "continueUrl" -> "/continueUrl",
-    "email" -> "email",
-    "address" -> Json.obj(
-      "line1" -> "line1",
-      "line2" -> "line2",
-      "line3" -> "line3",
-      "line4" -> "line4",
-      "postcode" -> "postcode",
-      "countryCode" -> "countryCode"
-    )
-  )
-
+object AddressModel {
+  implicit val fmt: Format[AddressModel] = Json.format[AddressModel]
 }

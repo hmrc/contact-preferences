@@ -24,7 +24,8 @@ import utils.JsonSugar
 case class JourneyModel(regime: RegimeModel,
                         serviceName: Option[String] = None,
                         continueUrl: ContinueUrl,
-                        email: Option[String] = None)
+                        email: String,
+                        address: AddressModel)
 
 object JourneyModel extends JsonSugar {
 
@@ -32,13 +33,15 @@ object JourneyModel extends JsonSugar {
     (__ \ "regime").read[RegimeModel] and
       (__ \ "serviceName").readNullable[String] and
       (__ \ "continueUrl").read[String].map(url => new ContinueUrl(url)) and
-      (__ \ "email").readNullable[String]
+      (__ \ "email").read[String] and
+      (__ \ "address").read[AddressModel]
   )(JourneyModel.apply _)
 
   implicit val writes: Writes[JourneyModel] = (
     (__ \ "regime").write[RegimeModel] and
       (__ \ "serviceName").writeNullable[String] and
       (__ \ "continueUrl").write[ContinueUrl](Writes[ContinueUrl](url => JsString(url.url))) and
-      (__ \ "email").writeNullable[String]
+      (__ \ "email").write[String] and
+      (__ \ "address").write[AddressModel]
     )(unlift(JourneyModel.unapply))
 }
