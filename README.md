@@ -311,7 +311,7 @@ This endpoint is idempotent, if there is no existing preference record for the j
 
 #### Request Body
 
-- preference: String ***mandatory*** enum set: (`DIGITAL`, `PAPER`)
+- preference: String ***mandatory*** enum set: (`Digital`, `Paper`)
     
 #### Responses
 
@@ -345,7 +345,7 @@ This endpoint is idempotent, if there is no existing preference record for the j
     PUT /contact-preferences/42009459-90e8-416a-8947-37a60299680a  
     
     {
-        "preference" : "DIGITAL"
+        "preference" : "Digital"
     }     
     
     Response Status: 204 (NO_CONTENT)
@@ -368,7 +368,7 @@ Provides an API for Frontend Microservices to call to get the preference stored 
 ##### 200 (OK): 
     Response Body:     
         {
-            "preference" : "DIGITAL"
+            "preference" : "Digital"
         }
     
 ##### 401 (UNAUTHORISED): 
@@ -396,7 +396,7 @@ Provides an API for Frontend Microservices to call to get the preference stored 
     Response Status: 200 (OK)
     Response Body:
         {
-            "preference" : "DIGITAL"
+            "preference" : "Digital"
         }
 
 
@@ -419,7 +419,7 @@ Provides an API to call to get the preference stored in the backend System of Re
 ##### 200 (OK): 
     Response Body:     
         {
-            "preference" : "DIGITAL"
+            "preference" : "Digital"
         }
     
 ##### 400 (BAD_REQUEST): 
@@ -453,7 +453,7 @@ Provides an API to call to get the preference stored in the backend System of Re
     Response Status: 200 (OK)
     Response Body:
         {
-            "preference" : "DIGITAL"
+            "preference" : "Digital"
         }
 
 

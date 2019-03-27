@@ -58,7 +58,7 @@ class RegimeSpec extends TestUtils with JsonSugar {
 
       "when given an valid Regime" should {
 
-        "for DIGITAL return MTDVAT case object" in {
+        "for Digital return MTDVAT case object" in {
           mtdVatJson.as[Regime] shouldBe MTDVAT
         }
       }
@@ -84,7 +84,7 @@ class RegimeSpec extends TestUtils with JsonSugar {
 
     "when given an valid Regime" should {
 
-      "for DIGITAL return MTDVAT case object" in {
+      "for Digital return MTDVAT case object" in {
         Json.toJson(MTDVAT) shouldBe mtdVatJson
       }
     }
