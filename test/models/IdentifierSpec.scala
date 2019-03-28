@@ -58,7 +58,7 @@ class IdentifierSpec extends TestUtils with JsonSugar {
 
       "when given an valid Identifier" should {
 
-        "for DIGITAL return VRN case object" in {
+        "for Digital return VRN case object" in {
           vrnJson.as[Identifier] shouldBe VRN
         }
       }
@@ -84,7 +84,7 @@ class IdentifierSpec extends TestUtils with JsonSugar {
 
     "when given an valid Identifier" should {
 
-      "for DIGITAL return VRN case object" in {
+      "for Digital return VRN case object" in {
         Json.toJson(VRN) shouldBe vrnJson
       }
     }
