@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,9 +34,9 @@ trait MockHttpClient extends MockFactory {
   }
 
   def mockHttpPut[I,O](model: I)(response: O): Unit = {
-    (mockHttpClient.PUT[I,O](_: String, _: I)
+    (mockHttpClient.PUT[I,O](_: String, _: I, _: Seq[(String, String)])
       (_: Format[I], _: HttpReads[O], _: HeaderCarrier, _: ExecutionContext))
-      .expects(*, model, *, *, *, *)
+      .expects(*, model, *, *, *, *, *)
       .returns(Future.successful(response))
   }
 }
