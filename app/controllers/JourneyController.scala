@@ -22,11 +22,11 @@ import models.JourneyModel
 import play.api.Logger
 import play.api.http.HeaderNames
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import repositories.JourneyRepository
 import repositories.documents.{DateDocument, JourneyDocument}
 import services.{AuthService, DateService, UUIDService}
-import uk.gov.hmrc.play.bootstrap.controller.BaseController
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import utils.MongoSugar
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -36,7 +36,9 @@ class JourneyController @Inject()(journeyRepository: JourneyRepository,
                                   appConfig: AppConfig,
                                   uuidService: UUIDService,
                                   dateService: DateService,
-                                  authService: AuthService)(implicit ec: ExecutionContext) extends BaseController with MongoSugar {
+                                  authService: AuthService,
+                                  controllerComponents: ControllerComponents
+                                 )(implicit ec: ExecutionContext) extends BackendController(controllerComponents) with MongoSugar {
 
   private def createJourneyDocument(journeyId: String, journey: JourneyModel): JourneyDocument =
     JourneyDocument(journeyId, journey, DateDocument(dateService.timestamp))
@@ -47,7 +49,7 @@ class JourneyController @Inject()(journeyRepository: JourneyRepository,
     * back to the calling service to handle.
     */
   val storeSetPreferenceJourney: Action[JsValue] = Action.async(parse.json) { implicit request =>
-    withJsonBody[JourneyModel]( journey =>
+    withJsonBody[JourneyModel](journey =>
       authService.authorisedNoPredicate(journey.regime) { implicit user =>
         val journeyId = uuidService.generateUUID
         insert(journeyRepository)(createJourneyDocument(journeyId, journey)) {
@@ -64,7 +66,7 @@ class JourneyController @Inject()(journeyRepository: JourneyRepository,
     * to change a preference and submit on to DES to update the downstream System of Record.
     */
   val storeUpdatePreferenceJourney: Action[JsValue] = Action.async(parse.json) { implicit request =>
-    withJsonBody[JourneyModel]( journey =>
+    withJsonBody[JourneyModel](journey =>
       authService.authorisedWithEnrolmentPredicate(journey.regime) { implicit user =>
         val journeyId = uuidService.generateUUID
         insert(journeyRepository)(createJourneyDocument(journeyId, journey)) {

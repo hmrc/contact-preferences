@@ -16,32 +16,26 @@
 
 package repositories.documents
 
-import models._
-import play.api.libs.json.{JsObject, Json}
-import utils.TestUtils
 import assets.JourneyTestConstants._
-import services.mocks.MockDateService
+import play.api.libs.json.Json
+import utils.TestUtils
 
 class JourneyDocumentSpec extends TestUtils {
 
   "JourneyDocument.reads" when {
-
     "given maximum json values" should {
-
       "return the correct model" in {
         journeyDocumentJsonMax.as[JourneyDocument] shouldEqual journeyDocumentMax
       }
     }
 
     "given minimum json values" should {
-
       "return the correct model" in {
         journeyDocumentJsonMin.as[JourneyDocument] shouldEqual journeyDocumentMin
       }
     }
 
     "given incorrect json values" should {
-
       "throw an exception" in {
         Json.obj().validate[JourneyDocument].isError shouldBe true
       }
@@ -49,16 +43,13 @@ class JourneyDocumentSpec extends TestUtils {
   }
 
   "JourneyDocument.writes" when {
-
     "given maximum values in a model" should {
-
       "return the correct json" in {
         Json.toJson(journeyDocumentMax) shouldBe journeyDocumentJsonMax
       }
     }
 
     "given minimum values in a model" should {
-
       "return the correct json" in {
         Json.toJson(journeyDocumentMin) shouldBe journeyDocumentJsonMin
       }

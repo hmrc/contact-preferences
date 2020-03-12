@@ -20,7 +20,7 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import reactivemongo.api.commands.{UpdateWriteResult, Upserted, WriteError}
 import repositories.ContactPreferenceRepository
 import repositories.documents.ContactPreferenceDocument
@@ -38,35 +38,26 @@ trait MockContactPreferenceRepository extends TestUtils with MockitoSugar with B
 
   lazy val mockContactPreferenceRepository: ContactPreferenceRepository = mock[ContactPreferenceRepository]
 
-  def setupMockFindPreferenceById(response: Option[ContactPreferenceDocument]): OngoingStubbing[Future[Option[ContactPreferenceDocument]]] = {
-    when(mockContactPreferenceRepository.findById(ArgumentMatchers.anyString(),ArgumentMatchers.any())(ArgumentMatchers.any()))
+  def setupMockFindPreferenceById(response: Future[Option[ContactPreferenceDocument]]): OngoingStubbing[Future[Option[ContactPreferenceDocument]]] = {
+    when(mockContactPreferenceRepository.findById(ArgumentMatchers.anyString(), ArgumentMatchers.any())(ArgumentMatchers.any()))
       .thenReturn(response)
   }
 
   def setupMockFailedFindPreferenceById(response: Option[ContactPreferenceDocument]): OngoingStubbing[Future[Option[ContactPreferenceDocument]]] = {
-    when(mockContactPreferenceRepository.findById(ArgumentMatchers.anyString(),ArgumentMatchers.any())(ArgumentMatchers.any()))
+    when(mockContactPreferenceRepository.findById(ArgumentMatchers.anyString(), ArgumentMatchers.any())(ArgumentMatchers.any()))
       .thenReturn(Future.failed(new Exception))
   }
 
-  def setupMockUpdatePreference(data: ContactPreferenceDocument, id: String)(responseIsOk: Boolean): OngoingStubbing[Future[UpdateWriteResult]] = {
+  def setupMockUpdatePreference(data: ContactPreferenceDocument,
+                                id: String
+                               )(response: Future[UpdateWriteResult]): OngoingStubbing[Future[UpdateWriteResult]] = {
     when(mockContactPreferenceRepository.upsert(ArgumentMatchers.eq(data), ArgumentMatchers.eq(id)))
-      .thenReturn(updateWriteResult(responseIsOk))
+      .thenReturn(response)
   }
 
   def setupMockFailedUpdatePreference(data: ContactPreferenceDocument, id: String): OngoingStubbing[Future[UpdateWriteResult]] = {
     when(mockContactPreferenceRepository.upsert(ArgumentMatchers.eq(data), ArgumentMatchers.eq(id)))
       .thenReturn(Future.failed(new Exception))
   }
-
-  private def updateWriteResult(isOk: Boolean) = UpdateWriteResult(
-    ok = isOk,
-    n = 1,
-    nModified = 1,
-    upserted = Seq.empty[Upserted],
-    writeErrors = Seq(WriteError(1,1,"error")),
-    writeConcernError = None,
-    code = None,
-    errmsg = Some("error")
-  )
 
 }

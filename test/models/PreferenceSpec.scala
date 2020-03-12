@@ -26,9 +26,7 @@ class PreferenceSpec extends TestUtils with JsonSugar {
   val invalidJson: JsString = JsString("foo")
 
   "Preference.apply" should {
-
     "when given a valid Preference" should {
-
       "for Digital return Digital case object" in {
         Preference(Digital.value) shouldBe Digital
       }
@@ -39,7 +37,6 @@ class PreferenceSpec extends TestUtils with JsonSugar {
     }
 
     "when given an invalid Preference" should {
-
       "for foo an InvalidPreference" in {
         intercept[JsResultException](Preference("foo")) shouldBe
           jsonError(__ \ "preference", s"Invalid Preference: foo. Valid Preference set: (${Digital.value}|${Paper.value})")
@@ -48,9 +45,7 @@ class PreferenceSpec extends TestUtils with JsonSugar {
   }
 
   "Preference.unapply" should {
-
     "when given a valid Preference" should {
-
       "for Digital case object return Digital " in {
         Preference.unapply(Digital) shouldBe Digital.value
       }
@@ -62,11 +57,8 @@ class PreferenceSpec extends TestUtils with JsonSugar {
   }
 
   "Preference.read" should {
-
     "when given a valid JSON document" should {
-
       "when given an valid Preference" should {
-
         "for Digital return Digital case object" in {
           digitalJson.as[Preference] shouldBe Digital
         }
@@ -77,7 +69,6 @@ class PreferenceSpec extends TestUtils with JsonSugar {
       }
 
       "when given an invalid Preference" should {
-
         "for invalidJson return InvalidPreference case object" in {
           intercept[JsResultException](invalidJson.as[Preference]) shouldBe
             jsonError(__ \ "preference", s"Invalid Preference: foo. Valid Preference set: (${Digital.value}|${Paper.value})")
@@ -86,7 +77,6 @@ class PreferenceSpec extends TestUtils with JsonSugar {
     }
 
     "when given a invalid JSON document" should {
-
       "throw a JsResultException" in {
         val json = Json.obj("foo" -> "bar")
         json.validate[Preference].isError shouldBe true
@@ -95,9 +85,7 @@ class PreferenceSpec extends TestUtils with JsonSugar {
   }
 
   "Preference.write" should {
-
     "when given an valid Preference" should {
-
       "for Digital return Digital case object" in {
         Json.toJson(Digital) shouldBe digitalJson
       }

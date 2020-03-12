@@ -16,17 +16,15 @@
 
 package models
 
-import utils.TestUtils
-import assets.RegimeTestConstants._
 import assets.BaseTestConstants._
+import assets.RegimeTestConstants._
 import play.api.libs.json.Json
+import utils.TestUtils
 
 class RegimeModelSpec extends TestUtils {
 
   "RegimeModel" should {
-
     "return the correct value" when {
-
       "typeId is called" in {
         regimeModel.typeId shouldBe MTDVAT.id
       }

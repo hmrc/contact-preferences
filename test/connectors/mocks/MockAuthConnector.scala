@@ -16,13 +16,12 @@
 
 package connectors.mocks
 
-import assets.BaseTestConstants._
+import assets.JourneyTestConstants._
 import org.scalamock.scalatest.MockFactory
 import uk.gov.hmrc.auth.core.authorise.{EmptyPredicate, Predicate}
 import uk.gov.hmrc.auth.core.retrieve._
 import uk.gov.hmrc.auth.core.{AuthConnector, Enrolment, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
-import assets.JourneyTestConstants._
 
 import scala.concurrent.{ExecutionContext, Future}
 

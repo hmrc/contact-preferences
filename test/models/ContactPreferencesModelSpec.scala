@@ -23,16 +23,13 @@ import utils.TestUtils
 class ContactPreferencesModelSpec extends TestUtils {
 
   "ContactPreferenceModel.reads" when {
-
     "given correct json values" should {
-
       "return the correct model" in {
         digitalPreferenceJson.as[ContactPreferenceModel] shouldBe digitalPreferenceModel
       }
     }
 
     "given incorrect json values" should {
-
       "throw an exception" in {
         Json.obj().validate[ContactPreferenceModel].isError shouldBe true
       }
@@ -40,16 +37,13 @@ class ContactPreferencesModelSpec extends TestUtils {
   }
 
   "ContactPreferenceModel.desReads" when {
-
     "given correct json values" should {
-
       "return the correct model" in {
         paperPreferenceDesJson.as[ContactPreferenceModel](ContactPreferenceModel.desReads) shouldBe paperPreferenceModel
       }
     }
 
     "given incorrect json values" should {
-
       "throw an exception" in {
         Json.obj().validate[ContactPreferenceModel](ContactPreferenceModel.desReads).isError shouldBe true
       }
@@ -57,7 +51,6 @@ class ContactPreferencesModelSpec extends TestUtils {
   }
 
   "ContactPreferenceModel.writes" when {
-
     "return the correct json" in {
       Json.toJson(digitalPreferenceModel) shouldBe digitalPreferenceJson
     }

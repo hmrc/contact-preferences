@@ -17,10 +17,10 @@
 package controllers
 
 import assets.JourneyTestConstants._
-import play.api.http.Status
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
+import play.api.test.Helpers._
 import repositories.mocks.MockJourneyRepository
 import services.mocks.{MockAuthService, MockDateService, MockUUIDService}
 import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
@@ -34,48 +34,46 @@ class JourneyControllerSpec extends MockJourneyRepository with MockAuthService {
     appConfig = appConfig,
     uuidService = MockUUIDService,
     dateService = MockDateService,
-    authService = mockAuthService
+    authService = mockAuthService,
+    controllerComponents = stubControllerComponents()
   )
 
   "JourneyController.storeSetPreferenceJourney" when {
-
     "given a valid JourneyModel" when {
 
       lazy val fakePost = FakeRequest("POST", "/")
         .withBody(journeyJsonMax)
         .withHeaders("Content-Type" -> "application/json")
+
       def result: Future[Result] = TestJourneyController.storeSetPreferenceJourney(fakePost)
 
       "successfully updated journey repository" should {
-
         "return an Ok" in {
-          setupMockInsertJourney(journeyDocumentMax)(responseIsOk = true)
+          setupMockInsertJourney(journeyDocumentMax)(Future.successful(updateWriteResult( true)))
           mockAuthenticated(EmptyPredicate)
-          status(result) shouldBe Status.CREATED
+          status(result) shouldBe CREATED
         }
 
         "have a location header with a redirect to the contact preferences FE" in {
-          setupMockInsertJourney(journeyDocumentMax)(responseIsOk = true)
+          setupMockInsertJourney(journeyDocumentMax)(Future.successful(updateWriteResult( true)))
           mockAuthenticated(EmptyPredicate)
-          redirectLocation(result) shouldBe Some(appConfig.contactPreferencesUrl + s"/set/${MockUUIDService.generateUUID}")
+          redirectLocation(await(result)) shouldBe Some(appConfig.contactPreferencesUrl + s"/set/${MockUUIDService.generateUUID}")
         }
       }
 
       "failed at updating journey repository" should {
-
         "return an InternalServerError" in {
-          setupMockInsertJourney(journeyDocumentMax)(responseIsOk = false)
+          setupMockInsertJourney(journeyDocumentMax)(Future.successful(updateWriteResult( false)))
           mockAuthenticated(EmptyPredicate)
-          status(result) shouldBe Status.INTERNAL_SERVER_ERROR
+          status(result) shouldBe INTERNAL_SERVER_ERROR
         }
       }
 
       "fails to insert into journey repository" should {
-
         "return an InternalServerError" in {
           setupMockFailedInsertJourney(journeyDocumentMax)
           mockAuthenticated(EmptyPredicate)
-          status(result) shouldBe Status.SERVICE_UNAVAILABLE
+          status(result) shouldBe SERVICE_UNAVAILABLE
         }
       }
     }
@@ -85,16 +83,16 @@ class JourneyControllerSpec extends MockJourneyRepository with MockAuthService {
       lazy val fakePost = FakeRequest("POST", "/")
         .withBody(journeyJsonInvalidContinueUrl)
         .withHeaders("Content-Type" -> "application/json")
+
       def result: Future[Result] = TestJourneyController.storeSetPreferenceJourney(fakePost)
 
       "successfully updated journey repository" should {
-
         "return an Bad Request (400)" in {
-          status(result) shouldBe Status.BAD_REQUEST
+          status(result) shouldBe BAD_REQUEST
         }
 
         "Include a message for the error" in {
-          await(bodyOf(result)) shouldBe "could not parse body due to requirement failed: 'invalid' is not a valid continue URL"
+          contentAsString(result) shouldBe "Could not parse body due to requirement failed: 'invalid' is not a valid continue URL"
         }
       }
     }
@@ -102,44 +100,41 @@ class JourneyControllerSpec extends MockJourneyRepository with MockAuthService {
   }
 
   "JourneyController.storeUpdatePreferenceJourney" when {
-
     "given a valid JourneyModel" when {
 
       lazy val fakePost = FakeRequest("POST", "/")
         .withBody(journeyJsonMax)
         .withHeaders("Content-Type" -> "application/json")
+
       def result: Future[Result] = TestJourneyController.storeUpdatePreferenceJourney(fakePost)
 
       "successfully updated journey repository" should {
-
         "return an Ok" in {
-          setupMockInsertJourney(journeyDocumentMax)(responseIsOk = true)
+          setupMockInsertJourney(journeyDocumentMax)(Future.successful(updateWriteResult( true)))
           mockAuthenticated(individual)
-          status(result) shouldBe Status.CREATED
+          status(result) shouldBe CREATED
         }
 
         "have a location header with a redirect to the contact preferences FE" in {
-          setupMockInsertJourney(journeyDocumentMax)(responseIsOk = true)
+          setupMockInsertJourney(journeyDocumentMax)(Future.successful(updateWriteResult( true)))
           mockAuthenticated(individual)
-          redirectLocation(result) shouldBe Some(appConfig.contactPreferencesUrl + s"/update/${MockUUIDService.generateUUID}")
+          redirectLocation(await(result)) shouldBe Some(appConfig.contactPreferencesUrl + s"/update/${MockUUIDService.generateUUID}")
         }
       }
 
       "failed at updating journey repository" should {
-
         "return an InternalServerError" in {
-          setupMockInsertJourney(journeyDocumentMax)(responseIsOk = false)
+          setupMockInsertJourney(journeyDocumentMax)(Future.successful(updateWriteResult( false)))
           mockAuthenticated(individual)
-          status(result) shouldBe Status.INTERNAL_SERVER_ERROR
+          status(result) shouldBe INTERNAL_SERVER_ERROR
         }
       }
 
       "fails to insert into journey repository" should {
-
         "return an InternalServerError" in {
           setupMockFailedInsertJourney(journeyDocumentMax)
           mockAuthenticated(individual)
-          status(result) shouldBe Status.SERVICE_UNAVAILABLE
+          status(result) shouldBe SERVICE_UNAVAILABLE
         }
       }
     }
@@ -149,16 +144,16 @@ class JourneyControllerSpec extends MockJourneyRepository with MockAuthService {
       lazy val fakePost = FakeRequest("POST", "/")
         .withBody(journeyJsonInvalidContinueUrl)
         .withHeaders("Content-Type" -> "application/json")
+
       def result: Future[Result] = TestJourneyController.storeSetPreferenceJourney(fakePost)
 
       "successfully updated journey repository" should {
-
         "return an Bad Request (400)" in {
-          status(result) shouldBe Status.BAD_REQUEST
+          status(result) shouldBe BAD_REQUEST
         }
 
         "Include a message for the error" in {
-          await(bodyOf(result)) shouldBe "could not parse body due to requirement failed: 'invalid' is not a valid continue URL"
+          contentAsString(result) shouldBe "Could not parse body due to requirement failed: 'invalid' is not a valid continue URL"
         }
       }
     }
@@ -166,32 +161,30 @@ class JourneyControllerSpec extends MockJourneyRepository with MockAuthService {
   }
 
   "JourneyController.findJourney" when {
-
     "given an id contained in the journey repository" should {
 
       lazy val result: Future[Result] = TestJourneyController.findJourney("id")(fakeRequest)
 
       "return status Ok" in {
         mockAuthenticated(EmptyPredicate)
-        setupMockFindJourneyById(Some(journeyDocumentMax))
-        status(result) shouldBe Status.OK
+        setupMockFindJourneyById(Future.successful(Some(journeyDocumentMax)))
+        status(result) shouldBe OK
       }
 
       "return the correct Json for the JourneyModel" in {
-        jsonBodyOf(await(result)) shouldBe Json.toJson(journeyDocumentMax.journey)
+        contentAsJson(result) shouldBe Json.toJson(journeyDocumentMax.journey)
       }
     }
 
     "fails to findById in the journey repository" in {
       setupMockFailedFindJourneyById(Some(journeyDocumentMax))
-      status(TestJourneyController.findJourney("id")(fakeRequest)) shouldBe Status.SERVICE_UNAVAILABLE
+      status(TestJourneyController.findJourney("id")(fakeRequest)) shouldBe SERVICE_UNAVAILABLE
     }
 
     "given an id not contained in the journey repository" should {
-
       "return NotFound" in {
-        setupMockFindJourneyById(None)
-        status(TestJourneyController.findJourney("id")(fakeRequest)) shouldBe Status.NOT_FOUND
+        setupMockFindJourneyById(Future.successful(None))
+        status(TestJourneyController.findJourney("id")(fakeRequest)) shouldBe NOT_FOUND
       }
     }
   }

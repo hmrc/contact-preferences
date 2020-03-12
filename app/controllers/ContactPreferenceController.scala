@@ -21,11 +21,11 @@ import connectors.httpParsers.UpdateContactPreferenceHttpParser.UpdateContactPre
 import javax.inject.{Inject, Singleton}
 import models._
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import repositories.documents.{ContactPreferenceDocument, DateDocument}
 import repositories.{ContactPreferenceRepository, JourneyRepository}
 import services.{AuthService, ContactPreferenceService, DateService}
-import uk.gov.hmrc.play.bootstrap.controller.BaseController
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import utils.MongoSugar
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -36,8 +36,9 @@ class ContactPreferenceController @Inject()(contactPreferenceRepository: Contact
                                             journeyRepository: JourneyRepository,
                                             appConfig: AppConfig,
                                             dateService: DateService,
-                                            authService: AuthService)
-                                           (implicit ec: ExecutionContext) extends BaseController with MongoSugar {
+                                            authService: AuthService,
+                                            controllerComponents: ControllerComponents
+                                           )(implicit ec: ExecutionContext) extends BackendController(controllerComponents) with MongoSugar {
 
   def storeContactPreference(journeyId: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
     withJsonBody[ContactPreferenceModel] { contactPreference =>
@@ -76,7 +77,7 @@ class ContactPreferenceController @Inject()(contactPreferenceRepository: Contact
     val regime = RegimeModel(regimeType, IdModel(id, value))
     withJsonBody[ContactPreferenceModel] { contactPreference =>
       authService.authorisedWithEnrolmentPredicate(regime) { implicit user =>
-        contactPreferenceService.updateContactPreference(regime, contactPreference)(ec, hc(user)).map{
+        contactPreferenceService.updateContactPreference(regime, contactPreference)(ec, hc(user)).map {
           case Right(UpdateContactPreferenceSuccess) => NoContent
           case Left(error) => Status(error.status)(error.body)
         }

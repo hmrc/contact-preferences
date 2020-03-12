@@ -17,7 +17,7 @@
 package controllers
 
 import assets.JourneyITConstants._
-import play.api.http.Status._
+import play.api.test.Helpers._
 import play.api.libs.ws.WSResponse
 import stubs.AuthStub
 import utils.ITUtils
@@ -27,13 +27,11 @@ import utils.mocks.MockUUIDService
 class JourneyControllerISpec extends ITUtils {
 
   "POST /journey/set" when {
-
     "update is successful" should {
-
       "should return CREATED (201)" in {
 
         AuthStub.authorisedIndividual()
-        val res: WSResponse = await(post("/journey/set")(journeyJson))
+        val res: WSResponse = post("/journey/set")(journeyJson)
 
         res should have(
           httpStatus(CREATED),
@@ -50,7 +48,7 @@ class JourneyControllerISpec extends ITUtils {
       "should return CREATED (201)" in {
 
         AuthStub.authorisedIndividual()
-        val res: WSResponse = await(post("/journey/update")(journeyJson))
+        val res: WSResponse = post("/journey/update")(journeyJson)
 
         res should have(
           httpStatus(CREATED),
@@ -69,9 +67,9 @@ class JourneyControllerISpec extends ITUtils {
       "should return OK (200)" in {
 
         AuthStub.authorisedIndividual()
-        await(post("/journey/update")(journeyJson))
+        post("/journey/update")(journeyJson)
 
-        val res = await(getJourney(MockUUIDService.uuid))
+        val res = getJourney(MockUUIDService.uuid)
 
         res should have(
           httpStatus(OK)
