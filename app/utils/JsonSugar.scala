@@ -16,11 +16,10 @@
 
 package utils
 
-import play.api.data.validation.ValidationError
 import play.api.libs.json._
 
 trait JsonSugar {
 
-  def jsonError(path: JsPath, errMsg: String) = JsResultException(Seq(path -> Seq(ValidationError(Seq(errMsg),Seq()))))
+  def jsonError(path: JsPath, errMsg: String): JsResultException = JsResultException(Seq(path -> Seq(JsonValidationError(Seq(errMsg),Seq()))))
 
 }

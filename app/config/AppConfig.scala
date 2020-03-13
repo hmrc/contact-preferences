@@ -18,22 +18,20 @@ package config
 
 import config.features.Features
 import javax.inject.{Inject, Singleton}
-import play.api.Mode.Mode
-import play.api.{Configuration, Environment}
-import uk.gov.hmrc.play.config.ServicesConfig
+import play.api.Configuration
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
-class AppConfig @Inject()(implicit val runModeConfiguration: Configuration, environment: Environment) extends ServicesConfig {
-  override protected def mode: Mode = environment.mode
+class AppConfig @Inject()(servicesConfig: ServicesConfig)(implicit configuration: Configuration) {
 
-  lazy val timeToLiveSeconds: Int = getInt("mongodb.timeToLiveSeconds")
+  lazy val timeToLiveSeconds: Int = servicesConfig.getInt("mongodb.timeToLiveSeconds")
 
   lazy val contactPreferencesUrl: String =
-    s"${getString(AppConfigKeys.contactPreferencesFrontendHost)}${getString(AppConfigKeys.contactPreferencesFrontendUrl)}"
+    s"${servicesConfig.getString(AppConfigKeys.contactPreferencesFrontendHost)}${servicesConfig.getString(AppConfigKeys.contactPreferencesFrontendUrl)}"
 
-  lazy val desUrl: String = getString(AppConfigKeys.desUrl)
-  lazy val desAuthorisationToken: String = s"Bearer ${getString(AppConfigKeys.desAuthorisationToken)}"
-  lazy val desEnvironmentHeader: (String, String) = "Environment" -> getString(AppConfigKeys.desEnvironmentHeader)
+  lazy val desUrl: String = servicesConfig.getString(AppConfigKeys.desUrl)
+  lazy val desAuthorisationToken: String = s"Bearer ${servicesConfig.getString(AppConfigKeys.desAuthorisationToken)}"
+  lazy val desEnvironmentHeader: (String, String) = "Environment" -> servicesConfig.getString(AppConfigKeys.desEnvironmentHeader)
 
   lazy val features = new Features()
 }

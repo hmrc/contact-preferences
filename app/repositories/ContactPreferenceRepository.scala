@@ -27,8 +27,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ContactPreferenceRepository @Inject()(mongo: ReactiveMongoComponent,
-                                            appConfig: AppConfig)(implicit ec: ExecutionContext)
-  extends MongoRepository[ContactPreferenceDocument](
+                                            appConfig: AppConfig
+                                           )(implicit ec: ExecutionContext) extends MongoRepository[ContactPreferenceDocument](
     mongo,
     collectionName = "preference",
     appConfig

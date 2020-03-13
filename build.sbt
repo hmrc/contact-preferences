@@ -1,3 +1,4 @@
+import sbt.Keys.dependencyOverrides
 import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
 import uk.gov.hmrc.SbtArtifactory
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
@@ -33,8 +34,14 @@ lazy val coverageSettings: Seq[Setting[_]] = {
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
   .settings(
-    majorVersion                     := 0,
-    libraryDependencies              ++= AppDependencies.compile ++ AppDependencies.test
+    majorVersion := 0,
+    libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
+    dependencyOverrides ++= Set(
+      "com.typesafe.akka" %% "akka-actor" % "2.5.23",
+      "com.typesafe.akka" %% "akka-protobuf" % "2.5.23",
+      "com.typesafe.akka" %% "akka-slf4j" % "2.5.23",
+      "com.typesafe.akka" %% "akka-stream" % "2.5.23"
+    )
   )
   .settings(coverageSettings: _*)
   .settings(publishingSettings: _*)

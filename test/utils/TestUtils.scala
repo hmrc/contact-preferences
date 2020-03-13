@@ -19,18 +19,18 @@ package utils
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import config.AppConfig
-import org.scalatest.BeforeAndAfterEach
+import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpecLike}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.HeaderNames
 import play.api.inject.Injector
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
+import reactivemongo.api.commands.{UpdateWriteResult, Upserted, WriteError}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext
 
-trait TestUtils extends UnitSpec with GuiceOneAppPerSuite with BeforeAndAfterEach {
+trait TestUtils extends WordSpecLike with Matchers with GuiceOneAppPerSuite with BeforeAndAfterEach {
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -46,5 +46,17 @@ trait TestUtils extends UnitSpec with GuiceOneAppPerSuite with BeforeAndAfterEac
   implicit lazy val materializer: ActorMaterializer = ActorMaterializer()
 
   def redirectLocation(result: Result): Option[String] = result.header.headers.get(HeaderNames.LOCATION)
+
+
+  def updateWriteResult(isOk: Boolean): UpdateWriteResult = UpdateWriteResult(
+    ok = isOk,
+    n = 1,
+    nModified = 1,
+    upserted = Seq.empty[Upserted],
+    writeErrors = Seq(WriteError(1, 1, "error")),
+    writeConcernError = None,
+    code = None,
+    errmsg = Some("error")
+  )
 
 }

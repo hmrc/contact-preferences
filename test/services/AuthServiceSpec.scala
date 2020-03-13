@@ -18,9 +18,9 @@ package services
 
 import assets.JourneyTestConstants._
 import connectors.mocks.MockAuthConnector
-import play.api.http.Status._
 import play.api.mvc.Result
 import play.api.mvc.Results._
+import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
 import uk.gov.hmrc.auth.core.{InsufficientEnrolments, MissingBearerToken}
 import utils.TestUtils
@@ -39,7 +39,6 @@ class AuthServiceSpec extends MockAuthConnector with TestUtils {
     }
 
     "an authorised result is returned from the Auth Connector" should {
-
       "Successfully authenticate and process the request" in {
         mockAuthenticated(EmptyPredicate)
         status(result) shouldBe OK
@@ -55,7 +54,7 @@ class AuthServiceSpec extends MockAuthConnector with TestUtils {
 
       "Return the correct unauthorised response message" in {
         mockAuthorise(EmptyPredicate, retrievals)(Future.failed(MissingBearerToken()))
-        await(bodyOf(result)) shouldBe "The request was not authenticated"
+        contentAsString(result) shouldBe "The request was not authenticated"
       }
     }
 
@@ -68,7 +67,7 @@ class AuthServiceSpec extends MockAuthConnector with TestUtils {
 
       "Return the correct unauthorised response message" in {
         mockAuthorise(EmptyPredicate, retrievals)(Future.failed(InsufficientEnrolments()))
-        await(bodyOf(result)) shouldBe "The request was authenticated but the user does not have the necessary authority"
+        contentAsString(result) shouldBe "The request was authenticated but the user does not have the necessary authority"
       }
     }
 
@@ -106,7 +105,7 @@ class AuthServiceSpec extends MockAuthConnector with TestUtils {
 
       "Return the correct unauthorised response message" in {
         mockAuthorise(individual, retrievals)(Future.failed(MissingBearerToken()))
-        await(bodyOf(result)) shouldBe "The request was not authenticated"
+        contentAsString(result) shouldBe "The request was not authenticated"
       }
     }
 
@@ -119,7 +118,7 @@ class AuthServiceSpec extends MockAuthConnector with TestUtils {
 
       "Return the correct unauthorised response message" in {
         mockAuthorise(individual, retrievals)(Future.failed(InsufficientEnrolments()))
-        await(bodyOf(result)) shouldBe "The request was authenticated but the user does not have the necessary authority"
+        contentAsString(result) shouldBe "The request was authenticated but the user does not have the necessary authority"
       }
     }
 

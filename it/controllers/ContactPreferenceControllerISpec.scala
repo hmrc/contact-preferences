@@ -22,8 +22,8 @@ import assets.JourneyITConstants.journeyJson
 import connectors.httpParsers.GetContactPreferenceHttpParser.DependentSystemUnavailable
 import connectors.httpParsers.UpdateContactPreferenceHttpParser.Migration
 import models.{MTDVAT, VRN}
-import play.api.http.Status._
 import play.api.libs.ws.WSResponse
+import play.api.test.Helpers._
 import stubs.{AuthStub, DESStub}
 import utils.ITUtils
 import utils.mocks.MockUUIDService
@@ -32,15 +32,13 @@ import utils.mocks.MockUUIDService
 class ContactPreferenceControllerISpec extends ITUtils {
 
   "PUT /:journeyId" when {
-
     "update is successful" should {
-
       "should return CREATED (204)" in {
 
         AuthStub.authorisedIndividual()
-        await(post("/journey/set")(journeyJson))
+        post("/journey/set")(journeyJson)
 
-        val res: WSResponse = await(put(s"/${MockUUIDService.uuid}")(digitalPreferenceJson))
+        val res: WSResponse = put(s"/${MockUUIDService.uuid}")(digitalPreferenceJson)
 
         res should have(
           httpStatus(NO_CONTENT)
@@ -50,17 +48,15 @@ class ContactPreferenceControllerISpec extends ITUtils {
   }
 
   "GET /:journeyId" when {
-
     "given exists" should {
-
       "should return OK (200)" in {
 
         AuthStub.authorisedIndividual()
-        await(post("/journey/set")(journeyJson))
+        post("/journey/set")(journeyJson)
 
-        await(put(s"/${MockUUIDService.uuid}")(digitalPreferenceJson))
+        put(s"/${MockUUIDService.uuid}")(digitalPreferenceJson)
 
-        val res = await(get(s"/${MockUUIDService.uuid}"))
+        val res = get(s"/${MockUUIDService.uuid}")
 
         res should have(
           httpStatus(OK)
@@ -70,17 +66,14 @@ class ContactPreferenceControllerISpec extends ITUtils {
   }
 
   "GET /:regimeType/:regimeId/:id" when {
-
     "given I provide valid parameters" when {
-
       "a successful response from DES is returned" should {
-
         "should return OK (200)" in {
 
           AuthStub.authorisedIndividual()
           DESStub.getContactPreferenceSuccess(digitalPreferenceDesJson)
 
-          val res = await(get(s"/${MTDVAT.id}/${VRN.value}/${CommonITConstants.vrn}"))
+          val res = get(s"/${MTDVAT.id}/${VRN.value}/${CommonITConstants.vrn}")
 
           res should have(
             httpStatus(OK),
@@ -90,13 +83,12 @@ class ContactPreferenceControllerISpec extends ITUtils {
       }
 
       "an error response from DES is returned" should {
-
         "should return SERVICE_UNAVAILABLE (503)" in {
 
           AuthStub.authorisedIndividual()
           DESStub.getContactPreferenceError
 
-          val res = await(get(s"/${MTDVAT.id}/${VRN.value}/${CommonITConstants.vrn}"))
+          val res = get(s"/${MTDVAT.id}/${VRN.value}/${CommonITConstants.vrn}")
 
           res should have(
             httpStatus(SERVICE_UNAVAILABLE),
@@ -108,12 +100,10 @@ class ContactPreferenceControllerISpec extends ITUtils {
     }
 
     "given I provide INVALID parameters" when {
-
       "supplying an invalid regime" should {
-
         "should return BAD_REQUEST (400)" in {
 
-          val res = await(get(s"/foo/${VRN.value}/${CommonITConstants.vrn}"))
+          val res = get(s"/foo/${VRN.value}/${CommonITConstants.vrn}")
 
           res should have(
             httpStatus(BAD_REQUEST),
@@ -123,10 +113,9 @@ class ContactPreferenceControllerISpec extends ITUtils {
       }
 
       "supplying an invalid identifier" should {
-
         "should return BAD_REQUEST (400)" in {
 
-          val res = await(get(s"/${MTDVAT.id}/foo/${CommonITConstants.vrn}"))
+          val res = get(s"/${MTDVAT.id}/foo/${CommonITConstants.vrn}")
 
           res should have(
             httpStatus(BAD_REQUEST),
@@ -138,17 +127,14 @@ class ContactPreferenceControllerISpec extends ITUtils {
   }
 
   "PUT /:regimeType/:regimeId/:id" when {
-
     "given I provide valid parameters" when {
-
       "a successful response from DES is returned" should {
-
         "should return NO_CONTENT (204)" in {
 
           AuthStub.authorisedIndividual()
           DESStub.updateContactPreferenceSuccess
 
-          val res = await(put(s"/${MTDVAT.id}/${VRN.value}/${CommonITConstants.vrn}")(digitalPreferenceJson))
+          val res = put(s"/${MTDVAT.id}/${VRN.value}/${CommonITConstants.vrn}")(digitalPreferenceJson)
 
           res should have(
             httpStatus(NO_CONTENT)
@@ -157,13 +143,12 @@ class ContactPreferenceControllerISpec extends ITUtils {
       }
 
       "an error response from DES is returned" should {
-
         "should return MIGRATION/PRECONDITION_FAILED (412)" in {
 
           AuthStub.authorisedIndividual()
           DESStub.updateContactPreferenceError
 
-          val res = await(put(s"/${MTDVAT.id}/${VRN.value}/${CommonITConstants.vrn}")(digitalPreferenceJson))
+          val res = put(s"/${MTDVAT.id}/${VRN.value}/${CommonITConstants.vrn}")(digitalPreferenceJson)
 
           res should have(
             httpStatus(Migration.status),

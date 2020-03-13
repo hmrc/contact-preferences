@@ -16,12 +16,12 @@
 
 package connectors
 
-import assets.RegimeTestConstants.regimeModel
 import assets.ContactPreferencesTestConstants.digitalPreferenceModel
+import assets.RegimeTestConstants.regimeModel
 import connectors.httpParsers.UpdateContactPreferenceHttpParser.{UnexpectedFailure, UpdateContactPreferenceResponse, UpdateContactPreferenceSuccess}
 import models.{ContactPreferenceModel, ErrorModel}
+import play.api.test.Helpers._
 import utils.{MockHttpClient, TestUtils}
-import play.api.http.Status._
 
 
 class GetContactPreferenceConnectorSpec extends MockHttpClient with TestUtils {

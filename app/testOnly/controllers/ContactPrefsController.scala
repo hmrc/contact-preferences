@@ -17,15 +17,17 @@
 package testOnly.controllers
 
 import javax.inject.Inject
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import repositories.{ContactPreferenceRepository, JourneyRepository}
-import uk.gov.hmrc.play.bootstrap.controller.BaseController
+import uk.gov.hmrc.play.bootstrap.controller.{BackendController, BaseController}
 
 import scala.concurrent.ExecutionContext
 
 
 class ContactPrefsController @Inject()(contactPreferenceRepository: ContactPreferenceRepository,
-                                       journeyRepository: JourneyRepository)(implicit ec: ExecutionContext) extends BaseController {
+                                       journeyRepository: JourneyRepository,
+                                       controllerComponents: ControllerComponents
+                                      )(implicit ec: ExecutionContext) extends BackendController(controllerComponents) {
 
   def dropAll(): Action[AnyContent] = Action.async { implicit req =>
     for {

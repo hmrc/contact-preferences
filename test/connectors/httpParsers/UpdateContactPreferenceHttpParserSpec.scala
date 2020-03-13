@@ -24,9 +24,7 @@ import utils.TestUtils
 class UpdateContactPreferenceHttpParserSpec extends TestUtils {
 
   "UpdateContactPreferenceHttpParser.UpdateContactPreferenceHttpReads" when {
-
     "given an NO_CONTENT (204)" should {
-
       "return a Right containing the correct contact preference moodel" in {
 
         val expectedResult = Right(UpdateContactPreferenceSuccess)
@@ -37,7 +35,6 @@ class UpdateContactPreferenceHttpParserSpec extends TestUtils {
     }
 
     "given an FORBIDDEN with message 'MIGRATION' response" should {
-
       "return a Left(Migration)" in {
 
         val expectedResult = Left(Migration)
@@ -48,7 +45,6 @@ class UpdateContactPreferenceHttpParserSpec extends TestUtils {
     }
 
     "given an SERVICE_UNAVAILABLE response" should {
-
       "return a Left(ErrorMessage)" in {
 
         val expectedResult = Left(DependentSystemUnavailable)
@@ -60,7 +56,6 @@ class UpdateContactPreferenceHttpParserSpec extends TestUtils {
 
 
     "given any other status" should {
-
       "return a Left(UnexpectedFailure)" in {
 
         val expectedResult = Left(UnexpectedFailure(

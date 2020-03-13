@@ -22,7 +22,9 @@ import connectors.httpParsers.GetContactPreferenceHttpParser.InvalidJson
 import connectors.httpParsers.UpdateContactPreferenceHttpParser.{UnexpectedFailure, UpdateContactPreferenceSuccess}
 import connectors.mocks.MockContactPreferenceConnector
 import utils.TestUtils
-import play.api.http.Status._
+import play.api.test.Helpers._
+
+import scala.concurrent.Future
 
 class ContactPreferenceServiceSpec extends MockContactPreferenceConnector with TestUtils {
 
@@ -34,7 +36,7 @@ class ContactPreferenceServiceSpec extends MockContactPreferenceConnector with T
 
       "return the correct Right(ContactPreferenceModel)" in {
 
-        mockGetContactPreference(regimeModel)(Right(digitalPreferenceModel))
+        mockGetContactPreference(regimeModel)(Future.successful(Right(digitalPreferenceModel)))
 
         val expectedResult = Right(digitalPreferenceModel)
         val actualResult = await(TestContactPreferenceService.getContactPreference(regimeModel))
@@ -47,7 +49,7 @@ class ContactPreferenceServiceSpec extends MockContactPreferenceConnector with T
 
       "return the correct Left(ErrorModel)" in {
 
-        mockGetContactPreference(regimeModel)(Left(InvalidJson))
+        mockGetContactPreference(regimeModel)(Future.successful(Left(InvalidJson)))
 
         val expectedResult = Left(InvalidJson)
         val actualResult = await(TestContactPreferenceService.getContactPreference(regimeModel))
@@ -63,7 +65,7 @@ class ContactPreferenceServiceSpec extends MockContactPreferenceConnector with T
 
       "return a UpdateContactPreferenceSuccess" in {
 
-        mockUpdateContactPreference(regimeModel, digitalPreferenceModel)(Right(UpdateContactPreferenceSuccess))
+        mockUpdateContactPreference(regimeModel, digitalPreferenceModel)(Future.successful(Right(UpdateContactPreferenceSuccess)))
 
         val expectedResult = Right(UpdateContactPreferenceSuccess)
         val actualResult = await(TestContactPreferenceService.updateContactPreference(regimeModel, digitalPreferenceModel))
@@ -76,7 +78,7 @@ class ContactPreferenceServiceSpec extends MockContactPreferenceConnector with T
 
       "return a ErrorResponse" in {
 
-        mockUpdateContactPreference(regimeModel, digitalPreferenceModel)(Left(UnexpectedFailure(INTERNAL_SERVER_ERROR, "Error")))
+        mockUpdateContactPreference(regimeModel, digitalPreferenceModel)(Future.successful(Left(UnexpectedFailure(INTERNAL_SERVER_ERROR, "Error"))))
 
         val expectedResult = Left(UnexpectedFailure(INTERNAL_SERVER_ERROR, "Error"))
         val actualResult = await(TestContactPreferenceService.updateContactPreference(regimeModel, digitalPreferenceModel))

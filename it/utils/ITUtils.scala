@@ -16,18 +16,18 @@
 
 package utils
 
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Matchers, WordSpecLike}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Writes
-import play.api.libs.ws.{WSClient, WSResponse}
+import play.api.libs.ws.{WSClient, WSRequest, WSResponse}
+import play.api.test.Helpers._
 import play.api.{Application, Environment, Mode}
-import play.api.inject.bind
 import services.UUIDService
-import uk.gov.hmrc.play.test.UnitSpec
-import mocks.MockUUIDService
+import utils.mocks.MockUUIDService
 
-trait ITUtils extends UnitSpec with GuiceOneServerPerSuite with WiremockHelper
+trait ITUtils extends WordSpecLike with Matchers with GuiceOneServerPerSuite with WiremockHelper
   with BeforeAndAfterAll with BeforeAndAfterEach with CustomMatchers {
   lazy val ws = app.injector.instanceOf[WSClient]
 
@@ -36,9 +36,9 @@ trait ITUtils extends UnitSpec with GuiceOneServerPerSuite with WiremockHelper
     .configure(config)
     .bindings(bind[UUIDService].to[MockUUIDService])
     .build
-  val mockHost = WiremockHelper.wiremockHost
-  val mockPort = WiremockHelper.wiremockPort.toString
-  val mockUrl = s"http://$mockHost:$mockPort"
+  val mockHost: String = WiremockHelper.wiremockHost
+  val mockPort: String = WiremockHelper.wiremockPort.toString
+  val mockUrl: String = s"http://$mockHost:$mockPort"
 
   def config: Map[String, String] = Map(
     "application.router" -> "testOnlyDoNotUseInAppConf.Routes",
@@ -71,7 +71,7 @@ trait ITUtils extends UnitSpec with GuiceOneServerPerSuite with WiremockHelper
   def post[T](uri: String)(body: T)(implicit writes: Writes[T]): WSResponse = {
     await(
       buildClient(uri)
-        .withHeaders(
+        .withHttpHeaders(
           "Content-Type" -> "application/json",
           "X-Session-ID" -> "123456-session"
         )
@@ -82,7 +82,7 @@ trait ITUtils extends UnitSpec with GuiceOneServerPerSuite with WiremockHelper
   def put[T](uri: String)(body: T)(implicit writes: Writes[T]): WSResponse = {
     await(
       buildClient(uri)
-        .withHeaders(
+        .withHttpHeaders(
           "Content-Type" -> "application/json",
           "X-Session-ID" -> "123456-session"
         )
@@ -90,7 +90,7 @@ trait ITUtils extends UnitSpec with GuiceOneServerPerSuite with WiremockHelper
     )
   }
 
-  def buildClient(path: String) = ws.url(s"http://localhost:$port/contact-preferences$path").withFollowRedirects(false)
+  def buildClient(path: String): WSRequest = ws.url(s"http://localhost:$port/contact-preferences$path").withFollowRedirects(false)
 
 }
 

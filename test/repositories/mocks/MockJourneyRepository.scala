@@ -20,7 +20,7 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import reactivemongo.api.commands.{UpdateWriteResult, Upserted, WriteError, WriteResult}
 import repositories.JourneyRepository
 import repositories.documents.JourneyDocument
@@ -38,7 +38,7 @@ trait MockJourneyRepository extends TestUtils with MockitoSugar with BeforeAndAf
 
   lazy val mockJourneyRepository: JourneyRepository = mock[JourneyRepository]
 
-  def setupMockFindJourneyById(response: Option[JourneyDocument]): OngoingStubbing[Future[Option[JourneyDocument]]] = {
+  def setupMockFindJourneyById(response: Future[Option[JourneyDocument]]): OngoingStubbing[Future[Option[JourneyDocument]]] = {
     when(mockJourneyRepository.findById(ArgumentMatchers.anyString(),ArgumentMatchers.any())(ArgumentMatchers.any()))
       .thenReturn(response)
   }
@@ -48,25 +48,14 @@ trait MockJourneyRepository extends TestUtils with MockitoSugar with BeforeAndAf
       .thenReturn(Future.failed(new Exception))
   }
 
-  def setupMockInsertJourney(data: JourneyDocument)(responseIsOk: Boolean): OngoingStubbing[Future[WriteResult]] = {
+  def setupMockInsertJourney(data: JourneyDocument)(response: Future[UpdateWriteResult]): OngoingStubbing[Future[WriteResult]] = {
     when(mockJourneyRepository.insert(ArgumentMatchers.eq(data))(ArgumentMatchers.any()))
-      .thenReturn(updateWriteResult(responseIsOk))
+      .thenReturn(response)
   }
 
   def setupMockFailedInsertJourney(data: JourneyDocument): OngoingStubbing[Future[WriteResult]] = {
     when(mockJourneyRepository.insert(ArgumentMatchers.eq(data))(ArgumentMatchers.any()))
       .thenReturn(Future.failed(new Exception))
   }
-
-  private def updateWriteResult(isOk: Boolean) = UpdateWriteResult(
-    ok = isOk,
-    n = 1,
-    nModified = 1,
-    upserted = Seq.empty[Upserted],
-    writeErrors = Seq(WriteError(1,1,"error")),
-    writeConcernError = None,
-    code = None,
-    errmsg = Some("error")
-  )
 
 }

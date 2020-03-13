@@ -23,16 +23,13 @@ import utils.TestUtils
 class ContactPreferencesDocumentSpec extends TestUtils {
 
   "ContactPreferencesDocument.reads" when {
-
     "given correct json values" should {
-
       "return the correct model" in {
         digitalPreferenceDocumentJson.as[ContactPreferenceDocument] shouldBe digitalPreferenceDocumentModel
       }
     }
 
     "given incorrect json values" should {
-
       "throw an exception" in {
         Json.obj().validate[ContactPreferenceDocument].isError shouldBe true
       }
@@ -40,7 +37,6 @@ class ContactPreferencesDocumentSpec extends TestUtils {
   }
 
   "ContactPreferencesDocument.writes" when {
-
     "return the correct json" in {
       Json.toJson(digitalPreferenceDocumentModel) shouldBe digitalPreferenceDocumentJson
     }

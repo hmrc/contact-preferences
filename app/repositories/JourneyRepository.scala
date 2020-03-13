@@ -26,7 +26,7 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class JourneyRepository @Inject()(mongo: ReactiveMongoComponent,
-                                  appConfig: AppConfig)(implicit ec: ExecutionContext)
-  extends MongoRepository[JourneyDocument](
+                                  appConfig: AppConfig
+                                 )(implicit ec: ExecutionContext) extends MongoRepository[JourneyDocument](
     mongo, collectionName = "journey", appConfig
   )(implicitly[OFormat[JourneyDocument]], ec, implicitly[Manifest[JourneyDocument]])

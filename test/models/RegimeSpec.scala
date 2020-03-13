@@ -26,16 +26,13 @@ class RegimeSpec extends TestUtils with JsonSugar {
   val invalidJson: JsString = JsString("foo")
 
   "Regime.apply" should {
-
     "when given a valid Regime" should {
-
       "for MTDVAT return MTDVAT case object" in {
         Regime(MTDVAT.id) shouldBe MTDVAT
       }
     }
 
     "when given an invalid Regime" should {
-
       "for foo an InvalidRegime" in {
         intercept[JsResultException](Regime("foo")) shouldBe jsonError(__, s"Invalid Regime: foo. Valid Regime set: (${MTDVAT.id})")
       }
@@ -43,9 +40,7 @@ class RegimeSpec extends TestUtils with JsonSugar {
   }
 
   "Regime.unapply" should {
-
     "when given a valid Regime" should {
-
       "for MTDVAT case object return MTDVAT " in {
         Regime.unapply(MTDVAT) shouldBe MTDVAT.id
       }
@@ -53,18 +48,14 @@ class RegimeSpec extends TestUtils with JsonSugar {
   }
 
   "Regime.read" should {
-
     "when given a valid JSON document" should {
-
       "when given an valid Regime" should {
-
         "for Digital return MTDVAT case object" in {
           mtdVatJson.as[Regime] shouldBe MTDVAT
         }
       }
 
       "when given an invalid Regime" should {
-
         "for invalidJson return InvalidRegime case object" in {
           intercept[JsResultException](invalidJson.as[Regime]) shouldBe jsonError(__, s"Invalid Regime: foo. Valid Regime set: (${MTDVAT.id})")
         }
@@ -72,7 +63,6 @@ class RegimeSpec extends TestUtils with JsonSugar {
     }
 
     "when given a invalid JSON document" should {
-
       "throw a JsResultException" in {
         val json = Json.obj("foo" -> "bar")
         json.validate[Regime].isError shouldBe true
@@ -81,9 +71,7 @@ class RegimeSpec extends TestUtils with JsonSugar {
   }
 
   "Regime.write" should {
-
     "when given an valid Regime" should {
-
       "for Digital return MTDVAT case object" in {
         Json.toJson(MTDVAT) shouldBe mtdVatJson
       }
@@ -91,18 +79,14 @@ class RegimeSpec extends TestUtils with JsonSugar {
   }
 
   "Regime.pathBinder" should {
-
     "for the .bind method" should {
-
       "when given a valid Regime" should {
-
         "for VRN return VRN case object" in {
-          Regime.pathBinder(PathBindable.bindableString).bind("regime","vat") shouldBe Right(MTDVAT)
+          Regime.pathBinder(PathBindable.bindableString).bind("regime", "vat") shouldBe Right(MTDVAT)
         }
       }
 
       "when given an invalid Regime" should {
-
         "for FOO return Left(err)" in {
           Regime.pathBinder(PathBindable.bindableString).bind("regime", "foo") shouldBe
             Left(s"Invalid Regime: foo. Valid Regime set: (${MTDVAT.id})")
@@ -111,7 +95,6 @@ class RegimeSpec extends TestUtils with JsonSugar {
     }
 
     "for the unbind method" should {
-
       "return the string value of the Regime" in {
         Regime.pathBinder(PathBindable.bindableString).unbind("regime", MTDVAT) shouldBe MTDVAT.id.toLowerCase
       }

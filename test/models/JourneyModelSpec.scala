@@ -23,23 +23,19 @@ import assets.JourneyTestConstants._
 class JourneyModelSpec extends TestUtils {
 
   "JourneyModel.reads" when {
-
     "given maximum json values" should {
-
       "return the correct model" in {
         journeyJsonMax.as[JourneyModel] shouldEqual journeyModelMax
       }
     }
 
     "given minimum json values" should {
-
       "return the correct model" in {
         journeyJsonMin.as[JourneyModel] shouldEqual journeyModelMin
       }
     }
 
     "given an invalid continueUrl" should {
-
       "return the correct model" in {
         intercept[IllegalArgumentException](journeyJsonInvalidContinueUrl.validate[JourneyModel]).getMessage shouldBe
           "requirement failed: 'invalid' is not a valid continue URL"
@@ -47,7 +43,6 @@ class JourneyModelSpec extends TestUtils {
     }
 
     "given incorrect json values" should {
-
       "throw an exception" in {
         Json.obj().validate[JourneyModel].isError shouldBe true
       }
@@ -55,16 +50,13 @@ class JourneyModelSpec extends TestUtils {
   }
 
   "JourneyModel.writes" when {
-
     "given maximum values in a model" should {
-
       "return the correct json" in {
          Json.toJson(journeyModelMax) shouldBe journeyJsonMax
       }
     }
 
     "given minimum values in a model" should {
-
       "return the correct json" in {
         Json.toJson(journeyModelMin) shouldBe journeyJsonMin
       }

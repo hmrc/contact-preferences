@@ -31,13 +31,13 @@ trait MockContactPreferenceConnector extends MockFactory {
 
   def mockGetContactPreference(regime: RegimeModel)(response: Future[GetContactPreferenceResponse]): Unit = {
     (connector.getContactPreference(_: RegimeModel)(_: HeaderCarrier, _: ExecutionContext))
-      .expects(regime,*,*)
+      .expects(regime, *, *)
       .returns(response)
   }
 
   def mockUpdateContactPreference(regime: RegimeModel, contactPreference: ContactPreferenceModel)(response: Future[PutContactPreferenceResponse]): Unit = {
     (connector.updateContactPreference(_: RegimeModel, _: ContactPreferenceModel)(_: HeaderCarrier, _: ExecutionContext))
-      .expects(regime, contactPreference,*,*)
+      .expects(regime, contactPreference, *, *)
       .returns(response)
   }
 }

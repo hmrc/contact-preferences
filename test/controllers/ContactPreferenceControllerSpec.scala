@@ -16,18 +16,17 @@
 
 package controllers
 
-import assets.ContactPreferencesTestConstants._
 import assets.BaseTestConstants._
+import assets.ContactPreferencesTestConstants._
 import assets.JourneyTestConstants._
 import assets.RegimeTestConstants._
 import connectors.httpParsers.GetContactPreferenceHttpParser.InvalidJson
-import connectors.httpParsers.UpdateContactPreferenceHttpParser.Migration
-import connectors.httpParsers.UpdateContactPreferenceHttpParser.UpdateContactPreferenceSuccess
+import connectors.httpParsers.UpdateContactPreferenceHttpParser.{Migration, UpdateContactPreferenceSuccess}
 import models.{ContactPreferenceModel, Digital, MTDVAT, VRN}
-import play.api.http.Status
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.test.FakeRequest
+import play.api.test.Helpers._
 import repositories.mocks.{MockContactPreferenceRepository, MockJourneyRepository}
 import services.mocks.{MockAuthService, MockContactPreferenceService, MockDateService, MockUUIDService}
 import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
@@ -43,7 +42,8 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
     journeyRepository = mockJourneyRepository,
     appConfig = appConfig,
     dateService = MockDateService,
-    authService = mockAuthService
+    authService = mockAuthService,
+    controllerComponents = stubControllerComponents()
   )
 
   "ContactPreferenceController.storeContactPreference" when {
@@ -53,15 +53,16 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
       lazy val fakePut = FakeRequest("PUT", "/")
         .withBody(digitalPreferenceJson)
         .withHeaders("Content-Type" -> "application/json")
+
       def result: Future[Result] = TestContactPreferenceController.storeContactPreference(MockUUIDService.generateUUID)(fakePut)
 
       "successfully updated contactPreference repository" should {
 
         "return an Ok" in {
           mockAuthenticated(EmptyPredicate)
-          setupMockFindJourneyById(Some(journeyDocumentMax))
-          setupMockUpdatePreference(digitalPreferenceDocumentModel, MockUUIDService.generateUUID)(true)
-          status(result) shouldBe Status.NO_CONTENT
+          setupMockFindJourneyById(Future.successful(Some(journeyDocumentMax)))
+          setupMockUpdatePreference(digitalPreferenceDocumentModel, MockUUIDService.generateUUID)(Future.successful(updateWriteResult(true)))
+          status(result) shouldBe NO_CONTENT
         }
       }
 
@@ -69,9 +70,9 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
 
         "return an InternalServerError" in {
           mockAuthenticated(EmptyPredicate)
-          setupMockFindJourneyById(Some(journeyDocumentMax))
-          setupMockUpdatePreference(digitalPreferenceDocumentModel, MockUUIDService.generateUUID)(false)
-          status(result) shouldBe Status.INTERNAL_SERVER_ERROR
+          setupMockFindJourneyById(Future.successful(Some(journeyDocumentMax)))
+          setupMockUpdatePreference(digitalPreferenceDocumentModel, MockUUIDService.generateUUID)(Future.successful(updateWriteResult(false)))
+          status(result) shouldBe INTERNAL_SERVER_ERROR
         }
       }
 
@@ -79,9 +80,9 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
 
         "return an InternalServerError" in {
           mockAuthenticated(EmptyPredicate)
-          setupMockFindJourneyById(Some(journeyDocumentMax))
+          setupMockFindJourneyById(Future.successful(Some(journeyDocumentMax)))
           setupMockFailedUpdatePreference(digitalPreferenceDocumentModel, MockUUIDService.generateUUID)
-          status(result) shouldBe Status.SERVICE_UNAVAILABLE
+          status(result) shouldBe SERVICE_UNAVAILABLE
         }
       }
     }
@@ -95,13 +96,13 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
 
       "return status Ok" in {
         mockAuthenticated(EmptyPredicate)
-        setupMockFindJourneyById(Some(journeyDocumentMax))
-        setupMockFindPreferenceById(Some(digitalPreferenceDocumentModel))
-        status(result) shouldBe Status.OK
+        setupMockFindJourneyById(Future.successful(Some(journeyDocumentMax)))
+        setupMockFindPreferenceById(Future.successful(Some(digitalPreferenceDocumentModel)))
+        status(result) shouldBe OK
       }
 
       "return the correct Json for the ContactPreferenceModel" in {
-        jsonBodyOf(await(result)) shouldBe Json.toJson(ContactPreferenceModel(digitalPreferenceDocumentModel.preference))
+        contentAsJson(result) shouldBe Json.toJson(ContactPreferenceModel(digitalPreferenceDocumentModel.preference))
       }
     }
 
@@ -109,9 +110,9 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
 
       "return NotFound" in {
         mockAuthenticated(EmptyPredicate)
-        setupMockFindJourneyById(Some(journeyDocumentMax))
+        setupMockFindJourneyById(Future.successful(Some(journeyDocumentMax)))
         setupMockFailedFindPreferenceById(None)
-        status(TestContactPreferenceController.findContactPreference(MockUUIDService.generateUUID)(fakeRequest)) shouldBe Status.SERVICE_UNAVAILABLE
+        status(TestContactPreferenceController.findContactPreference(MockUUIDService.generateUUID)(fakeRequest)) shouldBe SERVICE_UNAVAILABLE
       }
     }
 
@@ -119,9 +120,9 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
 
       "return NotFound" in {
         mockAuthenticated(EmptyPredicate)
-        setupMockFindJourneyById(Some(journeyDocumentMax))
-        setupMockFindPreferenceById(None)
-        status(TestContactPreferenceController.findContactPreference(MockUUIDService.generateUUID)(fakeRequest)) shouldBe Status.NOT_FOUND
+        setupMockFindJourneyById(Future.successful(Some(journeyDocumentMax)))
+        setupMockFindPreferenceById(Future.successful(None))
+        status(TestContactPreferenceController.findContactPreference(MockUUIDService.generateUUID)(fakeRequest)) shouldBe NOT_FOUND
       }
     }
   }
@@ -134,12 +135,12 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
 
       "return status Ok" in {
         mockAuthenticated(individual)
-        mockGetDesContactPreference(regimeModel)(Right(ContactPreferenceModel(Digital)))
-        status(result) shouldBe Status.OK
+        mockGetDesContactPreference(regimeModel)(Future.successful(Right(ContactPreferenceModel(Digital))))
+        status(result) shouldBe OK
       }
 
       "return the correct Json for the ContactPreferenceModel" in {
-        jsonBodyOf(await(result)) shouldBe Json.toJson(ContactPreferenceModel(digitalPreferenceDocumentModel.preference))
+        contentAsJson(result) shouldBe Json.toJson(ContactPreferenceModel(digitalPreferenceDocumentModel.preference))
       }
     }
 
@@ -147,7 +148,7 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
 
       "return NotFound" in {
         mockAuthenticated(individual)
-        mockGetDesContactPreference(regimeModel)(Left(InvalidJson))
+        mockGetDesContactPreference(regimeModel)(Future.successful(Left(InvalidJson)))
         status(
           TestContactPreferenceController.getDesContactPreference(MTDVAT, VRN, testVatNumber)(fakeRequest)
         ) shouldBe InvalidJson.status
@@ -169,8 +170,8 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
 
         "return status NoContent" in {
           mockAuthenticated(individual)
-          mockUpdateDesContactPreference(regimeModel, digitalPreferenceModel)(Right(UpdateContactPreferenceSuccess))
-          status(result) shouldBe Status.NO_CONTENT
+          mockUpdateDesContactPreference(regimeModel, digitalPreferenceModel)(Future.successful(Right(UpdateContactPreferenceSuccess)))
+          status(result) shouldBe NO_CONTENT
         }
       }
 
@@ -178,7 +179,7 @@ class ContactPreferenceControllerSpec extends MockContactPreferenceRepository
 
         "return the correct ErrorResponse" in {
           mockAuthenticated(individual)
-          mockUpdateDesContactPreference(regimeModel, digitalPreferenceModel)(Left(Migration))
+          mockUpdateDesContactPreference(regimeModel, digitalPreferenceModel)(Future.successful(Left(Migration)))
           status(result) shouldBe Migration.status
         }
       }

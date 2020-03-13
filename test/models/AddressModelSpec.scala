@@ -23,23 +23,19 @@ import utils.TestUtils
 class AddressModelSpec extends TestUtils {
 
   "AddressModel.reads" when {
-
     "given maximum json values" should {
-
       "return the correct model" in {
         addressJsonMax.as[AddressModel] shouldEqual addressModelMax
       }
     }
 
     "given minimum json values" should {
-
       "return the correct model" in {
         addressJsonMin.as[AddressModel] shouldEqual addressModelMin
       }
     }
 
     "given incorrect json values" should {
-
       "throw an exception" in {
         Json.obj().validate[AddressModel].isError shouldBe true
       }
@@ -47,16 +43,13 @@ class AddressModelSpec extends TestUtils {
   }
 
   "AddressModel.writes" when {
-
     "given maximum values in a model" should {
-
       "return the correct json" in {
-         Json.toJson(addressModelMax) shouldBe addressJsonMax
+        Json.toJson(addressModelMax) shouldBe addressJsonMax
       }
     }
 
     "given minimum values in a model" should {
-
       "return the correct json" in {
         Json.toJson(addressModelMin) shouldBe addressJsonMin
       }

@@ -23,6 +23,7 @@ import play.api.mvc.{RequestHeader, Result}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.bootstrap.config.HttpAuditEvent
 import uk.gov.hmrc.play.bootstrap.http.JsonErrorHandler
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -34,8 +35,10 @@ import scala.concurrent.Future
   */
 
 @Singleton
-class ErrorHandler @Inject()(configuration: Configuration, auditConnector: AuditConnector)
-  extends JsonErrorHandler(configuration, auditConnector) {
+class ErrorHandler @Inject()(configuration: Configuration,
+                             auditConnector: AuditConnector,
+                             httpAuditEvent: HttpAuditEvent
+                            ) extends JsonErrorHandler(auditConnector, httpAuditEvent,configuration) {
 
   override def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
 
@@ -43,13 +46,13 @@ class ErrorHandler @Inject()(configuration: Configuration, auditConnector: Audit
 
     statusCode match {
       case play.mvc.Http.Status.NOT_FOUND =>
-        auditConnector.sendEvent(dataEvent("ResourceNotFound", "Resource Endpoint Not Found", request))
+        auditConnector.sendEvent(httpAuditEvent.dataEvent("ResourceNotFound", "Resource Endpoint Not Found", request))
         Future.successful(NotFound(s"URI '${Some(request.path).get}' not found"))
       case play.mvc.Http.Status.BAD_REQUEST =>
-        auditConnector.sendEvent(dataEvent("ServerValidationError", "Request bad format exception", request))
+        auditConnector.sendEvent(httpAuditEvent.dataEvent("ServerValidationError", "Request bad format exception", request))
         Future.successful(BadRequest(message))
       case _ =>
-        auditConnector.sendEvent(dataEvent("ClientError", s"A client error occurred, status: $statusCode", request))
+        auditConnector.sendEvent(httpAuditEvent.dataEvent("ClientError", s"A client error occurred, status: $statusCode", request))
         Future.successful(Status(statusCode)(message))
     }
   }
